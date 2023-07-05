@@ -25,6 +25,7 @@ variables_with_descriptions = {
         "ia": "Internet Archive ID",
         "gb": "Google Books ID",
         "ht": "HathiTrust catalog ID",
+        "htt": "HathiTrust full text ID",
         "dl": "site to download scan from",
         "dlt": "site to download text from",
         "beg": "beginning of chapter text formatting",
@@ -32,10 +33,23 @@ variables_with_descriptions = {
         "per": "period at the end of chapter names",
         "gen": "genre",
         "com": "Commons category",
+        "aux": "auxiliary table of contents",
+        "pts": "chapters are subpages of parts",
         "progress": "QT progress flag",
     }
 
 statuses = [
+    "none",
+
+    # prep
+    "boilerplate_created",
+    "projectfiles_folders_created",
+    "proofreading_in_progress",
+    "ia_files_downloaded",
+    "hathi_files_downloaded",
+
+
+    # transcription
     "initial_cleanup_done",
     "page_numbers_placed",
     "hyphenation_inconsistencies_fixed",
@@ -56,14 +70,60 @@ statuses = [
     "subpage_wikidata_items_created",
     "subpages_disambiguated",
     "added_to_new_texts",
+    "archived",
     "done",
 ]
+
+def create_boilerplate():
+    boilerplate = """/conf//
+
+progress=boilerplate_created
+f=
+y=
+loc=
+pub=
+au=
+ty=
+gen=
+
+ia=
+ht=
+dl=
+dlt=
+
+beg=sc
+sec=rom
+
+//conf/
+
+/chform//
+<nowiki>
+{{ph|class=chapter num|/cpre/ /cnum/}}
+{{ph|class=chapter title|/cnam/|level=2}}
+</nowiki>
+//chform/
+
+/tocform//
+<nowiki>
+{{TOC row 1-1-1|{{fine|/cnum/}}|{{fine|/cnam/}}|{{fine|/pnum/}}}}
+</nowiki>
+//tocform/
+
+-cov
+
+/img/
+
+—cov"""
+    return boilerplate
 
 def get_conf_value_description(variable_name):
     return f"{variables_with_descriptions[variable_name]} variable"
 
 def get_regex_match(text, regex_pattern, regex_name, dotall=False, important=False):
     print(f"Searching for {regex_name} using {regex_pattern}...")
+    if text == None:
+        return None
+
     if dotall:
         matches = re.search(regex_pattern, text, re.DOTALL)
     else:
@@ -89,8 +149,11 @@ def get_conf_value(conf_text, variable_name):
     return get_regex_match(conf_text, variable_regex, variable_description)
 
 def find_conf_section(page_text):
-    conf_text = get_regex_match(page_text, r'/conf//(.*?)//conf/', "configuration text", dotall=True, important=True)
-    return conf_text
+    if not page_text:
+        return None
+    else:
+        conf_text = get_regex_match(page_text, r'/conf//(.*?)//conf/', "configuration text", dotall=True, important=True)
+        return conf_text
 
 def update_work_data(work_data, variable_name, variable_value):
     variable_description = variables_with_descriptions[variable_name]

@@ -166,4 +166,6 @@ def get_hathitrust_images(full_text_id):
         print_in_red(f"Failed to download the image file for page #{page_num}!")
 
     print_in_green(f"All images downloaded from Hathi scan {full_text_id} successfully!")
+
+    return folder_path
     # return img_tags

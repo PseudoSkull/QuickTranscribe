@@ -5,7 +5,7 @@ from dateutil import parser as date_parser
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import edit_summary
 from pywikibot.page import ItemPage
-from pywikibot import WbTime
+from pywikibot import WbTime, SiteLink
 from hathi import get_hathitrust_id_from_commons_page, get_hathitrust_catalog_id
 from handle_wikisource_conf import update_conf_value
 from edit_mw import save_page
@@ -252,11 +252,15 @@ def add_wikisource_page_to_item(item, wikisource_page_title):
 
     # # Retrieve the Wikidata item
     item = item_page(site, item)
-    transcription_data = {
-        'site': 'enwikisource',
-        'title': wikisource_page_title,
-        'badge': 'Q20748092',
-    }
+
+    proofread_badge = ['Q20748092',]
+
+    transcription_data = SiteLink(
+        title=wikisource_page_title,
+        site='enwikisource',
+        badges=proofread_badge,
+    )
+    
     item.setSitelink(sitelink=transcription_data, summary=edit_summary('Adding enwikisource sitelink...'))
     print_in_green(f"Added enwikisource sitelink to {item}.")
 

@@ -48,6 +48,7 @@ def filter_needed_files(links):
         '.pdf',
         '.djvu',
         '_jp2.zip',
+        '_tif.zip',
     ]
 
     needed_files = []
@@ -114,7 +115,7 @@ def get_IA_files(IA_id):
 
 def unzip_jp2_folder(IA_files):
     for file in IA_files:
-        if file.endswith('_jp2.zip'):
+        if file.endswith('_jp2.zip') or file.endswith("_tif.zip"):
             print_in_green(f"Attempting to unzip {file}...")
             
             # Specify the path of the "projectfiles" folder
@@ -135,7 +136,7 @@ def unzip_jp2_folder(IA_files):
             print_in_green("Unzipped successfully.")
             return
     
-    print_in_red("No jp2.zip file found.")
+    print_in_red("No accepted .zip file found.")
 
 
 # get_IA_files("masterfrisky00hawk")

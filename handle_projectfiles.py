@@ -5,6 +5,7 @@ from debug import print_in_red, print_in_green, print_in_yellow, process_break
 import os
 import shutil
 import json
+import img2pdf
 
 
 def rename_and_copy_text_file():
@@ -87,3 +88,51 @@ def get_images_to_upload():
     image_files = os.listdir(folder_path)
     image_files.sort()
     return image_files
+
+def create_folder(folder_path_to_create):
+    if not os.path.exists(folder_path_to_create):
+        os.mkdir(folder_path_to_create)
+        print_in_green(f"Folder {folder_path_to_create} created.")
+    else:
+        print_in_yellow(f"Folder {folder_path_to_create} already exists.")
+
+def create_projectfiles_folders():
+    print("Creating projectfiles folder structure...")
+    folder_path = "projectfiles"
+    folder_names = ["files_to_process", "processed_files", "json_data"]
+
+    # create parent folder
+    create_folder(folder_path)
+
+    # if not os.path.exists(folder_path_to_create):
+    for folder_name in folder_names:
+        subfolder = os.path.join(folder_path, folder_name)
+        create_folder(subfolder)
+    print("Folder structure created.")
+
+# def assemble_pdf(folder_path):
+    # print(f"Assembling PDF from images in {folder_path}...")
+    # os.chdir(folder_path)
+    # os.system("convert *.jpg ../hathi.pdf")
+    # print_in_green("PDF assembled!")
+
+def get_digital_value(string):
+    # Custom function to extract the digital value from a string
+    return int(''.join(filter(str.isdigit, string)))
+
+def sort_by_digital_values(list_to_sort):
+    sorted_list = sorted(list_to_sort, key=get_digital_value)
+    return sorted_list
+
+def assemble_pdf(folder_path):
+    print(f"Assembling PDF from images in {folder_path}...")
+    output_path = "projectfiles/hathi.pdf"
+    with open(output_path, "wb") as f:
+        images = [os.path.join(folder_path, img) for img in os.listdir(folder_path) if img.endswith(".jpg")]
+
+        # sort by digital values, because otherwise it comes out of order. .sort() function sorts by ASCII values, not digital values
+        images = sort_by_digital_values(images)
+
+        f.write(img2pdf.convert(images))
+    
+    print_in_green("PDF assembled!")

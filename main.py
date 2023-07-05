@@ -407,25 +407,14 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
 
-# add_wikisource_page_to_item(version_item, mainspace_work_title)
+transcription_text = transcription_page.text
+expected_progress = "archived"
+at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
+if not at_expected_progress:
+    # archive transcription
+    transcription_text = "<syntaxhighlight lang=\"mw\">\n" + transcription_text + "\n</syntaxhighlight>\n[[Category:Finished QuickTranscribe projects]]"
+    save_page(transcription_page, site, transcription_text, "Archiving QT transcription...")
 
-# set pro to "index page created"
-
-# cover_filename = get_cover_image(page_data, filename, index_pagelist)
-
-
-
-# set pro to "pages created"
-
-# transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title)
-
-# exit()
-
-# change_transclusion_progress(index_page_title)
-
-# set pro to "pages transcluded"
-
-# add_wikisource_page_to_item(version_item, mainspace_work_title)
-
-# remember to write a script that pushes up the code!!!
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that transcription has been archived...")
