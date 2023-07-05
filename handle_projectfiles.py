@@ -31,16 +31,27 @@ def rename_and_copy_text_file():
     print_in_red("No .txt file found in the folder.")
     return
 
-def find_scan_file_to_upload():
+def find_scan_file_to_upload(scan_source):
     print("Looking for the correct scan file in the folder to upload...")
     folder_path = "projectfiles"
     for file in os.listdir(folder_path):
-        if file.endswith(".djvu"):
+        if scan_source == "ia" and file.endswith(".djvu"):
+                scan_file_path = os.path.join(folder_path, file)
+                print_in_green(f"DJVU file {file} was found!")
+                return scan_file_path
+        elif "hathi.pdf" in file and scan_source == "ht":
             scan_file_path = os.path.join(folder_path, file)
-            print_in_green(f"File {file} was found!")
+            print_in_green(f"Hathi PDF file {file} was found!")
             return scan_file_path
+    
+    for file in os.listdir(folder_path): # because DJVU is superior, we do it again
+        if scan_source == "ia" and file.endswith(".pdf") and "_bw" not in file:
+            scan_file_path = os.path.join(folder_path, file)
+            print_in_green(f"PDF file {file} was found!")
+            return scan_file_path
+    
     print_in_red("No scan file found in the folder.")
-    return
+    return None
 
 def write_to_json_file(json_filename, data):
     folder_path = "projectfiles/json_data"

@@ -146,18 +146,18 @@ def create_commons_category(title, category_namespace_prefix, author_item, work_
 [[{commons_category}]]"""
 
 
-def generate_source_template(scan_source, IA_id, hathitrust_id):
+def generate_source_template(scan_source, IA_id, hathitrust_full_text_id):
     if scan_source == "ia":
         return f"{{{{Internet Archive link|{IA_id}}}}}"
-    elif scan_source == "hathi":
-        return f"{{{{HathiTrust link|{hathitrust_id}}}}}"
+    elif scan_source == "ht":
+        return f"{{{{HathiTrust link|{hathitrust_full_text_id}}}}}"
 
-def generate_scan_filename(title, year):
-    extension = "djvu"
+def generate_scan_filename(title, year, scan_file_path):
+    extension = scan_file_path.split(".")[-1]
     scan_filename = f"{title} ({year}).{extension}"
     return scan_filename
 
-def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_id):
+def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id):
     source_template = generate_source_template(scan_source, IA_id, hathitrust_id)
     copyright_template = f"{{{{PD-US-expired}}}}"
 
@@ -177,8 +177,8 @@ def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, 
 
 def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title):
     print("Generating scan file data...")
-    scan_file_path = find_scan_file_to_upload()
-    scan_filename = generate_scan_filename(title, year)
+    scan_file_path = find_scan_file_to_upload(scan_source)
+    scan_filename = generate_scan_filename(title, year, scan_file_path)
     scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_id)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
@@ -256,6 +256,7 @@ def generate_image_data(page_data, work_title, year):
     print("Generating image data from page data...")
     image_data = []
     seq_num = 0
+    img_num = 0
     for page in page_data:
         image_tag = "/img/"
         content = page["content"]
@@ -272,6 +273,7 @@ def generate_image_data(page_data, work_title, year):
                     if len(line) > expected_image_tag_length:
                         img_suffix = line[expected_image_tag_length:]
                         settings, caption = img_suffix.split("/")
+                    # img_num += 1
                     image_type = determine_image_type(marker, settings)
                     if image_type == "sequential":
                         seq_num += 1
