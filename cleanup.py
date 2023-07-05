@@ -8,6 +8,13 @@
 " \n" -> "\n"
 
 
+# Look for " f " or " H ", things like that
+# Look for sentences not ending in periods
+# Look for obvious words starting a page, that should be hyphenated beforehand. Such as "ing", "ed".
+# Look for symbols that should really never be in the text, such as "►" or "■"
+# list instances of " 1 "
+
+
 
 
 
@@ -38,6 +45,8 @@ def initial_text_cleanup(text):
     text = text.replace("<br>", "<br />")
     text = re.sub(r"\n\n-\n\nn\n\n", r"/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)
+    text = re.sub(r"(.)\n/n/\n([- —])", r"\1\n/n/\n\n\2", text)
+    text = re.sub(r"(.)\n/pbr/\n-", r"\1\n/n/\n\n\2", text)
     text = re.sub(r"(.)—\n\n-", r"\1{{peh|—}}\n\n-", text)
     text = re.sub(r"(.)\n\n-\n\n—(.)", r"\1{{peh|}}\n\n-\n\n—\2", text) #check back up on this one later
     text = re.sub(r"\n ", r"\n", text)
@@ -285,6 +294,59 @@ def place_page_numbers(text):
     print_in_blue(f"Numbered page count: {count}")
     return "\n\n".join(new_text_to_parse)
 
+
+def find_paragraphs_without_ending_punctuation(text):
+    print("Finding paragraphs without ending punctuation...")
+    paragraphs = text.split("\n\n")
+    paragraphs_without_ending_punctuation = []
+    for paragraph_num, paragraph in enumerate(paragraphs):
+        try:
+            next_paragraph = paragraphs[paragraph_num+1]
+        except IndexError:
+            next_paragraph = ""
+
+        if len(paragraph) > 4 and "/po/" not in paragraph and "\n:" not in paragraph and "=" not in paragraph and not next_paragraph.startswith("-") and not next_paragraph.startswith("—"):
+            last_letter = paragraph[-1]
+            if last_letter.isalpha():
+                paragraphs_without_ending_punctuation.append(paragraph)
+    
+    if len(paragraphs_without_ending_punctuation) == 0:
+        print_in_green("No paragraphs found missing ending punctuation.")
+    else:
+        print_in_yellow("Paragraphs found missing ending punctuation:")
+        for paragraph_num, paragraph in enumerate(paragraphs_without_ending_punctuation):
+            print_in_yellow(f"{paragraph_num}: {paragraph}")
+
+    return paragraphs_without_ending_punctuation
+
+def find_irregular_single_symbols(text):
+    print("Finding irregular single symbols...")
+    acceptable_single_symbols = [
+        "a",
+        "A",
+        "I",
+        "O",
+        "à",
+        ".",
+    ]
+
+    single_symbols_with_spaces = re.findall(r" (.) ", text)
+
+    single_symbols_with_spaces = list(set(single_symbols_with_spaces))
+
+    bad_symbols_with_spaces = []
+
+    for letter in single_symbols_with_spaces:
+        if letter not in acceptable_single_symbols:
+            bad_symbols_with_spaces.append(letter)
+    
+    if len(bad_symbols_with_spaces) == 0:
+        print_in_green("No bad individual spaced symbols found.")
+    else:
+        print_in_yellow("Bad individual spaced symbols found:")
+        print_in_yellow(bad_symbols_with_spaces)
+    
+    return bad_symbols_with_spaces
 
 # checking total pages against the Commons scan file
 # filename = 'Jalna.pdf'

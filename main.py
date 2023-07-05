@@ -17,7 +17,7 @@ from handle_commons import create_commons_category, upload_scan_file, generate_i
 from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols
 
 
 chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
@@ -77,8 +77,12 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     transcription_text = initial_text_cleanup(transcription_text)
-    transcription_text, work_data = update_QT_progress(transcription_text, expected_progress, work_data)
     save_page(transcription_page, site, transcription_text, "Performing initial text cleanup...")
+
+    process_break()
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that initial cleanup has been done...")
 
 
 
@@ -88,9 +92,13 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     transcription_text = place_page_numbers(transcription_text)
-    transcription_text, work_data = update_QT_progress(transcription_text, expected_progress, work_data)
     save_page(transcription_page, site, transcription_text, "Placing page numbers...")
+
     process_break()
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that page numbers have been placed...")
+    
 
 
 
@@ -102,7 +110,7 @@ if not at_expected_progress:
     find_hyphenation_inconsistencies(transcription_text)
     process_break()
     transcription_text = transcription_page.text
-    transcription_text, work_data = update_QT_progress(transcription_text, expected_progress, work_data)
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that hyphenation inconsistencies have been fixed...")
 
 
@@ -114,7 +122,11 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 if not at_expected_progress:
     find_probable_scannos(transcription_text)
     process_break()
-    transcription_text, work_data = update_QT_progress(transcription_text, expected_progress, work_data)
+    find_paragraphs_without_ending_punctuation(transcription_text)
+    process_break()
+    find_irregular_single_symbols(transcription_text)
+    process_break()
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that detected scannos have been fixed...")
 
 

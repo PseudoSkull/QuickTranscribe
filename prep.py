@@ -56,6 +56,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 if not at_expected_progress:
     IA_files = get_IA_files(IA_id)
     unzip_jp2_folder(IA_files)
+    rename_and_copy_text_file()
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that IA files have been downloaded...")
@@ -78,9 +79,9 @@ if not at_expected_progress:
     print_in_blue("NOW GO TO THE IA TEXT FILE AND TAKE OUT THE FRONT MATTER OCR!!!")
 
     exit()
-exit()
 
-rename_and_copy_text_file()
+
+# exit()
 
 ocr_file_path = "projectfiles/text_changeable.txt"
 

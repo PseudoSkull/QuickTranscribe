@@ -11,6 +11,14 @@ from handle_projectfiles import write_to_json_file, get_json_data
 from handle_wikisource_conf import get_regex_match
 from handle_commons import get_image_filename
 
+
+# Regex detect "[a-z] I [A-Z]" -> "\1! \2"
+# handle /d/ across pages
+# handle /pbr/ forced page break
+# handle /r/2/-/sc// hyphenation to break up
+## IDEA: change /-/ to <spl> tags
+
+
 # user_transcription_prefix = "User:PseudoSkull/P/"
 # mainspace_work_title = "Jalna (1927)"
 # # work_data["mainspace work title"] = mainspace_work_title
