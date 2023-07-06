@@ -40,6 +40,10 @@ def item_page(repo, value):
 def add_property(repo, item, property, value, descriptor, transcription_page_title=None):
     print(f"Adding {descriptor} claim to item {item}...")
     
+    if not value or str(value) == "[[wikidata:-1]]":
+        print_in_yellow(f"Value not found for {descriptor}. No action taken.")
+        return
+    
     if type(item) == str:
         item = pywikibot.ItemPage(repo, item)
 
@@ -299,9 +303,8 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
 
     add_label(item, title)
 
-    
+
     if variable_name:
-        item_id = extract_id_from_item_page(item)
         wikisource_site = pywikibot.Site('en', 'wikisource')
         transcription_page = pywikibot.Page(wikisource_site, transcription_page_title)
         transcription_text = transcription_page.text
@@ -309,8 +312,9 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
         save_page(transcription_page, site, transcription_text, f"Noting that the Wikidata item for {variable_name} has been created...")
         return [item, repo, item_id]
 
+    item_id = existing_item
 
-    return [item, repo]
+    return [item, repo, item_id]
 
 # Hey, looking forward to meeting you tomorrow! :D Let me know if anything comes up.
     
@@ -340,7 +344,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, hathitrust_full_text_id, IA_id, transcription_page_title, GB_id, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -356,15 +360,10 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P123', item_page(repo, publisher), 'publisher', transcription_page_title)
     add_property(repo, item, 'P291', item_page(repo, location), 'location', transcription_page_title)
-
-    if hathitrust_id:
-        add_property(repo, item, 'P1844', hathitrust_id, 'HathiTrust ID', transcription_page_title)
-
-    if IA_id:
-        add_property(repo, item, 'P724', IA_id, 'Internet Archive ID', transcription_page_title)
-
-    if GB_id:
-        add_property(repo, item, 'P675', GB_id, 'Google Books ID', transcription_page_title)
+    
+    add_property(repo, item, 'P1844', hathitrust_id, 'HathiTrust ID', transcription_page_title)
+    add_property(repo, item, 'P724', IA_id, 'Internet Archive ID', transcription_page_title)
+    add_property(repo, item, 'P675', GB_id, 'Google Books ID', transcription_page_title)
 
     if filename:
         add_scan_file_to_version_item(repo, item, filename, transcription_page_title)

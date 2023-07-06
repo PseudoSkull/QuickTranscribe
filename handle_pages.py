@@ -54,6 +54,7 @@ def get_page_data(transcription_text):
     print("Retrieving page data...")
     page_data = []
     content = []
+    content_as_string = ""
     page_num = 0
     read_page = False
     data_item = {}
@@ -69,16 +70,16 @@ def get_page_data(transcription_text):
             # read_page = False
             # print(marker)
             if read_page: # i.e. if it's not the first page we're talking about
-                content = "\n\n".join(content)
-                if content == "/ign/":
+                content_as_string = "\n\n".join(content)
+                if content_as_string == "/ign/":
                     page_quality = "i"
-                if "/toc/" in content or 'class="toc-block"' in content:
+                if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string:
                     page_type = "toc"
-                header, footer, content = get_header_and_footer(content)
+                header, footer, content_as_string = get_header_and_footer(content_as_string)
 
                 # if len(content) < 100:
                 #     print(f"Marker is {marker} and page_num is {page_num} and content is {content}")
-                add_data_item(page_data, page_num, header, footer, content, page_quality, marker, page_type)
+                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
                 data_item = {}
                 read_page = False
             page_num += 1
@@ -87,8 +88,8 @@ def get_page_data(transcription_text):
                 marker = line_suffix
                 read_page = False
                 page_quality = "0"
-                content = ""
-                add_data_item(page_data, page_num, header, footer, content, page_quality, marker, page_type)
+                content_as_string = ""
+                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
                 data_item = {}
                 continue
             elif line_prefix == "-":

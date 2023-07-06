@@ -108,7 +108,7 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
     country_name = add_country_prefix(country_name)
 
     author_category = linkify(get_commons_category_from_wikidata(author_item))
-    type_category = generate_type_category(category_namespace_prefix, work_type_name, original_year, country_name)
+    type_category = generate_type_category(category_namespace_prefix, work_type_name, country_name)
     year_category = generate_year_category(category_namespace_prefix, original_year, country_name)
 
     categories = [author_category, type_category, year_category]
@@ -158,7 +158,7 @@ def generate_scan_filename(title, year, scan_file_path):
     return scan_filename
 
 def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id):
-    source_template = generate_source_template(scan_source, IA_id, hathitrust_id)
+    source_template = generate_source_template(scan_source, IA_id, hathitrust_full_text_id)
     copyright_template = f"{{{{PD-US-expired}}}}"
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
@@ -175,11 +175,11 @@ def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, 
     return commons_file_text
 
 
-def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title):
+def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title):
     print("Generating scan file data...")
     scan_file_path = find_scan_file_to_upload(scan_source)
     scan_filename = generate_scan_filename(title, year, scan_file_path)
-    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_id)
+    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 
@@ -257,6 +257,7 @@ def generate_image_data(page_data, work_title, year):
     image_data = []
     seq_num = 0
     img_num = 0
+    image_files_folder = "projectfiles/processed_files"
     for page in page_data:
         image_tag = "/img/"
         content = page["content"]
@@ -277,8 +278,10 @@ def generate_image_data(page_data, work_title, year):
                     image_type = determine_image_type(marker, settings)
                     if image_type == "sequential":
                         seq_num += 1
+                    img_num += 1
                     image_title = generate_image_title(image_type, seq_num, work_title, year)
-                    extension = "png" # for now!!!!
+                    image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
+                    # extension = "png" # for now!!!!
 
 
                     image["seq_num"] = seq_num
@@ -287,6 +290,7 @@ def generate_image_data(page_data, work_title, year):
                     image["title"] = image_title
                     image["caption"] = caption
                     image["extension"] = extension
+                    image["path"] = image_path
                     # for now. Will change when in future I have different image sizes and alignments
                     image["size"] = 300
                     image["alignment"] = "center"
@@ -408,14 +412,34 @@ def generate_image_text(scan_filename, author_item, author, transcription_page_t
 
     return commons_file_text
 
+def get_file_path_and_extension(path, expected_filename):
+    accepted_extensions = [
+        "jpg",
+        "jpeg",
+        "png",
+        "svg",
+        "pdf",
+        "webm",
+        "ogv",
+    ]
+
+    # image_name = "1"
+
+    for extension in accepted_extensions:
+        image_path = os.path.join(path, expected_filename + "." + extension)
+        if os.path.isfile(image_path):
+            return image_path, extension
+
 def upload_images_to_commons(image_data, scan_filename, author_item, author, transcription_page_title, work_title, year, pub_date, country_name, main_commons_category):
     print("Uploading work images to Wikimedia Commons...")
     image_folder_path = "projectfiles/processed_files"
     for image_num, image in enumerate(image_data):
         image_num += 1
+        
         extension = image["extension"]
         page_num = image["page_num"]
-        image_file_path = f"{image_folder_path}/{image_num}.{extension}"
+        image_file_path = image["path"]
+        # image_file_path = f"{image_folder_path}/{image_num}.{extension}"
         image_filename = get_image_filename(image)
         print(f"Uploading image {image_num} to Wikimedia Commons as \"{image_filename}\", from \"{image_file_path}\"...")
         image_caption = image["caption"]

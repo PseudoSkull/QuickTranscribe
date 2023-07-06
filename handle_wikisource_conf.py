@@ -28,7 +28,7 @@ variables_with_descriptions = {
         "htt": "HathiTrust full text ID",
         "dl": "site to download scan from",
         "dlt": "site to download text from",
-        "beg": "beginning of chapter text formatting",
+        "beg": "chapter beginning formatting",
         "sec": "section type",
         "per": "period at the end of chapter names",
         "gen": "genre",

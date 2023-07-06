@@ -39,6 +39,7 @@ basic_elements = {
     "d": "dhr",
     "n": "nop",
     "peh": "peh",
+    "-": "/<spl>/", # for handling split between tags
 }
 
 block_elements = {
@@ -142,6 +143,153 @@ def format_form_tag(row, replacements):
         tag = get_plain_tag(tag)
         row = row.replace(tag, replacement)
     return row
+
+
+
+
+
+
+
+
+
+
+
+
+###################### headers/footers ######################
+
+def add_to_header(start_template, header):
+    if header:
+        return header + start_template + "\n"
+    else:
+        return start_template
+
+def add_to_footer(end_template, footer):
+    if footer:
+        return end_template + "\n" + footer
+    else:
+        return end_template
+
+def handle_formatting_continuations(page, tag, formatting_continuations, start_template, end_template, split_list=None):
+    content = page["content"]
+    header = page["header"]
+    footer = page["footer"]
+    end_tag = get_end_tag(tag)
+    while 1:
+        if tag in formatting_continuations:
+            print(f"Formatting continuation of {tag} in progress...")
+            continuation_index = formatting_continuations[tag]
+            
+            # handle headers/footers
+
+            if continuation_index == 0:
+                footer = add_to_footer(end_template, footer)
+                formatting_continuations[tag] += 1
+            else:
+                header = add_to_header(start_template, header)
+                if end_tag not in content:
+                    footer = add_to_footer(end_template, footer)
+                    formatting_continuations[tag] += 1
+                else:
+                    print(f"Formatting continuation of {tag} complete.")
+                    del formatting_continuations[tag]
+
+            # handle content
+            
+            if split_list:
+                content = split_list[continuation_index]
+            
+            break
+        else:
+            print(f"Formatting of {tag} continues across multiple pages. Handling...")
+            if tag in content:
+                formatting_continuations[tag] = 0
+
+    page["content"] = content
+    page["header"] = header
+    page["footer"] = footer
+
+    return formatting_continuations, page
+
+def handle_inline_continuations(content, page, page_enum, page_data, tag, continuation_prefix, continuation_param):
+    print(f"Handling inline continuation (tag: {tag}, prefix: {continuation_prefix}, param: {continuation_param})")
+
+
+    start_tag = get_noparams_start_tag(tag)
+    end_tag = get_end_tag(tag)
+
+    if start_tag not in content or end_tag not in content:
+        template_start = f"{{{{{continuation_prefix}"
+        page_num = page["page_num"]
+        marker = page["marker"]
+        # marker = int(marker)
+        page_num_zero_indexed = page_num - 1
+        next_page = page_data[page_enum+1]
+        next_page_content = next_page["content"]
+        next_page_marker = next_page["marker"]
+        previous_page = page_data[page_num_zero_indexed-1]
+        previous_page_content = previous_page["content"]
+        crosspage_start_pattern = rf"/{tag}//(.*?)$"
+        crosspage_end_pattern = rf"^(.*?)/"
+
+        if end_tag not in content: # CHANGE TO IF NOT CLOSED
+            crosspage_start = re.search(crosspage_start_pattern, content).group(1)
+            print(content)
+            print(crosspage_start)
+            print(f"Page enum: {page_enum}, Page num: {page_num_zero_indexed}, Marker: {marker}")
+            print(marker)
+            print("----")
+            print(next_page_marker)
+            print(next_page_content)
+            crosspage_end = re.search(crosspage_end_pattern, next_page_content).group(1)
+        elif start_tag not in content:
+            crosspage_start = re.search(crosspage_start_pattern, previous_page_content).group(1)
+            crosspage_end = re.search(crosspage_end_pattern, content).group(1)
+        
+        full_phrase = f"{crosspage_start} {crosspage_end}"
+        template_end = f"|{continuation_param}={full_phrase}|pre={crosspage_start}|post={crosspage_end}}}}}"
+        continuation_start_template = template_start + "s" + template_end
+        continuation_end_template = template_start + "e" + template_end
+
+        content = content.replace(crosspage_start_pattern, continuation_start_template)
+        content = content.replace(crosspage_end_pattern, continuation_end_template)
+
+    
+
+    return page
+
+
+
+
+
+
+
+
+################### transclusion functions ###################
+
+
+
+def handle_forced_page_breaks(page):
+    content = page["content"]
+    page_break_tag = get_plain_tag("pbr")
+
+    if string_not_in_content(content, page_break_tag, "Handling forced page break"):
+        return page
+
+    content = content.replace(f"\n{page_break_tag}", "")
+    page["type"] = "page_break"
+    
+    page["content"] = content
+    return page
+
+
+
+
+
+
+
+
+
+
 
 ################ chapter/TOC functions ####################
 
@@ -272,59 +420,6 @@ def format_chapter_beginning_to_smallcaps(page):
 
     return page
 
-
-def add_to_header(start_template, header):
-    if header:
-        return header + start_template + "\n"
-    else:
-        return start_template
-
-def add_to_footer(end_template, footer):
-    if footer:
-        return end_template + "\n" + footer
-    else:
-        return end_template
-
-def handle_formatting_continuations(page, tag, formatting_continuations, start_template, end_template, split_list=None):
-    content = page["content"]
-    header = page["header"]
-    footer = page["footer"]
-    end_tag = get_end_tag(tag)
-    while 1:
-        if tag in formatting_continuations:
-            print(f"Formatting continuation of {tag} in progress...")
-            continuation_index = formatting_continuations[tag]
-            
-            # handle headers/footers
-
-            if continuation_index == 0:
-                footer = add_to_footer(end_template, footer)
-                formatting_continuations[tag] += 1
-            else:
-                header = add_to_header(start_template, header)
-                if end_tag not in content:
-                    footer = add_to_footer(end_template, footer)
-                    formatting_continuations[tag] += 1
-                else:
-                    print(f"Formatting continuation of {tag} complete.")
-                    del formatting_continuations[tag]
-
-            # handle content
-            
-            if split_list:
-                content = split_list[continuation_index]
-            
-            break
-        else:
-            print(f"Formatting of {tag} continues across multiple pages. Handling...")
-            if tag in content:
-                formatting_continuations[tag] = 0
-
-    page["content"] = content
-    page["header"] = header
-    page["footer"] = footer
-
-    return formatting_continuations, page
 
 
 """
@@ -495,7 +590,7 @@ def add_half_to_transcription(page, title):
 def convert_complex_dhr(page):
     content = page["content"]
 
-    if string_not_in_content(content, "/d/", "Adding dhrs to transcription"):
+    if string_not_in_content(content, "/d/2/", "Adding dhrs to transcription"): #fornow
         return page
 
     content = re.sub(r"\/d\/([0-9]+)\/", rf"{{{{dhr|\1}}}}", content) # replace /d/2/ with {{dhr|2}} for example
@@ -516,8 +611,54 @@ def convert_author_links(page):
 
     return page
 
+def convert_smallcaps(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/sc/", "Converting /sc/ to smallcaps in transcription"):
+        return page
+
+    content = re.sub(r"\/sc\//(.+?)\//sc\/", r"{{sc|\1}}", content)
+
+    page["content"] = content
+
+    return page
+
+def convert_right(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/ri/", "Converting /ri/ to right-aligned text in transcription"):
+        return page
+
+    content = re.sub(r"\/ri\/([0-9]+?)\/(.+?)\//ri\/", r"{{right|offset=\1em|\2}}", content)
+    content = re.sub(r"\/ri\//(.+?)\//ri\/", r"{{right|\1}}", content)
+
+    page["content"] = content
+
+    return page
 
 
+
+
+
+def convert_wikilinks(page, page_data, page_enum):
+    content = page["content"]
+
+    if string_not_in_content(content, "/li/", "Converting /li/ to wikilinks in transcription"):
+        return page
+    
+
+    # {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility}}
+    continuation_prefix = "lp"
+    continuation_param = "link"
+
+    content = handle_inline_continuations(content, page, page_enum, page_data, "li", continuation_prefix, continuation_param)
+
+
+    content = re.sub(r"\/li\//(.+?)\//li\/", r"[[\1]]", content)
+
+    page["content"] = content
+
+    return page
 
 
 ########################## block elements ##########################
@@ -672,13 +813,13 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
     chapter_num = 0
     formatting_continuations = {} # dictionary because of TOC needing split indices
-    for page in page_data:
+    for page_enum, page in enumerate(page_data):
         # content = page["content"]
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")
@@ -689,13 +830,22 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = add_space_to_apostrophe_quotes(page)
         page = format_chapter_beginning_to_smallcaps(page)
         page = convert_complex_dhr(page)
+        page = convert_basic_elements(page)
         formatting_continuations, page = convert_block_elements(page, formatting_continuations)
         formatting_continuations, page = convert_poems(page, formatting_continuations) # done
+        page = convert_smallcaps(page)
+        page = convert_right(page)
+        page = convert_wikilinks(page, page_data, page_enum)
         page = convert_author_links(page)
-        page = convert_basic_elements(page)
         img_num, page = convert_images(page, image_data, img_num)
-        chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, chapter_format)
-        formatting_continuations, page = add_toc_to_transcription(page, toc, formatting_continuations)
+        page = handle_forced_page_breaks(page)
+
+        print(page)
+
+        if page_enum > 20:
+            exit()
+        # chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, chapter_format)
+        # formatting_continuations, page = add_toc_to_transcription(page, toc, formatting_continuations)
         
         # page["content"] = content
         # page["header"] = header

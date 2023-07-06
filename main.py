@@ -156,7 +156,11 @@ commons_category = get_work_data(work_data, "Commons category")
 
 base_work = get_work_data(work_data, wikidata_item_of("base work"))
 
-author_item = get_value_from_property(base_work, "P50")
+author_item = None
+
+if base_work:
+    author_item = get_value_from_property(base_work, "P50")
+
 if base_work and author_item:
     if not author:
         author = get_wikisource_page_from_wikidata(author_item)
@@ -202,13 +206,12 @@ elif hathitrust_id and not hathitrust_full_text_id:
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
 
-
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, hathitrust_full_text_id, IA_id, transcription_page_title, version_conf_variable, GB_id)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id)
     add_version_to_base_work_item(base_work, version_item)
     process_break()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
@@ -331,9 +334,10 @@ file_extension = extract_file_extension(filename)
 publisher_name = get_wikisource_page_from_wikidata(publisher)
 location_name = get_label(location)
 
+chapter_beginning_formatting = get_work_data(work_data, "chapter beginning formatting")
 
 chapters = get_chapters(transcription_text)
-    
+
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
 
@@ -348,7 +352,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 
