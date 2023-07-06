@@ -62,7 +62,10 @@ block_elements = {
     "bc": "block center",
 }
 
-chapter_pattern = r"(\/ch\/\/.+?\n\n)"
+named_chapter_pattern = r"\/ch\/\/.+?\n\n"
+empty_chapter_pattern = r"\/ch\/\n\n"
+
+chapter_pattern = rf"({named_chapter_pattern}|{empty_chapter_pattern})"
 
 
 qt_markup = {
@@ -413,6 +416,43 @@ def format_chapter_beginning_to_smallcaps(page):
 
     return page
 
+def format_chapter_beginning_to_drop_initial(page, do_drop_initials_float_quotes):
+
+    content = page["content"]
+
+    if string_not_in_content(content, "/ch/", "Formatting chapter beginning to smallcaps"):
+        return page
+    
+    quote_pattern = r"\"?\'?"
+    chapter_beginning_pattern = rf"{chapter_pattern}(.)"
+
+    chapter_beginning_pattern = rf"{chapter_pattern}(.)(.)"
+
+    chapter_beginning = re.search(chapter_beginning_pattern, content)
+
+    chapter_heading = chapter_beginning.group(1)
+    first_letter = chapter_beginning.group(2)
+    second_letter = chapter_beginning.group(3)
+
+    drop_initial_quotes = [
+        '"',
+        "'",
+    ]
+
+    if first_letter in drop_initial_quotes:
+        if do_drop_initials_float_quotes == "y":
+            replacement = r"\1{{di|\3|fl=\2}}"
+        else:
+            replacement = r"\1{{di|\2\3}}"
+
+        content = re.sub(chapter_beginning_pattern, replacement, content)
+    else:
+        replacement = r"\1{{di|\2}}\3"
+        content = re.sub(chapter_beginning_pattern, replacement, content)
+    
+    page["content"] = content
+
+    return page
 
 
 """
@@ -806,12 +846,13 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, do_drop_initials_float_quotes):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
     chapter_num = 0
     formatting_continuations = {} # dictionary because of TOC needing split indices
+    inline_continuations = {}
     for page in page_data:
         # content = page["content"]
         page_num = page["page_num"]
@@ -821,7 +862,13 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         # page = add_toc_to_transcription(page, chapters, mainspace_work_title)
         page = add_space_to_apostrophe_quotes(page)
-        page = format_chapter_beginning_to_smallcaps(page)
+        if chapter_beginning_formatting == "sc":
+            page = format_chapter_beginning_to_smallcaps(page)
+        elif chapter_beginning_formatting == "di":
+            page = format_chapter_beginning_to_drop_initial(page, do_drop_initials_float_quotes)
+        else:
+            # page = format_chapter_beginning_to_large_initial(page)
+            pass
         page = convert_complex_dhr(page)
         page = convert_basic_elements(page)
         formatting_continuations, page = convert_block_elements(page, formatting_continuations)

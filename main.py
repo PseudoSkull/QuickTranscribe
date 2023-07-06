@@ -336,6 +336,8 @@ location_name = get_label(location)
 
 chapter_beginning_formatting = get_work_data(work_data, "chapter beginning formatting")
 
+do_drop_initials_float_quotes = get_work_data(work_data, "drop initial floating quotes")
+
 chapters = get_chapters(transcription_text)
 
 
@@ -352,7 +354,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, do_drop_initials_float_quotes)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 
