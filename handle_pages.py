@@ -25,6 +25,7 @@ def add_data_item(page_data, page_num, header, footer, content, page_quality, ma
     data_item["page_quality"] = page_quality
     data_item["marker"] = marker
     data_item["type"] = page_type
+    print(data_item)
     page_data.append(data_item)
     return data_item
 
@@ -66,7 +67,7 @@ def get_page_data(transcription_text):
         line_prefix = line[:1]
         line_suffix = line[1:]
         line_length = len(line)
-        if line_length <= 4:
+        if line_length <= 4 and (line.startswith("-") or line.startswith("—")):
             # read_page = False
             # print(marker)
             if read_page: # i.e. if it's not the first page we're talking about

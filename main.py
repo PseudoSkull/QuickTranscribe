@@ -338,11 +338,13 @@ chapter_beginning_formatting = get_work_data(work_data, "chapter beginning forma
 
 chapters = get_chapters(transcription_text)
 
+exit()
+
+
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format)
-
 
 
 
