@@ -25,7 +25,6 @@ def add_data_item(page_data, page_num, header, footer, content, page_quality, ma
     data_item["page_quality"] = page_quality
     data_item["marker"] = marker
     data_item["type"] = page_type
-    print(data_item)
     page_data.append(data_item)
     return data_item
 

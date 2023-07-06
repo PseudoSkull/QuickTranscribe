@@ -210,7 +210,7 @@ def handle_formatting_continuations(page, tag, formatting_continuations, start_t
 
     return formatting_continuations, page
 
-def handle_inline_continuations(content, page, page_enum, page_data, tag, continuation_prefix, continuation_param):
+def handle_inline_continuations(content, page, page_data, tag, continuation_prefix, continuation_param):
     print(f"Handling inline continuation (tag: {tag}, prefix: {continuation_prefix}, param: {continuation_param})")
 
 
@@ -223,23 +223,16 @@ def handle_inline_continuations(content, page, page_enum, page_data, tag, contin
         marker = page["marker"]
         # marker = int(marker)
         page_num_zero_indexed = page_num - 1
-        next_page = page_data[page_enum+1]
+        next_page = page_data[page_num_zero_indexed+1]
         next_page_content = next_page["content"]
         next_page_marker = next_page["marker"]
         previous_page = page_data[page_num_zero_indexed-1]
         previous_page_content = previous_page["content"]
         crosspage_start_pattern = rf"/{tag}//(.*?)$"
-        crosspage_end_pattern = rf"^(.*?)/"
+        crosspage_end_pattern = rf"^(.*?)//{tag}/"
 
         if end_tag not in content: # CHANGE TO IF NOT CLOSED
             crosspage_start = re.search(crosspage_start_pattern, content).group(1)
-            print(content)
-            print(crosspage_start)
-            print(f"Page enum: {page_enum}, Page num: {page_num_zero_indexed}, Marker: {marker}")
-            print(marker)
-            print("----")
-            print(next_page_marker)
-            print(next_page_content)
             crosspage_end = re.search(crosspage_end_pattern, next_page_content).group(1)
         elif start_tag not in content:
             crosspage_start = re.search(crosspage_start_pattern, previous_page_content).group(1)
@@ -250,12 +243,12 @@ def handle_inline_continuations(content, page, page_enum, page_data, tag, contin
         continuation_start_template = template_start + "s" + template_end
         continuation_end_template = template_start + "e" + template_end
 
-        content = content.replace(crosspage_start_pattern, continuation_start_template)
-        content = content.replace(crosspage_end_pattern, continuation_end_template)
+        content = re.sub(crosspage_start_pattern, continuation_start_template, content)
+        content = re.sub(crosspage_end_pattern, continuation_end_template, content)
 
     
 
-    return page
+    return content
 
 
 
@@ -640,7 +633,7 @@ def convert_right(page):
 
 
 
-def convert_wikilinks(page, page_data, page_enum):
+def convert_wikilinks(page, page_data):
     content = page["content"]
 
     if string_not_in_content(content, "/li/", "Converting /li/ to wikilinks in transcription"):
@@ -651,7 +644,7 @@ def convert_wikilinks(page, page_data, page_enum):
     continuation_prefix = "lp"
     continuation_param = "link"
 
-    content = handle_inline_continuations(content, page, page_enum, page_data, "li", continuation_prefix, continuation_param)
+    content = handle_inline_continuations(content, page, page_data, "li", continuation_prefix, continuation_param)
 
 
     content = re.sub(r"\/li\//(.+?)\//li\/", r"[[\1]]", content)
@@ -819,7 +812,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     img_num = 0
     chapter_num = 0
     formatting_continuations = {} # dictionary because of TOC needing split indices
-    for page_enum, page in enumerate(page_data):
+    for page in page_data:
         # content = page["content"]
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")
@@ -835,15 +828,15 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         formatting_continuations, page = convert_poems(page, formatting_continuations) # done
         page = convert_smallcaps(page)
         page = convert_right(page)
-        page = convert_wikilinks(page, page_data, page_enum)
+        page = convert_wikilinks(page, page_data)
         page = convert_author_links(page)
         img_num, page = convert_images(page, image_data, img_num)
         page = handle_forced_page_breaks(page)
 
         print(page)
 
-        if page_enum > 20:
-            exit()
+        # if page_enum > 20:
+        #     exit()
         # chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, chapter_format)
         # formatting_continuations, page = add_toc_to_transcription(page, toc, formatting_continuations)
         
