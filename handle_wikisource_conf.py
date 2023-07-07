@@ -30,12 +30,13 @@ variables_with_descriptions = {
         "dlt": "site to download text from",
         "beg": "chapter beginning formatting",
         "difl": "drop initials float quotes",
+        "fqm": "convert fqms",
         "sec": "section type",
         "per": "period at the end of chapter names",
         "gen": "genre",
         "com": "Commons category",
-        "aux": "auxiliary table of contents",
-        "pts": "chapters are subpages of parts",
+        "aux": "toc is auxiliary",
+        "ptseq": "chapters are subpages of parts",
         "progress": "QT progress flag",
     }
 

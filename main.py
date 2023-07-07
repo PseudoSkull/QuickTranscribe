@@ -337,9 +337,16 @@ location_name = get_label(location)
 chapter_beginning_formatting = get_work_data(work_data, "chapter beginning formatting")
 
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
+convert_fqms = get_work_data(work_data, "convert fqms")
+toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
+chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
-chapters = get_chapters(transcription_text) # MAKE IT PARSE PAGE DATA NOT TRANSCRIPTION TEXT
 
+chapters = get_chapters(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts) # MAKE IT PARSE PAGE DATA NOT TRANSCRIPTION TEXT
+
+print(chapters)
+
+exit()
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
@@ -354,7 +361,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 

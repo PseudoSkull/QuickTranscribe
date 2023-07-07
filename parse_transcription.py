@@ -319,7 +319,7 @@ def get_chapter_splice_points(text):
 
     return result
 
-def get_chapters(text):
+def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts):
     print("Getting chapters...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -327,27 +327,81 @@ def get_chapters(text):
         print("Chapter data JSON found!")
         return chapters
     
-    chapters = []
-    chapter_pattern = r"\/ch\/\/(.+?)\n\n"
-    page_number_pattern = r"\n\n-([0-9]+)\n\n"
-    chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
-    chapter_and_page_matches = re.findall(chapter_and_page_pattern, text)
-    chapter_splice_points = get_chapter_splice_points(text)
 
-    # results = []
-    for chapter_num, match in enumerate(chapter_and_page_matches):
-        chapter_num += 1 # start at 1 instead of 0
-        chapter = {}
-        page_number = int(match[0])
-        chapter["title"] = convert_to_title_case(match[1])
-        chapter["page_number"] = page_number
-        chapter["refs"] = False # for now
-        splice_chapter = False
-        if chapter_splice_points:
-            if chapter_num in chapter_splice_points:
-                splice_chapter = True
-        chapter["splice"] = splice_chapter
-        chapters.append(chapter)
+    chapter_num = 0
+
+    chapters = []
+
+    for page in page_data:
+        page_num = page["marker"]
+        content = page["content"]
+        # header = page["header"]
+        # footer = page["footer"]
+        # marker = page["marker"]
+        # page_type = page["type"]
+        # page_num_zero_indexed = page_num - 1
+        # next_page = page_data[page_num_zero_indexed+1]
+        # next_page_content = next_page["content"]
+        # next_page_marker = next_page["marker"]
+        # previous_page = page_data[page_num_zero_indexed-1]
+        # previous_page_content = previous_page["content"]
+
+        # if page_type == "toc":
+        if toc_is_auxiliary:
+            chapter_pattern = r"\/ch\/\n\n"
+        else:
+            chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+        # page_number_pattern = r"\n\n-([0-9]+)\n\n"
+        # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
+        chapter_matches = re.findall(chapter_pattern, content)
+        chapter_splice_points = get_chapter_splice_points(text)
+
+            # results = []
+        for match in chapter_matches:
+            chapter = {}
+            chapter_num += 1
+
+            if toc_is_auxiliary:
+                chapter["title"] = None
+            else:
+                chapter["title"] = convert_to_title_case(match)
+            
+            chapter["page_num"] = int(page_num)
+            chapter["chapter_num"] = chapter_num
+            chapter["refs"] = False # for now
+            chapter["prefix"] = "Chapter" # for now
+
+            splice_chapter = False
+            if chapter_splice_points:
+                if chapter_num in chapter_splice_points:
+                    splice_chapter = True
+            chapter["splice"] = splice_chapter
+
+            chapters.append(chapter)
+            
+
+    #     chapter_pattern = r"\n\/ch\/\n\n"
+    # else:
+    #     chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+    # page_number_pattern = r"\n\n-([0-9]+)\n\n"
+    # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
+    # chapter_and_page_matches = re.findall(chapter_and_page_pattern, text)
+    # chapter_splice_points = get_chapter_splice_points(text)
+
+    # # results = []
+    # for chapter_num, match in enumerate(chapter_and_page_matches):
+    #     chapter_num += 1 # start at 1 instead of 0
+    #     chapter = {}
+    #     page_number = int(match[0])
+    #     chapter["title"] = convert_to_title_case(match[1])
+    #     chapter["page_number"] = page_number
+    #     chapter["refs"] = False # for now
+    #     splice_chapter = False
+    #     if chapter_splice_points:
+    #         if chapter_num in chapter_splice_points:
+    #             splice_chapter = True
+    #     chapter["splice"] = splice_chapter
+    #     chapters.append(chapter)
     # print(chapters)
     write_to_json_file(chapters_json_file, chapters)
     return chapters
@@ -373,7 +427,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, smallcaps=True, hea
     toc_ending = "</div>"
 
     for chapter_num, chapter in enumerate(chapters):
-        page_number = chapter["page_number"]
+        page_num = chapter["page_num"]
         chapter_title = chapter["title"]
         splice = chapter["splice"]
         chapter_num = chapter_num + 1 # 1-indexed rather than 0
@@ -386,7 +440,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, smallcaps=True, hea
             replacements = {
                 "cnum": str(chapter_num_as_roman),
                 "cnam": toc_link,
-                "pnum": str(page_number),
+                "pnum": str(page_num),
             }
             
             toc_row = format_form_tag(toc_row, replacements)
@@ -398,7 +452,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, smallcaps=True, hea
                 toc_beginning += splice_tag + "\n"
 
         else:
-            toc_beginning += f"{{{{TOC row 1-1-1|{{{{fine|{chapter_num_as_roman}}}}}|{{{{fine|{toc_link}}}}}|{{{{fine|{page_number}}}}}}}}}\n"
+            toc_beginning += f"{{{{TOC row 1-1-1|{{{{fine|{chapter_num_as_roman}}}}}|{{{{fine|{toc_link}}}}}|{{{{fine|{page_num}}}}}}}}}\n"
     toc = toc_beginning + toc_ending
     print_in_green("TOC generated.")
     return toc
@@ -796,7 +850,7 @@ def handle_fqm(text):
 
     return text
 
-def convert_poems(page, formatting_continuations):
+def convert_poems(page, formatting_continuations, convert_fqms):
     # text = convert_block_element(text, "poem", "poem")
     content = page["content"]
 
@@ -807,7 +861,8 @@ def convert_poems(page, formatting_continuations):
     replacement = r"{{ppoem|class=poem|\1}}"
     content = re.sub(pattern, replacement, content)
 
-    content = handle_fqm(content)
+    if convert_fqms != "n":
+        content = handle_fqm(content)
 
     page["content"] = content
     return formatting_continuations, page
@@ -869,7 +924,7 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -896,7 +951,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_basic_elements(page)
         page = convert_title_headers(page, title)
         formatting_continuations, page = convert_block_elements(page, formatting_continuations)
-        formatting_continuations, page = convert_poems(page, formatting_continuations) # done
+        formatting_continuations, page = convert_poems(page, formatting_continuations, convert_fqms) # done
         page = convert_smallcaps(page)
         page = convert_right(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
