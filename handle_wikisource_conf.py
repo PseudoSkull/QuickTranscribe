@@ -29,7 +29,7 @@ variables_with_descriptions = {
         "dl": "site to download scan from",
         "dlt": "site to download text from",
         "beg": "chapter beginning formatting",
-        "difl": "drop initial floating quotes",
+        "difl": "drop initials float quotes",
         "sec": "section type",
         "per": "period at the end of chapter names",
         "gen": "genre",

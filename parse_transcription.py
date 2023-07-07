@@ -632,6 +632,20 @@ def convert_complex_dhr(page):
 
     return page
 
+def convert_title_headers(page, title):
+    content = page["content"]
+
+    if string_not_in_content(content, "/ti/", "Converting title headers"):
+        return page
+
+    title_header = f"ph|class=title|{title}"
+
+    content = convert_simple_markup(content, "ti", title_header)
+
+    page["content"] = content
+
+    return page
+
 def convert_author_links(page):
     content = page["content"]
 
@@ -718,19 +732,16 @@ def convert_block_elements(page, formatting_continuations):
         page = convert_block_element(page, abbreviation, template_name)
     return formatting_continuations, page
 
-def convert_simple_markup(page, abbreviation, template):
-    content = page["content"]
+def convert_simple_markup(content, abbreviation, template):
     abbreviation = get_plain_tag(abbreviation)
 
     if string_not_in_content(content, abbreviation, f"Replacing {abbreviation} with {template} in transcription"):
-        return page
+        return content
 
     template = "{{" + template + "}}"
     content = content.replace(abbreviation, template)
 
-    page["content"] = content
-
-    return page
+    return content
 
 def convert_basic_elements(page):
     for abbreviation, template in basic_elements.items():
@@ -852,7 +863,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     img_num = 0
     chapter_num = 0
     formatting_continuations = {} # dictionary because of TOC needing split indices
-    inline_continuations = {}
+    inline_continuations = []
     for page in page_data:
         # content = page["content"]
         page_num = page["page_num"]
@@ -871,6 +882,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
             pass
         page = convert_complex_dhr(page)
         page = convert_basic_elements(page)
+        page = convert_title_headers(page, title)
         formatting_continuations, page = convert_block_elements(page, formatting_continuations)
         formatting_continuations, page = convert_poems(page, formatting_continuations) # done
         page = convert_smallcaps(page)

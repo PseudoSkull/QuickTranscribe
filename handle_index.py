@@ -45,6 +45,12 @@ style_defaults = {
 	margin-top: 2em;
     margin-bottom: 2em;""",
 
+    "title":
+    """	text-align: center;
+    font-size: 144%;
+	text-transform: uppercase;
+    margin-bottom: 1em;""",
+
     "toc-block":
     """	max-width: 25em;
     margin-left: auto;
