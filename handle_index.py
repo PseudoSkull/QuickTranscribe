@@ -27,18 +27,23 @@ style_defaults = {
     """	text-align: center;
 	margin-bottom: 0.75em;""",
     
-    "chapter num":
+    "chapter.num":
     """	text-transform: uppercase;
     font-size: 120%;
     margin-bottom: 1em;""",
 
-    "chapter title":
+    "chapter.title":
     """	font-variant: all-small-caps;""",
 
     "half":
     """	text-align: center;
 	text-transform: uppercase;
 	font-size: 120%;""",
+
+    "part":
+    """    text-align: center;
+    font-size: 120%;
+    text-transform: uppercase;""",
 
     "poem": 
     """	font-size: 92%;
@@ -187,8 +192,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Header=
 |Footer=
 |Transclusion=no
-}}}}
-"""
+}}}}"""
     save_page(index_page, site, index_page_text, summary, transcription_page_title)
     add_index_page_to_version_item(version_item, index_page_title)
     create_index_styles(transcription_text, index_page_title, transcription_page_title)
@@ -211,8 +215,8 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     
     # put parent class in too
     for css_class in classes_used:
-        if " " in css_class:
-            css_parent_class = css_class.split(" ")[0]
+        if "." in css_class:
+            css_parent_class = css_class.split(".")[0]
             if css_parent_class not in classes_used:
                 classes_used.append(css_parent_class)
 

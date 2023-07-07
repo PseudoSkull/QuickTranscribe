@@ -213,9 +213,8 @@ def handle_formatting_continuations(page, tag, formatting_continuations, start_t
 
     return formatting_continuations, page
 
-def handle_inline_continuations(content, page, page_data, tag, continuation_prefix, continuation_param):
+def handle_inline_continuations(content, page, page_data, tag, continuation_prefix, continuation_param, inline_continuations):
     print(f"Handling inline continuation (tag: {tag}, prefix: {continuation_prefix}, param: {continuation_param})")
-
 
     start_tag = get_noparams_start_tag(tag)
     end_tag = get_end_tag(tag)
@@ -237,11 +236,22 @@ def handle_inline_continuations(content, page, page_data, tag, continuation_pref
         if end_tag not in content: # CHANGE TO IF NOT CLOSED
             crosspage_start = re.search(crosspage_start_pattern, content).group(1)
             crosspage_end = re.search(crosspage_end_pattern, next_page_content).group(1)
+            full_phrase = f"{crosspage_start} {crosspage_end}"
+
+            inline_continuation_data = {}
+            inline_continuation_data["start"] = crosspage_start
+            inline_continuation_data["end"] = crosspage_end
+
+            inline_continuations.append(inline_continuation_data)
+            print(f"{inline_continuations} is inline continuations in the function")
         elif start_tag not in content:
-            crosspage_start = re.search(crosspage_start_pattern, previous_page_content).group(1)
-            crosspage_end = re.search(crosspage_end_pattern, content).group(1)
+            inline_continuation_data = inline_continuations[0]
+            crosspage_start = inline_continuation_data["start"]
+            crosspage_end = inline_continuation_data["end"]
+            full_phrase = f"{crosspage_start} {crosspage_end}"
+
+            inline_continuations.pop(0)
         
-        full_phrase = f"{crosspage_start} {crosspage_end}"
         template_end = f"|{continuation_param}={full_phrase}|pre={crosspage_start}|post={crosspage_end}}}}}"
         continuation_start_template = template_start + "s" + template_end
         continuation_end_template = template_start + "e" + template_end
@@ -251,7 +261,7 @@ def handle_inline_continuations(content, page, page_data, tag, continuation_pref
 
     
 
-    return content
+    return content, inline_continuations
 
 
 
@@ -416,11 +426,11 @@ def format_chapter_beginning_to_smallcaps(page):
 
     return page
 
-def format_chapter_beginning_to_drop_initial(page, do_drop_initials_float_quotes):
+def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
 
     content = page["content"]
 
-    if string_not_in_content(content, "/ch/", "Formatting chapter beginning to smallcaps"):
+    if string_not_in_content(content, "/ch/", "Formatting chapter beginning to drop initial"):
         return page
     
     quote_pattern = r"\"?\'?"
@@ -440,7 +450,7 @@ def format_chapter_beginning_to_drop_initial(page, do_drop_initials_float_quotes
     ]
 
     if first_letter in drop_initial_quotes:
-        if do_drop_initials_float_quotes == "y":
+        if drop_initials_float_quotes == "y":
             replacement = r"\1{{di|\3|fl=\2}}"
         else:
             replacement = r"\1{{di|\2\3}}"
@@ -687,25 +697,27 @@ def convert_right(page):
 
 
 
-def convert_wikilinks(page, page_data):
+def convert_wikilinks(page, inline_continuations, page_data):
     content = page["content"]
 
     if string_not_in_content(content, "/li/", "Converting /li/ to wikilinks in transcription"):
-        return page
+        return page, inline_continuations
     
 
     # {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility}}
     continuation_prefix = "lp"
     continuation_param = "link"
 
-    content = handle_inline_continuations(content, page, page_data, "li", continuation_prefix, continuation_param)
+    content, inline_continuations = handle_inline_continuations(content, page, page_data, "li", continuation_prefix, continuation_param, inline_continuations)
 
 
     content = re.sub(r"\/li\//(.+?)\//li\/", r"[[\1]]", content)
 
     page["content"] = content
 
-    return page
+
+
+    return page, inline_continuations
 
 
 ########################## block elements ##########################
@@ -857,7 +869,7 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, do_drop_initials_float_quotes):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -876,7 +888,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         if chapter_beginning_formatting == "sc":
             page = format_chapter_beginning_to_smallcaps(page)
         elif chapter_beginning_formatting == "di":
-            page = format_chapter_beginning_to_drop_initial(page, do_drop_initials_float_quotes)
+            page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes)
         else:
             # page = format_chapter_beginning_to_large_initial(page)
             pass
@@ -887,12 +899,10 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         formatting_continuations, page = convert_poems(page, formatting_continuations) # done
         page = convert_smallcaps(page)
         page = convert_right(page)
-        page = convert_wikilinks(page, page_data)
+        page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
         page = convert_author_links(page)
         img_num, page = convert_images(page, image_data, img_num)
         page = handle_forced_page_breaks(page)
-
-        print(page)
 
         # if page_enum > 20:
         #     exit()
@@ -904,9 +914,9 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         # page["footer"] = footer
 
         new_page_data.append(page)
-        # print(page)
-        # if page_num > 11:
-        #     break
+        print(page)
+        if page_num > 80:
+            exit()
     print_in_green("All transcription pages parsed successfully!")
     return new_page_data
 
