@@ -304,7 +304,7 @@ def get_chapter_splice_points(text):
     matches = re.findall(pattern, text)
 
     if not matches:
-        print("No roman numerals found.")
+        # print("No roman numerals found.")
         return None
 
     result = []
@@ -319,6 +319,11 @@ def get_chapter_splice_points(text):
 
     return result
 
+def determine_if_books_or_parts_exist(text):
+    if "/bk/" in text or "/pt/" in text:
+        return True
+    return False
+
 def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts):
     print("Getting chapters...")
     chapters_json_file = "chapter_data.json"
@@ -326,40 +331,58 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
     if chapters:
         print("Chapter data JSON found!")
         return chapters
-    
+    parts_exist = determine_if_books_or_parts_exist(text)
 
     chapter_num = 0
+
+    if parts_exist:
+        part_num = 0
 
     chapters = []
 
     for page in page_data:
         page_num = page["marker"]
         content = page["content"]
-        # header = page["header"]
-        # footer = page["footer"]
-        # marker = page["marker"]
-        # page_type = page["type"]
-        # page_num_zero_indexed = page_num - 1
-        # next_page = page_data[page_num_zero_indexed+1]
-        # next_page_content = next_page["content"]
-        # next_page_marker = next_page["marker"]
-        # previous_page = page_data[page_num_zero_indexed-1]
-        # previous_page_content = previous_page["content"]
 
-        # if page_type == "toc":
         if toc_is_auxiliary:
-            chapter_pattern = r"\/ch\/\n\n"
+            chapter_pattern = r"(\/ch\/)\n"
         else:
             chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+
+        book_pattern = r"(\/bk\/)"
+        part_pattern = r"(\/pt\/)"
+
+        all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}"
+
         # page_number_pattern = r"\n\n-([0-9]+)\n\n"
         # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
-        chapter_matches = re.findall(chapter_pattern, content)
+        chapter_matches = re.findall(all_chapter_types_pattern, content)
         chapter_splice_points = get_chapter_splice_points(text)
 
-            # results = []
         for match in chapter_matches:
+            is_chapter = match[0]
+            is_book = match[1]
+            is_part = match[2]
+            # print(match)
             chapter = {}
-            chapter_num += 1
+
+            if is_book or is_part:
+                part_num += 1
+                if is_book:
+                    chapter["prefix"] = "Book"
+                elif is_part:
+                    chapter["prefix"] = "Part"
+                chapter["part_num"] = part_num
+                chapter["subchapters"] = []
+
+                if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
+                    chapter_num = 0
+
+            else:
+                chapter_num += 1
+                chapter["prefix"] = "Chapter" # for now
+                chapter["chapter_num"] = chapter_num
+
 
             if toc_is_auxiliary:
                 chapter["title"] = None
@@ -367,9 +390,7 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                 chapter["title"] = convert_to_title_case(match)
             
             chapter["page_num"] = int(page_num)
-            chapter["chapter_num"] = chapter_num
             chapter["refs"] = False # for now
-            chapter["prefix"] = "Chapter" # for now
 
             splice_chapter = False
             if chapter_splice_points:
@@ -377,7 +398,13 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                     splice_chapter = True
             chapter["splice"] = splice_chapter
 
-            chapters.append(chapter)
+            if parts_exist:
+                if is_book or is_part:
+                    chapters.append(chapter)
+                else:
+                    chapters[-1]["subchapters"].append(chapter)
+            else:
+                chapters.append(chapter)
             
 
     #     chapter_pattern = r"\n\/ch\/\n\n"
