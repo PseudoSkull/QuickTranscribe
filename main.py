@@ -389,12 +389,10 @@ expected_progress = "index_page_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename)
+    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
 
     process_break()
 
-    # update transcription text since it's probably been modified since parsing
-    transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that index page has been created...")
 

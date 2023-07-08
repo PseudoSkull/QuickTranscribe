@@ -96,21 +96,46 @@ def get_page_markers(text):
             page_markers.append(line)
     return page_markers
 
-def generate_toc_section(page_data, filename):
-    toc_pages = []
-    for page in page_data:
-        page_type = page["type"]
-        page_num = page["page_num"]
-        if page_type == "toc":
-            toc_pages.append(page_num)
+def generate_aux_toc_template(toc, site, mainspace_work_title, transcription_page_title):
+    print("Auxiliary table of contents found. Generating auxiliary TOC template...")
+    template_page_name = f"{mainspace_work_title}/TOC"
+    template_page_title = "Template:" + template_page_name
+    template_documentation_page_title = template_page_title + "/doc"
+    template_page = pywikibot.Page(site, template_page_title)
+    template_documentation_page = pywikibot.Page(site, template_documentation_page_title)
+    template_page_text = f"""{toc}<noinclude>
+{{{{documentation}}}}
+</noinclude>"""
+    template_documentation_page_text = f"""{{{{Documentation subpage}}}}
 
-    toc_templates = []
-    for toc_page in toc_pages:
-        toc_templates.append(f"{{{{Page:{filename}/{toc_page}}}}}")
+{{{{AuxTOC documentation|{mainspace_work_title}}}}}
 
-    toc_templates = "\n".join(toc_templates)
+<includeonly>
+[[Category:Auxiliary table of contents templates]]
+</includeonly>"""
+    save_page(template_page, site, template_page_text, "Creating auxiliary TOC template...", transcription_page_title)
+    save_page(template_documentation_page, site, template_documentation_page_text, "Creating auxiliary TOC template documentation...", transcription_page_title)
+    return "{{" + template_page_name + "}}"
 
-    return toc_templates
+def generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mainspace_work_title, transcription_page_title):
+    if toc_is_auxiliary:
+        aux_toc_template = generate_aux_toc_template(toc, site, mainspace_work_title, transcription_page_title)
+        return aux_toc_template
+    else:
+        toc_pages = []
+        for page in page_data:
+            page_type = page["type"]
+            page_num = page["page_num"]
+            if page_type == "toc":
+                toc_pages.append(page_num)
+
+        toc_templates = []
+        for toc_page in toc_pages:
+            toc_templates.append(f"{{{{Page:{filename}/{toc_page}}}}}")
+
+        toc_templates = "\n".join(toc_templates)
+
+        return toc_templates
 
 def create_index_pagelist(text):
     print("Generating index pagelist...")
@@ -160,12 +185,12 @@ def create_index_pagelist(text):
 
     # return index_pagelist
 
-def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename):
+def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
     summary = "Creating index page..."
     progress = "C"
     site = pywikibot.Site('en', 'wikisource')
     index_page = pywikibot.Page(site, index_page_title)
-    toc_section = generate_toc_section(page_data, filename)
+    toc_section = generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mainspace_work_title, transcription_page_title)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
 |Title=''[[{mainspace_work_title}|{title}]]''
