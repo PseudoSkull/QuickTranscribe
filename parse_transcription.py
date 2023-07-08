@@ -433,8 +433,48 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
-def generate_toc(chapters, mainspace_work_title, toc_format, smallcaps=True, header=False):
+def get_aux_toc_items(chapters, mainspace_work_title, spacing=""):
+    aux_toc_items = []
+    for chapter in chapters:
+        # if parts_exist:
+        chapter_prefix = chapter["prefix"] + " "
+        if chapter_prefix == "Chapter ":
+            chapter_num = chapter["chapter_num"]
+            aux_subchapters = ""
+        else:
+            chapter_num = chapter["part_num"]
+            subchapters = chapter["subchapters"]
+            aux_subchapters = get_aux_toc_items(subchapters, mainspace_work_title, ":")
+            aux_subchapters = "\n".join(aux_subchapters)
+        chapter_numbered_name = f"{chapter_prefix}{chapter_num}"
+
+        chapter_title = chapter["title"]
+
+        if chapter_title:
+            # aux_toc_entry = f"* [[{mainspace_work_title}/|{chapter_title}]]"
+            aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}: {chapter_title}]]"
+        else:
+            aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}]]"
+
+        if aux_subchapters:
+            aux_toc_entry += "\n" + aux_subchapters
+
+        aux_toc_items.append(aux_toc_entry)
+    
+    return aux_toc_items
+
+def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, smallcaps=True, header=False):
     print("Generating TOC...")
+
+    if toc_is_auxiliary:
+        # toc_format = "auxiliary"
+        aux_toc_beginning = "{{AuxTOC|\n"
+        aux_toc_ending = "\n}}"
+        # aux_toc_items = []
+        aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title)
+        aux_toc_items = "\n".join(aux_toc_items)
+        aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
+        return aux_toc
 
     if smallcaps:
         smallcaps = "yes"

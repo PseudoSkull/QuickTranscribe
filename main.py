@@ -344,15 +344,15 @@ chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages
 
 chapters = get_chapters(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts) # MAKE IT PARSE PAGE DATA NOT TRANSCRIPTION TEXT
 
-print(chapters)
 
-exit()
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
 
-toc = generate_toc(chapters, mainspace_work_title, toc_format)
+toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
+print(toc)
 
+exit()
 
 
 
