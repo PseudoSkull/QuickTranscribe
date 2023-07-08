@@ -681,6 +681,7 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
         part_num_zero_indexed = part_num
         part = chapters[part_num_zero_indexed]
         part_num += 1
+        chapter_num = 0 # resetting chapter_num to 0, because we're starting a new part. It won't actually display as 0 necessarily, because for displaying the chapter, the chapter_num in the data is used instead of the incremented value.
         roman_part_num = roman.toRoman(part_num)
         part_prefix = part["prefix"]
         part_text = f"{{{{ph|class=part-header|{part_prefix} {roman_part_num}}}}}"
@@ -688,13 +689,14 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
         content = replace_line(content, part_text, line_num)
 
     for line_num, ch_tag in chapters_in_page.items():
-        real_chapter_num = chapter_num + 1 # not zero-indexed
-        roman_chapter_num = roman.toRoman(real_chapter_num)
         part_num_zero_indexed = part_num - 1
         if part_num_zero_indexed != -1: # i.e. if there are any parts
             chapter = chapters[part_num_zero_indexed]["subchapters"][chapter_num]
         else:
             chapter = chapters[chapter_num]
+        
+        real_chapter_num = chapter["chapter_num"]
+        roman_chapter_num = roman.toRoman(real_chapter_num)
         chapter_prefix = chapter["prefix"]
         chapter_title = chapter["title"]
         if chapter_format:
@@ -708,9 +710,11 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
                 chapter_text = format_form_tag(chapter_format, replacements)
             # else: handle section tags
         else:
-            if chapter_title:
+            if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
                 chapter_text = f"{{{{ph|class=chapter|{chapter_prefix} {roman_chapter_num}}}}}"
             else:
+                # print(type(chapter_title))
+                # print(chapter_title)
                 chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
 
         content = replace_line(content, chapter_text, line_num)
@@ -771,7 +775,7 @@ def add_space_to_apostrophe_quotes(page):
 def add_half_to_transcription(page, title):
     content = page["content"]
 
-    if string_not_in_content(content, "/half/", "Adding half titles to transcription"):
+    if string_not_in_content(content, "/half/", "Adding half title to transcription"):
         return page
     
     half = f"{{{{ph|class=half|{title}}}}}"
@@ -896,6 +900,7 @@ def convert_block_elements(page, block_continuations):
     return block_continuations, page
 
 def convert_simple_markup(content, abbreviation, template):
+
     abbreviation = get_plain_tag(abbreviation)
 
     if string_not_in_content(content, abbreviation, f"Replacing {abbreviation} with {template} in transcription"):
@@ -907,8 +912,12 @@ def convert_simple_markup(content, abbreviation, template):
     return content
 
 def convert_basic_elements(page):
+    content = page["content"]
+
     for abbreviation, template in basic_elements.items():
-        page = convert_simple_markup(page, abbreviation, template)
+        content = convert_simple_markup(content, abbreviation, template)
+
+    page["content"] = content
     return page
 
 
@@ -1046,6 +1055,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")
 
+        page = add_half_to_transcription(page, title)
         page = add_space_to_apostrophe_quotes(page)
         if chapter_beginning_formatting == "sc":
             page = format_chapter_beginning_to_smallcaps(page)
