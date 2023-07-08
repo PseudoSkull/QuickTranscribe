@@ -81,7 +81,57 @@ def generate_toc_page_tag(toc_pages, filename):
     page_tag = f"<pages index=\"{filename}\" from={toc_begin} to={toc_end} />"
     return page_tag
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country):
+def generate_chapter_link(chapters, chapter_num_zero_indexed):
+    chapter = chapters[chapter_num_zero_indexed]
+    chapter_num = chapter_num_zero_indexed + 1
+    chapter_name = chapter["title"]
+    chapter_prefix = chapter["prefix"]
+
+    if chapter_name == None:
+        chapter_link = f"[[/{chapter_prefix} {chapter_num}/]]"
+    else:
+        chapter_link = f"[[/{chapter_prefix} {chapter_num}|{chapter_name}]]"
+    
+    return chapter_link
+
+
+def generate_chapter_links(chapter_num, chapter, chapters):
+    chapter_num_zero_indexed = chapter_num
+    chapter_num = chapter_num + 1 # 1 indexed
+    chapter_name = chapter["title"]
+    # chapter_start = chapter["page_num"] + page_offset
+
+    if chapter_num_zero_indexed == -1: # front matter
+        previous_chapter_link = ""
+    else:
+    # try:
+        previous_chapter_num_zero_indexed = chapter_num_zero_indexed - 1
+        previous_chapter_num = chapter_num - 1
+
+        previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num_zero_indexed)
+        if previous_chapter_num == 0:
+            previous_chapter_link = "[[../|Front matter]]"
+
+
+    next_chapter_num_zero_indexed = chapter_num_zero_indexed + 1
+    next_chapter_num = chapter_num + 1
+    # next_chapter = chapters[next_chapter_num_zero_indexed]
+    # next_chapter_page_num = next_chapter["marker"]
+
+    try:
+        next_chapter_link = generate_chapter_link(chapters, next_chapter_num_zero_indexed)
+        # chapter_end = next_chapter_page_num - 1
+    except IndexError:
+        next_chapter_link = "[[../|Return to front matter]]"
+        # chapter_end = get_last_page(page_data, chapter_start)
+
+
+        # next_chapter_page_num = next_chapter["page_num"] + page_offset
+    # except IndexError:
+    
+    return previous_chapter_link, next_chapter_link
+
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -93,11 +143,22 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     first_chapter = chapters[0]
     first_chapter_name = first_chapter["title"]
-    first_chapter_page_num = first_chapter["page_number"]
+    first_chapter_page_num = first_chapter["page_num"]
     first_content_page = first_chapter_page_num + page_offset
+    first_chapter_prefix = first_chapter["prefix"]
+    first_chapter_num = 1
+    if first_chapter_name == None:
+        first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
+    else:
+        first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
     print("First content page:", first_content_page)
 
-    author_header_display = author_WS_name # for now. There will be logic here later.
+
+    if "(" in author_WS_name:
+        override_author = "| override_author = "
+        author_header_display = f"{override_author}[[Author:{author_WS_name}|]]"
+    else:
+        author_header_display = author_WS_name # for now. There will be logic here later.
     defaultsort = "" # for now. There will be logic here later.
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
     disambiguation_pointer = "" # for now. There will be logic here later.
@@ -117,7 +178,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
  | author     = {author_header_display}
  | section    = 
  | previous   = 
- | next       = [[/Chapter 1|{first_chapter_name}]]
+ | next       = {first_chapter_display}
  | year       = {year}{cover_display}
  | notes      = 
 }}}}{defaultsort}
@@ -147,32 +208,38 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
             pages_tags.append(page_tag)
     page_break = "{{page break|label=}}"
     page_tags = f"\n{page_break}\n".join(pages_tags)
-    # remove the last page break
-    # page_tags.split("\n")
-    # page_tags.pop()
-    # page_tags = "\n".join(pages_tags)
 
+    aux_toc = ""
+
+    if toc_is_auxiliary:
+        aux_toc = f"\n\n{{{{{mainspace_work_title}/TOC}}}}"
 
     copyright_template_name = "PD-US" # for now, some logic later
     additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
 
     # categories = ["Ready for export"] # for now, some logic later
-    era_category = generate_era_category(original_year)
-    type_category = generate_type_category(work_type_name, country)
-    genre_category = generate_genre_category(genre_name)
-
     categories = []
 
+    era_category = generate_era_category(original_year)
     categories.append(era_category)
+
+    type_category = generate_type_category(work_type_name, country)
     categories.append(type_category)
-    categories.append(genre_category)
+
+    if genre_name:
+        genre_category = generate_genre_category(genre_name)
+        categories.append(genre_category)
+
+
+
 
     categories.sort()
 
     categories_text = []
 
     for category in categories:
-        categories_text.append(f"[[Category:{category}]]")
+        if category != None:
+            categories_text.append(f"[[Category:{category}]]")
     if len(categories) > 0:
         categories_text = "\n\n" + "\n".join(categories_text)
     else:
@@ -183,40 +250,24 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 {{{{authority control}}}}
 {{{{{copyright_template_name}{additional_copyright_parameters}}}}}{categories_text}"""
 
-    front_matter_text = front_matter_header + page_tags + front_matter_footer
+    front_matter_text = front_matter_header + page_tags + aux_toc + front_matter_footer
 
-    save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
+    print(front_matter_text)
 
-    chapter_num = 0
+    # exit()
+
+    # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
+
+    # chapter_num = 0
 
     for chapter_num, chapter in enumerate(chapters):
-        chapter_num_zero_indexed = chapter_num
-        chapter_num = chapter_num + 1 # 1 indexed
-        chapter_name = chapter["title"]
-        chapter_start = chapter["page_number"] + page_offset
+        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, chapter, chapters)
+        chapter_num += 1
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
-
-        # try:
-        previous_chapter_num_zero_indexed = chapter_num_zero_indexed - 1
-        previous_chapter_num = chapter_num - 1
-        previous_chapter = chapters[previous_chapter_num_zero_indexed]
-        previous_chapter_name = previous_chapter["title"]
-        previous_chapter_display = f"[[../Chapter {previous_chapter_num}|{previous_chapter_name}]]"
-    # except IndexError:
-        if previous_chapter_num == 0:
-            previous_chapter_display = "[[../|Front matter]]"
-
-        try:
-            next_chapter_num_zero_indexed = chapter_num_zero_indexed + 1
-            next_chapter_num = chapter_num + 1
-            next_chapter = chapters[next_chapter_num_zero_indexed]
-            next_chapter_name = next_chapter["title"]
-            next_chapter_display = f"[[../Chapter {next_chapter_num}|{next_chapter_name}]]"
-            next_chapter_page_num = next_chapter["page_number"] + page_offset
-            chapter_end = next_chapter_page_num - 1
-        except IndexError:
-            next_chapter_display = "[[../|Return to front matter]]"
-            chapter_end = get_last_page(page_data, chapter_start)
+        chapter_name = chapter["title"]
+        chapter_prefix = chapter["prefix"]
+        if chapter_name == None:
+            chapter_name = f"{chapter_prefix} {chapter_num}"
 
         chapter_page_title = f"{mainspace_work_title}/Chapter {chapter_num}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
@@ -229,6 +280,9 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
  | notes      = 
 }}}}{defaultsort}
 
-<pages index="{filename}" from={chapter_start} to={chapter_end} />"""
+"""
+# <pages index="{filename}" from={chapter_start} to={chapter_end} />"""
 
-        save_page(chapter_page, site, chapter_text, f"Transcluding chapter {chapter_name} ({chapter_num})...", transcription_page_title)
+        # save_page(chapter_page, site, chapter_text, f"Transcluding chapter {chapter_name} ({chapter_num})...", transcription_page_title)
+
+        print(chapter_text)

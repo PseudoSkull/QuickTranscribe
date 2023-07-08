@@ -12,20 +12,7 @@ from handle_wikisource_conf import get_regex_match
 from handle_commons import get_image_filename
 
 
-# Regex detect "[a-z] I [A-Z]" -> "\1! \2"
-# handle /d/ across pages
-# handle /pbr/ forced page break
-# handle /r/2/-/sc// hyphenation to break up
-## IDEA: change /-/ to <spl> tags
-
-
-# user_transcription_prefix = "User:PseudoSkull/P/"
-# mainspace_work_title = "Jalna (1927)"
-# # work_data["mainspace work title"] = mainspace_work_title
-# transcription_page_title = user_transcription_prefix + mainspace_work_title
-# site = pywikibot.Site('en', 'wikisource')
-# page = pywikibot.Page(site, transcription_page_title)
-# text = page.text
+# DO NEXT TIME THERE'S A DEDICATION WITH AN AUTHOR: dedic tag to be used for the Wikidata item. OR, detect if the marker is "ded", and if there's only one author item. If so, use that item. Dedicated to property: P825
 
 """
 {{c|{{larger|CONTENTS}}}}

@@ -57,8 +57,7 @@ style_defaults = {
     "title":
     """	text-align: center;
     font-size: 144%;
-	text-transform: uppercase;
-    margin-bottom: 1em;""",
+	text-transform: uppercase;""",
 
     "toc-block":
     """	max-width: 25em;
