@@ -50,7 +50,7 @@ def get_header_and_footer(content):
 
     return header, footer, content
 
-def get_page_data(transcription_text):
+def get_page_data(transcription_text, page_break_string=None):
     print("Retrieving page data...")
     page_data = []
     content = []
@@ -75,6 +75,8 @@ def get_page_data(transcription_text):
                     page_quality = "i"
                 if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string:
                     page_type = "toc"
+                if page_break_string and page_break_string in content_as_string:
+                    page_type = "break"
                 header, footer, content_as_string = get_header_and_footer(content_as_string)
 
                 # if len(content) < 100:
@@ -107,7 +109,7 @@ def get_page_data(transcription_text):
     print_in_green("Page data retrieved!")
     return page_data
 
-def create_pages(page_data, filename, transcription_page_title, username):
+def create_pages(page_data, filename, transcription_page_title, username, page_break_string):
     for page_data_item in page_data:
         page_num = page_data_item["page_num"]
         print(f"Adding page {page_num}...")
@@ -115,6 +117,8 @@ def create_pages(page_data, filename, transcription_page_title, username):
         header = page_data_item["header"]
         footer = page_data_item["footer"]
         content = page_data_item["content"]
+
+        content = content.replace(f"\n{page_break_string}", "") # remove page break comment from content, since it's not needed anymore
 
         site = pywikibot.Site("en", "wikisource")
         page_title = f"Page:{filename}/{page_num}"

@@ -23,16 +23,20 @@ marker_definitions = {
 }
 
 style_defaults = {
-    "chapter":
+    "chapter": # IF NO STYLE IS SPECIFIED, USE THIS
+    # """	text-align: center;
+	# margin-bottom: 0.75em;""",
     """	text-align: center;
+	text-transform: uppercase;
+	font-size: 120%;
 	margin-bottom: 0.75em;""",
     
-    "chapter.num":
+    "chapter num":
     """	text-transform: uppercase;
     font-size: 120%;
     margin-bottom: 1em;""",
 
-    "chapter.title":
+    "chapter title":
     """	font-variant: all-small-caps;""",
 
     "half":

@@ -39,7 +39,7 @@ basic_elements = {
     "d": "dhr",
     "n": "nop",
     "peh": "peh",
-    "-": "/<spl>/", # for handling split between tags
+    "-": "<spl>", # for handling split between tags
 }
 
 block_elements = {
@@ -279,15 +279,17 @@ def handle_inline_continuations(content, page, page_data, tag, continuation_pref
 
 
 
-def handle_forced_page_breaks(page):
+def handle_forced_page_breaks(page, page_break_string):
     content = page["content"]
     page_break_tag = get_plain_tag("pbr")
+    
+    # page_break_string = "<!-- page break after this page -->"
 
     if string_not_in_content(content, page_break_tag, "Handling forced page break"):
         return page
 
-    content = content.replace(f"\n{page_break_tag}", "")
-    page["type"] = "page_break"
+    content = content.replace(f"\n{page_break_tag}", f"\n{page_break_string}")
+    page["type"] = "break"
     
     page["content"] = content
     return page
@@ -777,7 +779,7 @@ def add_half_to_transcription(page, title):
     if string_not_in_content(content, "/half/", "Adding half title to transcription"):
         return page
     
-    half = f"{{{{ph|class=half|{title}}}}}"
+    half = f"ph|class=half|{title}"
     content = convert_simple_markup(content, "half", half)
 
     page["content"] = content
@@ -905,7 +907,10 @@ def convert_simple_markup(content, abbreviation, template):
     if string_not_in_content(content, abbreviation, f"Replacing {abbreviation} with {template} in transcription"):
         return content
 
-    template = "{{" + template + "}}"
+    if abbreviation == "/-/":
+        template = "/" + template + "/"
+    else:
+        template = "{{" + template + "}}"
     content = content.replace(abbreviation, template)
 
     return content
@@ -920,13 +925,15 @@ def convert_basic_elements(page):
     return page
 
 
-def remove_split_tags(page):
+def remove_split_tag(page):
     content = page["content"]
 
-    if string_not_in_content(content, "<spl>", "Removing <spl> tags from transcription"):
+    split_tag = "<spl>"
+
+    if string_not_in_content(content, split_tag, "Removing split tags (used for splitting up adjacent QT markup for parsing) from transcription"):
         return page
 
-    content = content.replace("<spl>", "")
+    content = content.replace(split_tag, "")
 
     page["content"] = content
 
@@ -1042,7 +1049,7 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -1073,12 +1080,12 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
         page = convert_author_links(page)
         img_num, page = convert_images(page, image_data, img_num)
-        page = handle_forced_page_breaks(page)
+        page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
         chapter_num, part_num, page = convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_format)
 
-        page = remove_split_tags(page)
+        page = remove_split_tag(page)
 
 
         new_page_data.append(page)

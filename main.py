@@ -20,6 +20,7 @@ from handle_new_texts import add_to_new_texts
 from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols
 
+page_break_string = "<!-- page break after this page -->"
 
 chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
     # There should be functionality for both LINK PREFIXES, and HEADING PREFIXES, because they're different
@@ -358,7 +359,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 
@@ -373,7 +374,7 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that transcription has been parsed, and is ready for Wikisource entry...")
 
 # Get page data again, since it's been updated
-page_data = get_page_data(transcription_text)
+page_data = get_page_data(transcription_text, page_break_string)
 
 index_pagelist = create_index_pagelist(transcription_text)
 
@@ -404,7 +405,7 @@ expected_progress = "pages_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    create_pages(page_data, filename, transcription_page_title, username)
+    create_pages(page_data, filename, transcription_page_title, username, page_break_string)
 
     process_break()
 
