@@ -279,6 +279,6 @@ def check_QT_progress(page_text, expected_progress):
 
 
 def find_form_section(page_text, tag):
-    form = get_regex_match(page_text, rf"/{tag}form//\n<nowiki>\n(.*?)\n</nowiki>\n//{tag}form/", "form text", dotall=True, important=True)
+    form = get_regex_match(page_text, rf"/{tag}form//\n<nowiki>\n(.*?)\n</nowiki>\n//{tag}form/", "form text", dotall=True)
 
     return form

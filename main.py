@@ -350,9 +350,6 @@ toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
-print(toc)
-
-exit()
 
 
 

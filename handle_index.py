@@ -40,8 +40,8 @@ style_defaults = {
 	text-transform: uppercase;
 	font-size: 120%;""",
 
-    "part":
-    """    text-align: center;
+    "part-header":
+    """	text-align: center;
     font-size: 120%;
     text-transform: uppercase;""",
 

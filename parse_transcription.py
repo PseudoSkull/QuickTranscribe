@@ -55,11 +55,15 @@ block_elements = {
     "xxsb": "xx-smaller block",
 
     # fonts
-    "ib": "italic block",
     "bb": "bold block",
-    "scb": "small-caps block",
     "blb": "blackletter block",
+    "cb": "cursive block",
+    "ib": "italic block",
+    "scb": "small-caps block",
+
+    # alignment
     "bc": "block center",
+    "hi": "hanging indent",
 }
 
 named_chapter_pattern = r"\/ch\/\/.+?\n\n"
@@ -172,29 +176,29 @@ def add_to_footer(end_template, footer):
     else:
         return end_template
 
-def handle_formatting_continuations(page, tag, formatting_continuations, start_template, end_template, split_list=None):
+def handle_block_continuations(page, tag, block_continuations, start_template, end_template, split_list=None):
     content = page["content"]
     header = page["header"]
     footer = page["footer"]
     end_tag = get_end_tag(tag)
     while 1:
-        if tag in formatting_continuations:
+        if tag in block_continuations:
             print(f"Formatting continuation of {tag} in progress...")
-            continuation_index = formatting_continuations[tag]
+            continuation_index = block_continuations[tag]
             
             # handle headers/footers
 
             if continuation_index == 0:
                 footer = add_to_footer(end_template, footer)
-                formatting_continuations[tag] += 1
+                block_continuations[tag] += 1
             else:
                 header = add_to_header(start_template, header)
                 if end_tag not in content:
                     footer = add_to_footer(end_template, footer)
-                    formatting_continuations[tag] += 1
+                    block_continuations[tag] += 1
                 else:
                     print(f"Formatting continuation of {tag} complete.")
-                    del formatting_continuations[tag]
+                    del block_continuations[tag]
 
             # handle content
             
@@ -205,13 +209,13 @@ def handle_formatting_continuations(page, tag, formatting_continuations, start_t
         else:
             print(f"Formatting of {tag} continues across multiple pages. Handling...")
             if tag in content:
-                formatting_continuations[tag] = 0
+                block_continuations[tag] = 0
 
     page["content"] = content
     page["header"] = header
     page["footer"] = footer
 
-    return formatting_continuations, page
+    return block_continuations, page
 
 def handle_inline_continuations(content, page, page_data, tag, continuation_prefix, continuation_param, inline_continuations):
     print(f"Handling inline continuation (tag: {tag}, prefix: {continuation_prefix}, param: {continuation_param})")
@@ -243,7 +247,7 @@ def handle_inline_continuations(content, page, page_data, tag, continuation_pref
             inline_continuation_data["end"] = crosspage_end
 
             inline_continuations.append(inline_continuation_data)
-            print(f"{inline_continuations} is inline continuations in the function")
+            # print(f"{inline_continuations} is inline continuations in the function")
         elif start_tag not in content:
             inline_continuation_data = inline_continuations[0]
             crosspage_start = inline_continuation_data["start"]
@@ -622,7 +626,7 @@ It will also have to account for this:
 So yes, on page 1 an fb EXISTS, but does not have a continuation. So we can't just check to see if it EXISTS, we have to check to see if it has a continuation.
 """
 
-def add_toc_to_transcription(page, toc, formatting_continuations):
+def add_toc_to_transcription(page, toc, block_continuations):
 
     content = page["content"]
     # header = page["header"]
@@ -633,14 +637,14 @@ def add_toc_to_transcription(page, toc, formatting_continuations):
 
     if string_not_in_content(content, toc_tag, "Adding TOC to transcription"):
         # Your mind is in the right place. But still, how are we going to know which TOC split it is if there's no iterator outside this function?
-        return formatting_continuations, page
+        return block_continuations, page
     
     if spl_tag in toc:
         toc_split = toc.split("\n" + spl_tag + "\n")
         start_template = "<div class=\"toc-block\">"
         end_template = "</div>"
 
-        formatting_continuations, page = handle_formatting_continuations(page, toc_tag, formatting_continuations, start_template, end_template, split_list=toc_split)
+        block_continuations, page = handle_block_continuations(page, toc_tag, block_continuations, start_template, end_template, split_list=toc_split)
 
         content = page["content"] # make sure to update content after handling formatting continuations
 
@@ -652,43 +656,69 @@ def add_toc_to_transcription(page, toc, formatting_continuations):
     # page["header"] = header
     # page["footer"] = footer
 
-    return formatting_continuations, page
+    return block_continuations, page
 
-def convert_chapter_headers(page, chapters, chapter_num, chapter_format):
+def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_format):
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
     ch_tag = get_plain_tag("ch")
+    bk_tag = get_plain_tag("bk")
+    pt_tag = get_plain_tag("pt")
 
-    if string_not_in_content(content, ch_tag, "Converting chapter headings"):
-        return chapter_num, page
+    if string_not_in_content(content, ch_tag, "Converting chapter headings") and string_not_in_content(content, bk_tag, "Converting book headings") and string_not_in_content(content, pt_tag, "Converting part headings"):
+        return chapter_num, part_num, page
 
 
     chapters_in_page = get_string_from_lines(content, ch_tag)
+    books_in_page = get_string_from_lines(content, bk_tag)
+    parts_in_page = get_string_from_lines(content, pt_tag)
+
+    if books_in_page:
+        parts_in_page = books_in_page # they're the same, so make it the same standard
+
+    for line_num, pt_tag in parts_in_page.items():
+        part_num_zero_indexed = part_num
+        part = chapters[part_num_zero_indexed]
+        part_num += 1
+        roman_part_num = roman.toRoman(part_num)
+        part_prefix = part["prefix"]
+        part_text = f"{{{{ph|class=part-header|{part_prefix} {roman_part_num}}}}}"
+
+        content = replace_line(content, part_text, line_num)
 
     for line_num, ch_tag in chapters_in_page.items():
         real_chapter_num = chapter_num + 1 # not zero-indexed
         roman_chapter_num = roman.toRoman(real_chapter_num)
-        chapter = chapters[chapter_num]
-        chapter_prefix = "Chapter "
+        part_num_zero_indexed = part_num - 1
+        if part_num_zero_indexed != -1: # i.e. if there are any parts
+            chapter = chapters[part_num_zero_indexed]["subchapters"][chapter_num]
+        else:
+            chapter = chapters[chapter_num]
+        chapter_prefix = chapter["prefix"]
         chapter_title = chapter["title"]
+        if chapter_format:
+            if len(chapters_in_page) == 1:
+                replacements = {
+                    "cnam": chapter_title,
+                    "cnum": roman_chapter_num,
+                    "cpre": chapter_prefix,
+                }
 
-        if len(chapters_in_page) == 1:
-            replacements = {
-                "cnam": chapter_title,
-                "cnum": roman_chapter_num,
-                "cpre": chapter_prefix,
-            }
-
-            chapter_text = format_form_tag(chapter_format, replacements)
-        # else: handle section tags
+                chapter_text = format_form_tag(chapter_format, replacements)
+            # else: handle section tags
+        else:
+            if chapter_title:
+                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix} {roman_chapter_num}}}}}"
+            else:
+                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
 
         content = replace_line(content, chapter_text, line_num)
 
         chapter_num += 1
 
     page["content"] = content
-    return chapter_num, page
+    return chapter_num, part_num, page
 
 
 
@@ -860,10 +890,10 @@ def convert_block_element(page, abbreviation, template_name):
 
     return page
 
-def convert_block_elements(page, formatting_continuations):
+def convert_block_elements(page, block_continuations):
     for abbreviation, template_name in block_elements.items():
         page = convert_block_element(page, abbreviation, template_name)
-    return formatting_continuations, page
+    return block_continuations, page
 
 def convert_simple_markup(content, abbreviation, template):
     abbreviation = get_plain_tag(abbreviation)
@@ -879,6 +909,19 @@ def convert_simple_markup(content, abbreviation, template):
 def convert_basic_elements(page):
     for abbreviation, template in basic_elements.items():
         page = convert_simple_markup(page, abbreviation, template)
+    return page
+
+
+def remove_split_tags(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "<spl>", "Removing <spl> tags from transcription"):
+        return page
+
+    content = content.replace("<spl>", "")
+
+    page["content"] = content
+
     return page
 
 
@@ -917,12 +960,12 @@ def handle_fqm(text):
 
     return text
 
-def convert_poems(page, formatting_continuations, convert_fqms):
+def convert_poems(page, block_continuations, convert_fqms):
     # text = convert_block_element(text, "poem", "poem")
     content = page["content"]
 
     if string_not_in_content(content, "/po/", "Converting poems"):
-        return formatting_continuations, page
+        return block_continuations, page
 
     pattern = r"\/po\//([\s\S]+?)\//po\/"
     replacement = r"{{ppoem|class=poem|\1}}"
@@ -932,7 +975,7 @@ def convert_poems(page, formatting_continuations, convert_fqms):
         content = handle_fqm(content)
 
     page["content"] = content
-    return formatting_continuations, page
+    return block_continuations, page
 
 
 
@@ -996,16 +1039,13 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     new_page_data = []
     img_num = 0
     chapter_num = 0
-    formatting_continuations = {} # dictionary because of TOC needing split indices
+    part_num = 0
+    block_continuations = {} # dictionary because of TOC needing split indices, CHANGE THIS LATER NOT SEMANTICALLY CORRECT
     inline_continuations = []
     for page in page_data:
-        # content = page["content"]
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")
-        # header = page["header"]
-        # footer = page["footer"]
 
-        # page = add_toc_to_transcription(page, chapters, mainspace_work_title)
         page = add_space_to_apostrophe_quotes(page)
         if chapter_beginning_formatting == "sc":
             page = format_chapter_beginning_to_smallcaps(page)
@@ -1017,8 +1057,8 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_complex_dhr(page)
         page = convert_basic_elements(page)
         page = convert_title_headers(page, title)
-        formatting_continuations, page = convert_block_elements(page, formatting_continuations)
-        formatting_continuations, page = convert_poems(page, formatting_continuations, convert_fqms) # done
+        block_continuations, page = convert_block_elements(page, block_continuations)
+        block_continuations, page = convert_poems(page, block_continuations, convert_fqms) # done
         page = convert_smallcaps(page)
         page = convert_right(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
@@ -1026,19 +1066,16 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         img_num, page = convert_images(page, image_data, img_num)
         page = handle_forced_page_breaks(page)
 
-        # if page_enum > 20:
-        #     exit()
-        # chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, chapter_format)
-        # formatting_continuations, page = add_toc_to_transcription(page, toc, formatting_continuations)
-        
-        # page["content"] = content
-        # page["header"] = header
-        # page["footer"] = footer
+        block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
+        chapter_num, part_num, page = convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_format)
+
+        page = remove_split_tags(page)
+
 
         new_page_data.append(page)
-        print(page)
-        if page_num > 80:
-            exit()
+        # print(page)
+        # if page_num > 80:
+            # exit()
     print_in_green("All transcription pages parsed successfully!")
     return new_page_data
 
