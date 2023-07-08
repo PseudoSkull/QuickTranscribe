@@ -100,8 +100,9 @@ def string_not_in_content(content, string, action):
         if item in content:
             print(f"{string} found in content. {action}...")
             return False
-        else:
-            return True
+        # else:
+            # return True
+    return True
 
 
 def get_bare_title(mainspace_work_title):
@@ -751,12 +752,10 @@ def add_space_to_apostrophe_quotes(page):
 
     if string_not_in_content(content, apostrophe_quotes, "Adding spaces to apostrophe quotes"):
         return page
-    # print("Adding spaces to apostrophe quotes...")
 
     for apostrophe_quote in apostrophe_quotes:
         # create the template
-        apostrophe_quote_symbols = apostrophe_quote.split()
-        apostrophe_quote_spaced = " ".join(apostrophe_quote_symbols)
+        apostrophe_quote_spaced = " ".join(list(apostrophe_quote))
         apostrophe_quote_template = "{{" + apostrophe_quote_spaced + "}}"
 
         content = content.replace(apostrophe_quote, apostrophe_quote_template)
