@@ -118,28 +118,43 @@ def generate_chapter_links(chapter_num, part_num, chapter, chapters, subchapters
         previous_chapter_link = ""
     else:
     # try:
+        # if subchapters_currently_being_iterated:
+        # previous_chapter_num_zero_indexed
+        # previous_chapter_num = 
+        # else:
         previous_chapter_num_zero_indexed = chapter_num_zero_indexed - 1
         previous_chapter_num = chapter_num - 1
-        previous_chapter = chapters[previous_chapter_num_zero_indexed]
+        if subchapters_currently_being_iterated:
+            previous_chapter = "" #try
+        else:
+            previous_chapter = chapters[previous_chapter_num_zero_indexed]
         # print(previous_chapter_num)
         # print(previous_chapter)
         # print(chapter_num)
 
         if previous_chapter_num == 0:
             if subchapters_currently_being_iterated:
+                print("Generated previous chapter link from if previous_chapter_num == 0: if subpages_currently_being_iterated:")
                 previous_chapter_link = generate_chapter_link(chapters, part_num, part_num_zero_indexed)
             else:
+                print("Generated previous chapter link from if previous_chapter_num == 0: else:")
                 previous_chapter_link = front_matter_link
-        elif "subchapters" in previous_chapter:
+        elif "subchapters" in previous_chapter and not subchapters_currently_being_iterated:
             previous_subchapters = previous_chapter["subchapters"]
             previous_subchapter = previous_subchapters[-1]
             # previous_chapter_subpages_num = len(previous_chapter_subpages)
             previous_chapter_num_zero_indexed = len(previous_subchapters) - 1
             previous_chapter_num = previous_subchapter["chapter_num"]
             # previous_chapter_subpages_num_zero_indexed = previous_chapter_subpages_num - 1
+            print("Generated previous chapter link from elif subchapters in previous_chapter and not subchapters_currently_being_iterated:")
             previous_chapter_link = generate_chapter_link(previous_subchapters, previous_chapter_num, previous_chapter_num_zero_indexed)
         else:
-            previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed)
+            if subchapters_currently_being_iterated:
+                print("Generated previous chapter link from else: subchapters_currently_being_iterated")
+                previous_chapter_link = generate_chapter_link(subchapters_currently_being_iterated, previous_chapter_num, previous_chapter_num_zero_indexed)
+            else:
+                print("Generated previous chapter link from else: else:")
+                previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed)
 
 
 
@@ -149,17 +164,25 @@ def generate_chapter_links(chapter_num, part_num, chapter, chapters, subchapters
     # next_chapter_page_num = next_chapter["marker"]
 
     try:
-        next_chapter_link = generate_chapter_link(chapters, next_chapter_num, next_chapter_num_zero_indexed)
+        if subchapters_currently_being_iterated:
+            next_chapter_link = generate_chapter_link(subchapters_currently_being_iterated, next_chapter_num, next_chapter_num_zero_indexed)
+            print("Generated next chapter link from try, if subchapters_currently_being_iterated:")
+        else:
+            next_chapter_link = generate_chapter_link(chapters, next_chapter_num, next_chapter_num_zero_indexed)
+            print("Generated next chapter link from try, else:")
         # chapter_end = next_chapter_page_num - 1
     except IndexError:
         if subchapters_currently_being_iterated:
             next_part_num = part_num + 1
             next_part_num_zero_indexed = part_num_zero_indexed + 1
             try:
-                next_chapter_link = generate_chapter_link(chapters, next_part_num, next_part_num_zero_indexed)
+                next_chapter_link = generate_chapter_link(subchapters_currently_being_iterated, next_part_num, next_part_num_zero_indexed)
+                print("Generated next chapter link from except IndexError, if subpages_currently_being_iterated, try:")
             except IndexError:
+                print("Generated next chapter link from except IndexError, if subpages_currently_being_iterated, try, except IndexError:")
                 next_chapter_link = return_to_front_matter_link
         else:
+            print("Generated next chapter link from except IndexError, else:")
             next_chapter_link = return_to_front_matter_link
         # chapter_end = get_last_page(page_data, chapter_start)
 
@@ -186,8 +209,10 @@ def transclude_chapters(overall_chapter_num, part_num, chapters, title, mainspac
             chapter_name = f"{chapter_prefix} {chapter_num}"
 
         # else:
-        # if subchapters_currently_being_iterated:
-        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, part_num, chapter, chapters, subchapters_currently_being_iterated)
+        if subchapters_currently_being_iterated:
+            previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, part_num, chapter, parts, subchapters_currently_being_iterated)
+        else:
+            previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, part_num, chapter, chapters, None)
         # else:
             # previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, part_num, chapter, chapters, chapters)
 
