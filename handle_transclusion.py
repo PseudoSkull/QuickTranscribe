@@ -83,7 +83,11 @@ def generate_toc_page_tag(toc_pages, filename):
 
 def generate_chapter_link(chapters, chapter_num_zero_indexed):
     chapter = chapters[chapter_num_zero_indexed]
-    chapter_num = chapter_num_zero_indexed + 1
+    # chapter_num = chapter_num_zero_indexed + 1
+    if "chapter_num" in chapter:
+        chapter_num = chapter["chapter_num"]
+    else:
+        chapter_num = chapter["part_num"]
     chapter_name = chapter["title"]
     chapter_prefix = chapter["prefix"]
 
@@ -130,6 +134,57 @@ def generate_chapter_links(chapter_num, chapter, chapters):
     # except IndexError:
     
     return previous_chapter_link, next_chapter_link
+
+def transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, parent_page=None, last_subchapter_of_previous_part=None):
+    for chapter_num, chapter in enumerate(chapters):
+        chapter_num += 1
+        title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
+        chapter_name = chapter["title"]
+        chapter_prefix = chapter["prefix"]
+        if chapter_name == None:
+            chapter_name = f"{chapter_prefix} {chapter_num}"
+
+        # else:
+        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, chapter, chapters)
+
+        if "subchapters" in chapter:
+            print("GOT HERE")
+            part_num += 1
+            # part_num_zero_indexed = part_num - 1
+            # previous_part_num = part_num_zero_indexed - 1
+            subchapters = chapter["subchapters"]
+            # previous_subpages = previous_part_num
+            if last_subchapter_of_previous_part:
+                previous_chapter_display = last_subchapter_of_previous_part
+            next_chapter_display = generate_chapter_link(subchapters, 0)
+            
+        chapter_page_title = f"{mainspace_work_title}/{chapter_prefix} {chapter_num}"
+        chapter_page = pywikibot.Page(site, chapter_page_title)
+        chapter_text = f"""{{{{header
+ | title      = {title_display}
+ | author     = {author_header_display}
+ | section    = {chapter_name}
+ | previous   = {previous_chapter_display}
+ | next       = {next_chapter_display}
+ | notes      = 
+}}}}{defaultsort}
+
+"""
+# <pages index="{filename}" from={chapter_start} to={chapter_end} />"""
+
+        # save_page(chapter_page, site, chapter_text, f"Transcluding chapter {chapter_name} ({chapter_num})...", transcription_page_title)
+
+        # if chapter_has_subpages:
+        #    recursive function after save page
+
+        # if last of subpages:
+        #     return last_subchapter_of_previous_part
+        print(chapter_text)
+
+        # if "subpages" in chapter:
+            # parent_page = ""
+            # last_subchapter_of_previous_part = transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, parent_page=None, last_subchapter_of_previous_part=None
+
 
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
     # author_death_year, transcription_page_title
@@ -254,35 +309,11 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     print(front_matter_text)
 
-    # exit()
-
     # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     # chapter_num = 0
 
-    for chapter_num, chapter in enumerate(chapters):
-        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, chapter, chapters)
-        chapter_num += 1
-        title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
-        chapter_name = chapter["title"]
-        chapter_prefix = chapter["prefix"]
-        if chapter_name == None:
-            chapter_name = f"{chapter_prefix} {chapter_num}"
-
-        chapter_page_title = f"{mainspace_work_title}/Chapter {chapter_num}"
-        chapter_page = pywikibot.Page(site, chapter_page_title)
-        chapter_text = f"""{{{{header
- | title      = {title_display}
- | author     = {author_header_display}
- | section    = {chapter_name}
- | previous   = {previous_chapter_display}
- | next       = {next_chapter_display}
- | notes      = 
-}}}}{defaultsort}
-
-"""
-# <pages index="{filename}" from={chapter_start} to={chapter_end} />"""
-
-        # save_page(chapter_page, site, chapter_text, f"Transcluding chapter {chapter_name} ({chapter_num})...", transcription_page_title)
-
-        print(chapter_text)
+    subpages = None
+    part_num = 0
+    # function for transcluding chapters. parent_page starts as false. if parent_page, parent_page is the previous link of the first chapter. if chapter has subpages, initiate recursive function.
+    transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort)
