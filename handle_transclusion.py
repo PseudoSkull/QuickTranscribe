@@ -88,7 +88,7 @@ def get_chapter_num(chapter):
         chapter_num = chapter["part_num"]
     return chapter_num
 
-def generate_chapter_link(chapters, chapter_num, chapter_num_zero_indexed):
+def generate_chapter_link(chapters, chapter_num, chapter_num_zero_indexed, subchapters):
     chapter = chapters[chapter_num_zero_indexed]
     # chapter_num = chapter_num_zero_indexed + 1
     
@@ -104,7 +104,7 @@ def generate_chapter_link(chapters, chapter_num, chapter_num_zero_indexed):
     return chapter_link
 
 
-def generate_chapter_links(chapter_num, chapter, chapters):
+def generate_chapter_links(chapter_num, chapter, chapters, subchapters):
     chapter_num_zero_indexed = chapter_num - 1
     # chapter_num = chapter_num + 1 # 1 indexed
     chapter_name = chapter["title"]
@@ -117,12 +117,15 @@ def generate_chapter_links(chapter_num, chapter, chapters):
         previous_chapter_num_zero_indexed = chapter_num_zero_indexed - 1
         previous_chapter_num = chapter_num - 1
         previous_chapter = chapters[previous_chapter_num_zero_indexed]
-        print(previous_chapter_num)
-        print(previous_chapter)
-        print(chapter_num)
+        # print(previous_chapter_num)
+        # print(previous_chapter)
+        # print(chapter_num)
 
         if previous_chapter_num == 0:
-            previous_chapter_link = "[[../|Front matter]]"
+            if subchapters:
+                previous_chapter_link = "[[../|Front matter]]"
+            else:
+                previous_chapter_link = "[[../|Front matter]]"
         elif "subchapters" in previous_chapter:
             previous_subchapters = previous_chapter["subchapters"]
             previous_subchapter = previous_subchapters[-1]
@@ -130,9 +133,9 @@ def generate_chapter_links(chapter_num, chapter, chapters):
             previous_chapter_num_zero_indexed = len(previous_subchapters) - 1
             previous_chapter_num = previous_subchapter["chapter_num"]
             # previous_chapter_subpages_num_zero_indexed = previous_chapter_subpages_num - 1
-            previous_chapter_link = generate_chapter_link(previous_subchapters, previous_chapter_num, previous_chapter_num_zero_indexed)
+            previous_chapter_link = generate_chapter_link(previous_subchapters, previous_chapter_num, previous_chapter_num_zero_indexed, subchapters)
         else:
-            previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed)
+            previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed, subchapters)
 
 
 
@@ -142,7 +145,7 @@ def generate_chapter_links(chapter_num, chapter, chapters):
     # next_chapter_page_num = next_chapter["marker"]
 
     try:
-        next_chapter_link = generate_chapter_link(chapters, next_chapter_num, next_chapter_num_zero_indexed)
+        next_chapter_link = generate_chapter_link(chapters, next_chapter_num, next_chapter_num_zero_indexed, subchapters)
         # chapter_end = next_chapter_page_num - 1
     except IndexError:
         next_chapter_link = "[[../|Return to front matter]]"
@@ -154,23 +157,26 @@ def generate_chapter_links(chapter_num, chapter, chapters):
     
     return previous_chapter_link, next_chapter_link
 
-def transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, parent_page=None, last_subchapter_of_previous_part=None):
+def transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, subchapters=None):
     # overall_chapter_num = 0
+    if subchapters:
+        parts = chapters
+        chapters = subchapters
     for overall_chapter_num, chapter in enumerate(chapters):
         # overall_chapter_num += 1
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         chapter_name = chapter["title"]
         chapter_num = get_chapter_num(chapter)
-        print(chapter)
+        # print(chapter)
         chapter_prefix = chapter["prefix"]
         if chapter_name == None:
             chapter_name = f"{chapter_prefix} {chapter_num}"
 
         # else:
-        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, chapter, chapters)
+        previous_chapter_display, next_chapter_display = generate_chapter_links(chapter_num, chapter, chapters, subchapters)
 
         if "subchapters" in chapter:
-            print("GOT HERE")
+            # print("GOT HERE")
             part_num += 1
             # part_num_zero_indexed = part_num - 1
             # previous_part_num = part_num_zero_indexed - 1
@@ -179,9 +185,9 @@ def transclude_chapters(part_num, chapters, title, mainspace_work_title, site, t
             first_subchapter = subchapters[first_subchapter_index]
             first_subchapter_num = get_chapter_num(first_subchapter)
             # previous_subpages = previous_part_num
-            if last_subchapter_of_previous_part:
-                previous_chapter_display = last_subchapter_of_previous_part
-            next_chapter_display = generate_chapter_link(subchapters, first_subchapter_num, first_subchapter_index)
+            # if last_subchapter_of_previous_part:
+            #     previous_chapter_display = last_subchapter_of_previous_part
+            next_chapter_display = generate_chapter_link(subchapters, first_subchapter_num, first_subchapter_index, subchapters)
             
         chapter_page_title = f"{mainspace_work_title}/{chapter_prefix} {chapter_num}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
@@ -206,9 +212,12 @@ def transclude_chapters(part_num, chapters, title, mainspace_work_title, site, t
         #     return last_subchapter_of_previous_part
         print(chapter_text)
 
-        # if "subpages" in chapter:
-            # parent_page = ""
-            # last_subchapter_of_previous_part = transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, parent_page=None, last_subchapter_of_previous_part=None
+        if "subchapters" in chapter:
+            parent_page = ""
+            previous_part_link = generate_chapter_link(chapters, chapter_num, overall_chapter_num, subchapters)
+            print(previous_part_link)
+            # exit()
+            # transclude_chapters(part_num, chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, subchapters=subchapters)
 
 
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
