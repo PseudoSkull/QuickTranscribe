@@ -116,12 +116,24 @@ def generate_chapter_links(chapter_num, chapter, chapters):
     # try:
         previous_chapter_num_zero_indexed = chapter_num_zero_indexed - 1
         previous_chapter_num = chapter_num - 1
+        previous_chapter = chapters[previous_chapter_num_zero_indexed]
         print(previous_chapter_num)
+        print(previous_chapter)
         print(chapter_num)
 
-        previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed)
         if previous_chapter_num == 0:
             previous_chapter_link = "[[../|Front matter]]"
+        elif "subchapters" in previous_chapter:
+            previous_subchapters = previous_chapter["subchapters"]
+            previous_subchapter = previous_subchapters[-1]
+            # previous_chapter_subpages_num = len(previous_chapter_subpages)
+            previous_chapter_num_zero_indexed = len(previous_subchapters) - 1
+            previous_chapter_num = previous_subchapter["chapter_num"]
+            # previous_chapter_subpages_num_zero_indexed = previous_chapter_subpages_num - 1
+            previous_chapter_link = generate_chapter_link(previous_subchapters, previous_chapter_num, previous_chapter_num_zero_indexed)
+        else:
+            previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num, previous_chapter_num_zero_indexed)
+
 
 
     next_chapter_num_zero_indexed = chapter_num_zero_indexed + 1
