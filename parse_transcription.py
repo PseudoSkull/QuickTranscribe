@@ -1058,7 +1058,6 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
-        # chapter_num, part_num, overall_chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, part_num, overall_chapter_num, chapter_format)
         overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
 
 
