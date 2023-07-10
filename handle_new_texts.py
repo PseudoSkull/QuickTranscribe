@@ -39,6 +39,10 @@ def move_last_entry_to_old_texts(new_texts_page_text, last_entry):
 
     return new_texts_page_text
 
+def generate_nowiki_author(author):
+    nowiki_author = f"[[Author:{author}|]]|nowiki=yes"
+    return nowiki_author
+
 def generate_new_texts_item(mainspace_work_title, author, year):
     new_texts_item = f"{{{{new texts/item|{mainspace_work_title}|{author}|{year}}}}}"
     return new_texts_item
@@ -56,23 +60,16 @@ def add_to_new_texts(mainspace_work_title, author, year):
 
     new_texts_page_text = move_last_entry_to_old_texts(new_texts_page_text, last_entry)
 
+    if " (" in author:
+        author = generate_nowiki_author(author)
+    
     new_texts_item = generate_new_texts_item(mainspace_work_title, author, year)
     onlyinclude_start_tag = "<onlyinclude>\n"
 
     new_texts_page_text = new_texts_page_text.replace(onlyinclude_start_tag, f"{onlyinclude_start_tag}{new_texts_item}\n")
 
+    # print(new_texts_item)
     save_page(new_texts_page, site, new_texts_page_text, f"Adding completed QuickTranscribe project, [[{mainspace_work_title}]], to new texts...")
 
     # print(new_texts_page_text)
-    # add new entry to new texts
-    # new_texts_page_text = new_texts
     
-
-
-
-
-
-    # new_texts_page_text += f"\n* [[{mainspace_work_title}]] ({author}, {year})"
-    # new_texts_page.text = new_texts_page_text
-    # new_texts_page.save("Adding new text to list of new texts", minor=False)
-    # print_in_green("Added to new texts.")

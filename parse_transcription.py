@@ -13,6 +13,7 @@ from handle_commons import get_image_filename
 
 
 # DO NEXT TIME THERE'S A DEDICATION WITH AN AUTHOR: dedic tag to be used for the Wikidata item. OR, detect if the marker is "ded", and if there's only one author item. If so, use that item. Dedicated to property: P825
+# DO NEXT TIME: {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility|lq="|rq="}}
 
 """
 {{c|{{larger|CONTENTS}}}}
@@ -834,7 +835,7 @@ def convert_wikilinks(page, inline_continuations, page_data):
         return page, inline_continuations
     
 
-    # {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility}}
+    # {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility|lq="|rq="}}
     continuation_prefix = "lp"
     continuation_param = "link"
 

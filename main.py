@@ -128,6 +128,7 @@ if not at_expected_progress:
     process_break()
     find_irregular_single_symbols(transcription_text)
     process_break()
+    transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that detected scannos have been fixed...")
 
