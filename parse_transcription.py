@@ -367,7 +367,7 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                 elif is_part:
                     chapter["prefix"] = "Part"
                 chapter["part_num"] = part_num
-                chapter["subchapters"] = []
+                # chapter["subchapters"] = []
 
                 if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
                     chapter_num = 0
@@ -392,13 +392,13 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                     splice_chapter = True
             chapter["splice"] = splice_chapter
 
-            if parts_exist:
-                if is_book or is_part:
-                    chapters.append(chapter)
-                else:
-                    chapters[-1]["subchapters"].append(chapter)
-            else:
-                chapters.append(chapter)
+            # if parts_exist:
+            #     if is_book or is_part:
+            #         chapters.append(chapter)
+            #     else:
+            #         chapters[-1]["subchapters"].append(chapter)
+            # else:
+            chapters.append(chapter)
             
 
     #     chapter_pattern = r"\n\/ch\/\n\n"
@@ -427,31 +427,38 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
-def get_aux_toc_items(chapters, mainspace_work_title, spacing=""):
+def get_aux_toc_items(chapters, mainspace_work_title):
     aux_toc_items = []
+    spacing = ""
+    is_subchapter = False
     for chapter in chapters:
         # if parts_exist:
+
         chapter_prefix = chapter["prefix"] + " "
         if chapter_prefix == "Chapter ":
             chapter_num = chapter["chapter_num"]
-            aux_subchapters = ""
+            if is_subchapter:
+                spacing = ":"
         else:
+            spacing = ""
             chapter_num = chapter["part_num"]
-            subchapters = chapter["subchapters"]
-            aux_subchapters = get_aux_toc_items(subchapters, mainspace_work_title, ":")
-            aux_subchapters = "\n".join(aux_subchapters)
+            is_subchapter = True
+            # subchapters = chapter["subchapters"]
+            # aux_subchapters = get_aux_toc_items(subchapters, mainspace_work_title, ":")
+            # spacing = ":"
+            # aux_subchapters = "\n".join(aux_subchapters)
         chapter_numbered_name = f"{chapter_prefix}{chapter_num}"
 
         chapter_title = chapter["title"]
-
+        
         if chapter_title:
             # aux_toc_entry = f"* [[{mainspace_work_title}/|{chapter_title}]]"
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}: {chapter_title}]]"
         else:
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}]]"
 
-        if aux_subchapters:
-            aux_toc_entry += "\n" + aux_subchapters
+        # if aux_subchapters:
+        #     aux_toc_entry += "\n" + aux_subchapters
 
         aux_toc_items.append(aux_toc_entry)
     
@@ -468,6 +475,8 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title)
         aux_toc_items = "\n".join(aux_toc_items)
         aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
+        print(aux_toc)
+        exit()
         return aux_toc
 
     if smallcaps:
