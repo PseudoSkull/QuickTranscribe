@@ -366,7 +366,7 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                     chapter["prefix"] = "Book"
                 elif is_part:
                     chapter["prefix"] = "Part"
-                chapter["part_num"] = part_num
+                chapter["chapter_num"] = part_num
                 # chapter["subchapters"] = []
 
                 if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
@@ -392,38 +392,9 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
                     splice_chapter = True
             chapter["splice"] = splice_chapter
 
-            # if parts_exist:
-            #     if is_book or is_part:
-            #         chapters.append(chapter)
-            #     else:
-            #         chapters[-1]["subchapters"].append(chapter)
-            # else:
             chapters.append(chapter)
             
 
-    #     chapter_pattern = r"\n\/ch\/\n\n"
-    # else:
-    #     chapter_pattern = r"\/ch\/\/(.+?)\n\n"
-    # page_number_pattern = r"\n\n-([0-9]+)\n\n"
-    # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
-    # chapter_and_page_matches = re.findall(chapter_and_page_pattern, text)
-    # chapter_splice_points = get_chapter_splice_points(text)
-
-    # # results = []
-    # for chapter_num, match in enumerate(chapter_and_page_matches):
-    #     chapter_num += 1 # start at 1 instead of 0
-    #     chapter = {}
-    #     page_number = int(match[0])
-    #     chapter["title"] = convert_to_title_case(match[1])
-    #     chapter["page_number"] = page_number
-    #     chapter["refs"] = False # for now
-    #     splice_chapter = False
-    #     if chapter_splice_points:
-    #         if chapter_num in chapter_splice_points:
-    #             splice_chapter = True
-    #     chapter["splice"] = splice_chapter
-    #     chapters.append(chapter)
-    # print(chapters)
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
@@ -435,13 +406,13 @@ def get_aux_toc_items(chapters, mainspace_work_title):
         # if parts_exist:
 
         chapter_prefix = chapter["prefix"] + " "
+        chapter_num = chapter["chapter_num"]
         if chapter_prefix == "Chapter ":
             chapter_num = chapter["chapter_num"]
             if is_subchapter:
                 spacing = ":"
         else:
             spacing = ""
-            chapter_num = chapter["part_num"]
             is_subchapter = True
             # subchapters = chapter["subchapters"]
             # aux_subchapters = get_aux_toc_items(subchapters, mainspace_work_title, ":")
@@ -476,7 +447,6 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         aux_toc_items = "\n".join(aux_toc_items)
         aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
         print(aux_toc)
-        exit()
         return aux_toc
 
     if smallcaps:
@@ -689,10 +659,7 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
 
     for line_num, ch_tag in chapters_in_page.items():
         part_num_zero_indexed = part_num - 1
-        if part_num_zero_indexed != -1: # i.e. if there are any parts
-            chapter = chapters[part_num_zero_indexed]["subchapters"][chapter_num]
-        else:
-            chapter = chapters[chapter_num]
+        chapter = chapters[chapter_num]
         
         real_chapter_num = chapter["chapter_num"]
         roman_chapter_num = roman.toRoman(real_chapter_num)

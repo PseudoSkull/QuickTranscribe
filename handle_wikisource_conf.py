@@ -36,7 +36,7 @@ variables_with_descriptions = {
         "gen": "genre",
         "com": "Commons category",
         "aux": "toc is auxiliary",
-        "ptseq": "chapters are subpages of parts",
+        "ptsub": "chapters are subpages of parts",
         "progress": "QT progress flag",
     }
 
