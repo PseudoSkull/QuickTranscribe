@@ -129,7 +129,53 @@ def generate_chapter_links(overall_chapter_num, chapter, chapters):
     return previous_chapter_link, next_chapter_link
 
 
+def pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end):
+    # gather pages not needing proofreading
+    pages_not_needing_proofreading = []
+    for page_num, page in enumerate(page_data):
+        page_num += 1
+        if page_num < chapter_start:
+            continue
+        elif page_num > chapter_end:
+            break
+        else:
+            if page["page_quality"] == "0":
+                # chapter_end = page["page_num"] - 1
+                pages_not_needing_proofreading.append(page_num)
+                # break
+    print(pages_not_needing_proofreading)
+    # remove pages not needing proofreading from chapter_end
+    for page in reversed(pages_not_needing_proofreading):
+        if page == chapter_end:
+            chapter_end -= 1
+        else:
+            break
+
+    return chapter_end
+
+def handle_page_tag_splits(splits, page_data, chapter_start, chapter_end):
+    for page_num, page in enumerate(page_data):
+        page_num_zero_indexed = page_num
+        page_num += 1
+        previous_page = page_data[page_num_zero_indexed - 1]
+        if page_num < chapter_start:
+            continue
+        elif page_num > chapter_end:
+            break
+        else:
+            page_type = page["type"]
+            if page["page_quality"] == "0":
+                if previous_page["page_quality"] == "0":
+                    continue
+                else:
+                    splits.append(page_num)
+            elif page_type == "break":
+                splits.append(page_num)
+
+    # return
+
 def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename):
+    splits = []
     page_num = chapter["page_num"]
     actual_page_num = page_num + page_offset
     chapter_start = actual_page_num
@@ -138,6 +184,7 @@ def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, ove
     except IndexError:
         chapter_end = get_last_page(page_data, chapter_start)
 
+    chapter_end = pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end)
 
     if chapter_start != chapter_end:
         chapter_translusion_tags = f"<pages index=\"{filename}\" from={chapter_start} to={chapter_end} />"
