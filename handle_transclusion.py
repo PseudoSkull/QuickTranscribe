@@ -143,7 +143,7 @@ def pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end):
                 # chapter_end = page["page_num"] - 1
                 pages_not_needing_proofreading.append(page_num)
                 # break
-    print(pages_not_needing_proofreading)
+
     # remove pages not needing proofreading from chapter_end
     for page in reversed(pages_not_needing_proofreading):
         if page == chapter_end:
@@ -153,7 +153,8 @@ def pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end):
 
     return chapter_end
 
-def handle_page_tag_splits(splits, page_data, chapter_start, chapter_end):
+def get_page_tag_splits(page_data, chapter_start, chapter_end):
+    splits = []
     for page_num, page in enumerate(page_data):
         page_num_zero_indexed = page_num
         page_num += 1
@@ -168,14 +169,24 @@ def handle_page_tag_splits(splits, page_data, chapter_start, chapter_end):
                 if previous_page["page_quality"] == "0":
                     continue
                 else:
-                    splits.append(page_num)
+                    splits.append(page_num - 1)
             elif page_type == "break":
                 splits.append(page_num)
-
+    # if len(splits) > 0:
+    #     print(splits)
+    #     exit()
+    return splits
     # return
 
+def generate_transclusion_tag(filename, start_page, end_page):
+    if start_page != end_page:
+        transclusion_tag = f"<pages index=\"{filename}\" from={start_page} to={end_page} />"
+    else:
+        transclusion_tag = f"<pages index=\"{filename}\" include={start_page} />"
+    return transclusion_tag
+
 def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename):
-    splits = []
+    # splits = []
     page_num = chapter["page_num"]
     actual_page_num = page_num + page_offset
     chapter_start = actual_page_num
@@ -185,13 +196,29 @@ def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, ove
         chapter_end = get_last_page(page_data, chapter_start)
 
     chapter_end = pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end)
+    splits = get_page_tag_splits(page_data, chapter_start, chapter_end)
+    number_of_splits = len(splits)
 
-    if chapter_start != chapter_end:
-        chapter_translusion_tags = f"<pages index=\"{filename}\" from={chapter_start} to={chapter_end} />"
+    chapter_transclusion_tags = []
+
+    if number_of_splits == 1:
+        page_split = splits[0]
+        page_after_page_split = page_split + 1
+        first_tag = generate_transclusion_tag(filename, chapter_start, page_split)
+        last_tag = generate_transclusion_tag(filename, page_after_page_split, chapter_end)
+        chapter_transclusion_tags.append(first_tag)
+        chapter_transclusion_tags.append(last_tag)
+    elif number_of_splits > 1:
+        pass # logic later
     else:
-        chapter_translusion_tags = f"<pages index=\"{filename}\" include={chapter_start} />"
+        chapter_transclusion_tags = generate_transclusion_tag(filename, chapter_start, chapter_end)
+    
+    page_break = "{{page break|label=}}"
 
-    return chapter_translusion_tags
+    if type(chapter_transclusion_tags) == list:
+        chapter_transclusion_tags = f"\n{page_break}\n".join(chapter_transclusion_tags)
+
+    return chapter_transclusion_tags
 
 def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename):
     for overall_chapter_num, chapter in enumerate(chapters):
@@ -218,10 +245,14 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 }}}}{defaultsort}
 
 {chapter_transclusion_tags}"""
-        print(chapter_text)
-# <pages index="{filename}" from={chapter_start} to={chapter_end} />"""
+        # print(chapter_text)
 
-        # save_page(chapter_page, site, chapter_text, f"Transcluding chapter {chapter_name} ({chapter_num})...", transcription_page_title)
+        if chapter_name == chapter_internal_name:
+            edit_summary = f"Transcluding {chapter_name}..."
+        else:
+            edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
+
+        save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
@@ -347,12 +378,6 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     print(front_matter_text)
 
-    # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
+    save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
-    # chapter_num = 0
-
-    subpages = None
-    part_num = 0
-    overall_chapter_num = 0
-    # function for transcluding chapters. parent_page starts as false. if parent_page, parent_page is the previous link of the first chapter. if chapter has subpages, initiate recursive function.
     transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)
