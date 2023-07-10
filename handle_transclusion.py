@@ -104,12 +104,9 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed):
 
 
 def generate_chapter_links(overall_chapter_num, chapter, chapters):
-    # chapter_num_zero_indexed = chapter_num
-    # chapter_num = chapter_num + 1 # 1 indexed
     front_matter_link = "[[../|Front matter]]"
     return_to_front_matter_link = "[[../|Return to front matter]]"
     chapter_name = chapter["title"]
-    # chapter_start = chapter["page_num"] + page_offset
 
     if overall_chapter_num == -1: # front matter
         previous_chapter_link = ""
@@ -131,11 +128,29 @@ def generate_chapter_links(overall_chapter_num, chapter, chapters):
 
     return previous_chapter_link, next_chapter_link
 
-def transclude_chapters(chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, subchapters_currently_being_iterated=None):
-    for overall_chapter_num, chapter in enumerate(chapters):
-        previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
 
+def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename):
+    page_num = chapter["page_num"]
+    actual_page_num = page_num + page_offset
+    chapter_start = actual_page_num
+    try:
+        chapter_end = chapters[overall_chapter_num + 1]["page_num"] - 1 + page_offset
+    except IndexError:
+        chapter_end = get_last_page(page_data, chapter_start)
+
+
+    if chapter_start != chapter_end:
+        chapter_translusion_tags = f"<pages index=\"{filename}\" from={chapter_start} to={chapter_end} />"
+    else:
+        chapter_translusion_tags = f"<pages index=\"{filename}\" include={chapter_start} />"
+
+    return chapter_translusion_tags
+
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename):
+    for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
+        previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
+        chapter_transclusion_tags = get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename)
 
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
@@ -155,7 +170,7 @@ def transclude_chapters(chapters, title, mainspace_work_title, site, transcripti
  | notes      = 
 }}}}{defaultsort}
 
-"""
+{chapter_transclusion_tags}"""
         print(chapter_text)
 # <pages index="{filename}" from={chapter_start} to={chapter_end} />"""
 
@@ -293,4 +308,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     part_num = 0
     overall_chapter_num = 0
     # function for transcluding chapters. parent_page starts as false. if parent_page, parent_page is the previous link of the first chapter. if chapter has subpages, initiate recursive function.
-    transclude_chapters(chapters, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort)
+    transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)
