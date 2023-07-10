@@ -446,7 +446,6 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title)
         aux_toc_items = "\n".join(aux_toc_items)
         aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
-        print(aux_toc)
         return aux_toc
 
     if smallcaps:
@@ -627,7 +626,7 @@ def add_toc_to_transcription(page, toc, block_continuations):
 
     return block_continuations, page
 
-def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_format):
+def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format):
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
@@ -636,7 +635,7 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
     pt_tag = get_plain_tag("pt")
 
     if string_not_in_content(content, ch_tag, "Converting chapter headings") and string_not_in_content(content, bk_tag, "Converting book headings") and string_not_in_content(content, pt_tag, "Converting part headings"):
-        return chapter_num, part_num, page
+        return overall_chapter_num, page
 
 
     chapters_in_page = get_string_from_lines(content, ch_tag)
@@ -647,10 +646,16 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
         parts_in_page = books_in_page # they're the same, so make it the same standard
 
     for line_num, pt_tag in parts_in_page.items():
-        part_num_zero_indexed = part_num
-        part = chapters[part_num_zero_indexed]
-        part_num += 1
-        chapter_num = 0 # resetting chapter_num to 0, because we're starting a new part. It won't actually display as 0 necessarily, because for displaying the chapter, the chapter_num in the data is used instead of the incremented value.
+
+        overall_chapter_num += 1
+        # part_num += 1
+
+        overall_chapter_num_zero_indexed = overall_chapter_num - 1
+        part = chapters[overall_chapter_num_zero_indexed]
+
+        
+        # chapter_num = 0 # resetting chapter_num to 0, because we're starting a new part. It won't actually display as 0 necessarily, because for displaying the chapter, the chapter_num in the data is used instead of the incremented value.
+        part_num = part["chapter_num"]
         roman_part_num = roman.toRoman(part_num)
         part_prefix = part["prefix"]
         part_text = f"{{{{ph|class=part-header|{part_prefix} {roman_part_num}}}}}"
@@ -658,13 +663,19 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
         content = replace_line(content, part_text, line_num)
 
     for line_num, ch_tag in chapters_in_page.items():
-        part_num_zero_indexed = part_num - 1
-        chapter = chapters[chapter_num]
-        
+        # part_num_zero_indexed = part_num - 1
+        # chapter = chapters[chapter_num]
+
+        overall_chapter_num += 1
+
+        overall_chapter_num_zero_indexed = overall_chapter_num - 1
+        chapter = chapters[overall_chapter_num_zero_indexed]
+
         real_chapter_num = chapter["chapter_num"]
         roman_chapter_num = roman.toRoman(real_chapter_num)
         chapter_prefix = chapter["prefix"]
         chapter_title = chapter["title"]
+
         if chapter_format:
             if len(chapters_in_page) == 1:
                 replacements = {
@@ -685,10 +696,10 @@ def convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_forma
 
         content = replace_line(content, chapter_text, line_num)
 
-        chapter_num += 1
+        # chapter_num += 1
 
     page["content"] = content
-    return chapter_num, part_num, page
+    return overall_chapter_num, page
 
 
 
@@ -1016,8 +1027,9 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
-    chapter_num = 0
-    part_num = 0
+    # chapter_num = 0
+    # part_num = 0
+    overall_chapter_num = 0
     block_continuations = {} # dictionary because of TOC needing split indices, CHANGE THIS LATER NOT SEMANTICALLY CORRECT
     inline_continuations = []
     for page in page_data:
@@ -1046,7 +1058,9 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
-        chapter_num, part_num, page = convert_chapter_headers(page, chapters, chapter_num, part_num, chapter_format)
+        # chapter_num, part_num, overall_chapter_num, page = convert_chapter_headers(page, chapters, chapter_num, part_num, overall_chapter_num, chapter_format)
+        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
+
 
         page = remove_split_tag(page)
 

@@ -343,7 +343,7 @@ toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
-chapters = get_chapters(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts) # MAKE IT PARSE PAGE DATA NOT TRANSCRIPTION TEXT
+chapters = get_chapters(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts)
 
 
 
