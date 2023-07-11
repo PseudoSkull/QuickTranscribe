@@ -12,6 +12,10 @@ from handle_wikisource_conf import get_regex_match
 from handle_commons import get_image_filename
 
 
+# DO THIS TIME: /i// tag.
+#: '/i// handle
+#: /i//'.'.'.'//i/ handle
+
 # DO NEXT TIME THERE'S A DEDICATION WITH AN AUTHOR: dedic tag to be used for the Wikidata item. OR, detect if the marker is "ded", and if there's only one author item. If so, use that item. Dedicated to property: P825
 # DO NEXT TIME: {{lps|link=Sense and Sensibility|pre=Sense and|post=Sensibility|lq="|rq="}}
 

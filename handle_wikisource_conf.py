@@ -32,11 +32,15 @@ variables_with_descriptions = {
         "difl": "drop initials float quotes",
         "fqm": "convert fqms",
         "sec": "section type",
+        "pre": "prefix for chapter names",
         "per": "period at the end of chapter names",
         "gen": "genre",
         "com": "Commons category",
         "aux": "toc is auxiliary",
         "ptsub": "chapters are subpages of parts",
+        "subsec": "subsection type",
+        "subsecpre": "prefix for subsection names",
+        "firstsec": "first section is automatically after chapter",
         "progress": "QT progress flag",
     }
 

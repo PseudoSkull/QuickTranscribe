@@ -20,6 +20,91 @@ from handle_new_texts import add_to_new_texts
 from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols
 
+# Checkup: find instances of [!/n/]\n\n-\n\n"
+# Wikidata handle multiple locations, genres
+# From image data, AUTOMATICALLY IDENTIFY LOGO IMAGE FROM -TI PAGE MARKER
+# handle /sec/ tags
+# handle /i/ tags
+# handle redirects after transclusion
+#: redirects based on abbreviation "Mr." -> "Mr" -> "Mister"
+#: 
+
+redirect_words = [
+    [
+        "Mr.",
+        "Mr",
+        "Mister",
+    ],
+    [
+        "Mrs.",
+        "Mrs",
+    ],
+    [
+        "Ms.",
+        "Ms",
+    ],
+    [
+        "Dr.",
+        "Dr",
+        "Doctor",
+    ],
+    [
+        "Prof.",
+        "Prof",
+        "Professor",
+    ],
+    [
+        "Rev.",
+        "Rev",
+        "Reverend",
+    ],
+    [
+        "Hon.",
+        "Hon",
+        "Honorable",
+    ],
+    [
+        "Pres.",
+        "Pres",
+        "President",
+    ],
+    [
+        "Gov.",
+        "Gov",
+        "Governor",
+    ],
+    [
+        "Sen.",
+        "Sen",
+        "Senator",
+    ],
+    [
+        "Rep.",
+        "Rep",
+        "Representative",
+    ],
+    [
+        "Sec.",
+        "Sec",
+        "Secretary",
+    ],
+    [
+        "Jr.",
+        "Jr",
+        "Junior",
+    ],
+    [
+        "Sr.",
+        "Sr",
+        "Senior",
+    ],
+    [
+        "St.",
+        "St",
+        "Saint",
+    ],
+]
+
 page_break_string = "<!-- page break after this page -->"
 
 chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
@@ -31,8 +116,10 @@ chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
 }
 
 common_genres = {
-    "children's fiction": "Q56451354",
+    "children": "Q56451354",
+    "children's": "Q56451354",
     "fiction": "Q306614",
+    "historical": "Q1196408",
     "nonfiction": "Q213051",
 }
 

@@ -23,10 +23,12 @@ eras = {
 # Modern	1900–present
 
 
-def generate_genre_category(genre_name):
+def generate_genre_category(genre_name, work_type_name):
     category = genre_name.capitalize()
-    if genre_name == "children's fiction":
-        category = "Children's literature"
+    if genre_name == "children's" or genre_name == "children":
+        category = "Children's books"
+    elif genre_name == "historical":
+        category = f"Historical {work_type_name}s"
     return category
 
 def generate_type_category(work_type_name, country):
