@@ -18,92 +18,15 @@ from handle_commons import create_commons_category, upload_scan_file, generate_i
 from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing
 
-# Checkup: find instances of [!/n/]\n\n-\n\n"
 # Wikidata handle multiple locations, genres
+# CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
 # From image data, AUTOMATICALLY IDENTIFY LOGO IMAGE FROM -TI PAGE MARKER
 # handle /sec/ tags
 # handle /i/ tags
 # handle redirects after transclusion
-#: redirects based on abbreviation "Mr." -> "Mr" -> "Mister"
-#: 
-
-redirect_words = [
-    [
-        "Mr.",
-        "Mr",
-        "Mister",
-    ],
-    [
-        "Mrs.",
-        "Mrs",
-    ],
-    [
-        "Ms.",
-        "Ms",
-    ],
-    [
-        "Dr.",
-        "Dr",
-        "Doctor",
-    ],
-    [
-        "Prof.",
-        "Prof",
-        "Professor",
-    ],
-    [
-        "Rev.",
-        "Rev",
-        "Reverend",
-    ],
-    [
-        "Hon.",
-        "Hon",
-        "Honorable",
-    ],
-    [
-        "Pres.",
-        "Pres",
-        "President",
-    ],
-    [
-        "Gov.",
-        "Gov",
-        "Governor",
-    ],
-    [
-        "Sen.",
-        "Sen",
-        "Senator",
-    ],
-    [
-        "Rep.",
-        "Rep",
-        "Representative",
-    ],
-    [
-        "Sec.",
-        "Sec",
-        "Secretary",
-    ],
-    [
-        "Jr.",
-        "Jr",
-        "Junior",
-    ],
-    [
-        "Sr.",
-        "Sr",
-        "Senior",
-    ],
-    [
-        "St.",
-        "St",
-        "Saint",
-    ],
-]
+#: for now should only handle "!" -> ""
 
 page_break_string = "<!-- page break after this page -->"
 
@@ -149,12 +72,13 @@ transcription_page = pywikibot.Page(site, transcription_page_title)
 title = get_bare_title(mainspace_work_title)
 # title = get_title(mainspace_work_title)
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 
 
 
 
-# transcription_text = transcription_page.text
+
+# transcription_text = transcription_page.get()
 
 work_data = get_conf_values(transcription_page_title)
 
@@ -170,12 +94,14 @@ if not at_expected_progress:
 
     process_break()
 
+
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that initial cleanup has been done...")
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "page_numbers_placed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -185,26 +111,29 @@ if not at_expected_progress:
 
     process_break()
 
+
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that page numbers have been placed...")
     
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "hyphenation_inconsistencies_fixed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     find_hyphenation_inconsistencies(transcription_text)
     process_break()
-    transcription_text = transcription_page.text
+
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that hyphenation inconsistencies have been fixed...")
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "detected_scannos_fixed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -215,7 +144,9 @@ if not at_expected_progress:
     process_break()
     find_irregular_single_symbols(transcription_text)
     process_break()
-    transcription_text = transcription_page.text
+    find_possible_bad_quotation_spacing(transcription_text)
+    process_break()
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that detected scannos have been fixed...")
 
@@ -259,14 +190,17 @@ else:
 author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
 base_work_conf_variable = "base"
+transcription_page.get()
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, base_work_conf_variable)
     process_break()
+
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that base work item has been created...")
 
@@ -282,7 +216,7 @@ publisher = get_work_data(work_data, wikidata_item_of("publisher"))
 hathitrust_id = get_work_data(work_data, "HathiTrust catalog ID")
 hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 if hathitrust_full_text_id and not hathitrust_id:
     hathitrust_id = get_hathitrust_catalog_id(hathitrust_full_text_id)
     transcription_text = update_conf_value(transcription_text, "ht", hathitrust_id)
@@ -295,12 +229,12 @@ elif hathitrust_id and not hathitrust_full_text_id:
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
     process_break()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
@@ -311,7 +245,7 @@ commons_category_conf_variable = "com"
 
 # commons_category = get_commons_category_from_wikidata(author_item)
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -335,7 +269,7 @@ if not at_expected_progress:
 filename_conf_variable = "f"
 scan_source = get_work_data(work_data, "site to download scan from")
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "scan_file_uploaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -356,7 +290,7 @@ if not at_expected_progress:
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "page_counts_compared"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -376,7 +310,7 @@ page_data = get_page_data(transcription_text)
 
 image_data = generate_image_data(page_data, title, year)
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "image_counts_compared"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -389,7 +323,7 @@ if not at_expected_progress:
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "images_uploaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -442,7 +376,7 @@ toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -457,7 +391,7 @@ if not at_expected_progress:
     process_break()
 
     # update transcription text since it's probably been modified since parsing
-    transcription_text = transcription_page.text
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription has been parsed, and is ready for Wikisource entry...")
 
@@ -472,7 +406,7 @@ first_page = get_first_page(index_pagelist)
 
 # exit()
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "index_page_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -486,7 +420,7 @@ if not at_expected_progress:
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "pages_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -497,14 +431,14 @@ if not at_expected_progress:
 
     change_proofread_progress(index_page_title)
 
-    transcription_text = transcription_page.text
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that pages in the Page namespace have been created...")
 
 
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -521,7 +455,7 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that the work is fully transcluded...")
 
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "added_to_new_texts"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
@@ -533,7 +467,7 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
 
-transcription_text = transcription_page.text
+transcription_text = transcription_page.get()
 expected_progress = "archived"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 

@@ -37,62 +37,100 @@ def item_page(repo, value):
     else:
         return pywikibot.ItemPage(repo, value)
 
-def add_property(repo, item, property, value, descriptor, transcription_page_title=None):
-    print(f"Adding {descriptor} claim to item {item}...")
-    
-    if not value or str(value) == "[[wikidata:-1]]":
-        print_in_yellow(f"Value not found for {descriptor}. No action taken.")
-        return
-    
-    if type(item) == str:
-        item = pywikibot.ItemPage(repo, item)
-
-    # Check if the property with the same value already exists
-    existing_claims = item.claims.get(property)
-    claim = pywikibot.Claim(repo, property)
-    if existing_claims:
-        for claim in existing_claims:
-            if claim.target_equals(value):
-                print_in_yellow(f"{descriptor} claim already exists with the same value. No action taken.")
-                return
-        if len(existing_claims) == 1:
-            claim = existing_claims[0]
-            claim.changeTarget(value, summary=edit_summary(f'Modifying {descriptor} claim...'))
-            print_in_green(f"{descriptor} claim modified successfully.")
-            return
-    # but if there are no claims at all, then:
-    claim.setTarget(value)
-    if transcription_page_title:
-        property_edit_summary = edit_summary(f'Adding {descriptor} claim...', transcription_page_title)
+def is_wikidata_item_string(value):
+    if type(value) != str:
+        return False
     else:
-        property_edit_summary = edit_summary(f'Adding {descriptor} claim...')
+        wikidata_item_prefix = "Q"
+        wikidata_item_suffix = value[1:]
+        if type(value) == str and value.startswith(wikidata_item_prefix) and wikidata_item_suffix:
+            return True
+        return False
 
-    item.addClaim(claim, summary=property_edit_summary)
-    print_in_green(f"{descriptor} claim added successfully.")
+def add_property(repo, item, property, values, descriptor, transcription_page_title=None):
+    print(f"Adding {descriptor} claim to item {item}...")
+
+    if type(values) != list:
+        values = [values,]
+
+    for value in values:
+        existing_claims = item.claims.get(property)
+        claim = pywikibot.Claim(repo, property)
+
+        if not value or str(value) == "[[wikidata:-1]]":
+            print_in_yellow(f"Value not found for {descriptor}. No action taken.")
+            continue
+
+        if is_wikidata_item_string(item):
+            item = pywikibot.ItemPage(repo, item)
+
+        if is_wikidata_item_string(value):
+            value = pywikibot.ItemPage(repo, value)
+
+        # Check if the property with the same value already exists
+        if existing_claims:
+            to_continue = False
+            for existing_claim in existing_claims:
+                if existing_claim.target_equals(value):
+                    print_in_yellow(f"{descriptor} claim already exists with the same value. No action taken.")
+                    to_continue = True
+                    break
+            if to_continue:
+                continue
+
+        claim.setTarget(value)
+
+        if transcription_page_title:
+            property_edit_summary = edit_summary(f'Adding {descriptor} claim...', transcription_page_title)
+        else:
+            property_edit_summary = edit_summary(f'Adding {descriptor} claim...')
+
+        item.addClaim(claim, summary=property_edit_summary)
+        print_in_green(f"{descriptor} claim added successfully.")
+
 
 def get_value_from_property(item, property):
     print(f"Retrieving value {property} for Wikidata item {item}.")
     site = pywikibot.Site("wikidata", "wikidata")
-    page = item_page(site, item)  # Create an ItemPage for the variable
 
-    # Retrieve the author item (P50) from the base_work item
-    page.get()
-    claim = page.claims.get(property)
-    try:
-        result = claim[0].target.id
-    except AttributeError:
-        try:
-            result = claim[0].target.toTimestr()
-        except AttributeError:
-            result = claim[0].target
-    except TypeError:
-        result = None
-    if result:
-        print_in_green(f"Value retrieved for {property} in {item}: {result}.")
-        return result
+    # All of this is to handle properties being searched for from multiple values
+    if type(item) == str or type(item) == ItemPage:
+        items = [item,]
     else:
-        print_in_red(f"Value not found for {property} in {item}.")
-        return None
+        items = item
+
+
+    results = []
+    for item in items:
+        page = item_page(site, item)  # Create an ItemPage for the variable
+
+        # Retrieve the author item (P50) from the base_work item
+        page.get()
+        claim = page.claims.get(property)
+        try:
+            result = claim[0].target.id
+        except AttributeError:
+            try:
+                result = claim[0].target.toTimestr()
+            except AttributeError:
+                result = claim[0].target
+        except TypeError:
+            result = None
+        if result:
+            print_in_green(f"Value retrieved for {property} in {item}: {result}.")
+            results.append(result)
+        else:
+            print_in_red(f"Value not found for {property} in {item}.")
+            return None
+    
+    if len(results) == 1:
+        return results[0]
+    else:
+        if len(set(results)) == 1:
+            return results[0]
+        else:
+            print_in_yellow(f"Different values retrieved from the separate items: Items: {items} Results: {results}.")
+            return results
 
 def get_time_from_property(item, property):
     print(f"Retrieving value {property} for Wikidata item {item}.")
@@ -305,6 +343,8 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
 
 
     if variable_name:
+        item.get()
+        item_id = extract_id_from_item_page(item)
         wikisource_site = pywikibot.Site('en', 'wikisource')
         transcription_page = pywikibot.Page(wikisource_site, transcription_page_title)
         transcription_text = transcription_page.text
@@ -328,15 +368,15 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     literary_work = 'Q7725634'
     english = 'Q1860'
 
-    add_property(repo, item, 'P31', item_page(repo, literary_work), 'instance of', transcription_page_title)
-    add_property(repo, item, 'P50', item_page(repo, author), 'author', transcription_page_title)
-    add_property(repo, item, 'P495', item_page(repo, country), 'country of origin', transcription_page_title)
-    add_property(repo, item, 'P7937', item_page(repo, work_type), 'form of creative work', transcription_page_title)
+    add_property(repo, item, 'P31', literary_work, 'instance of', transcription_page_title)
+    add_property(repo, item, 'P50', author, 'author', transcription_page_title)
+    add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
+    add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
-    add_property(repo, item, 'P136', item_page(repo, genre), 'genre', transcription_page_title)
+    add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     # UNLESS IT'S A TRANSLATION, IN WHICH CASE WE NEED TO ADD THE ORIGINAL LANGUAGE, add this functionality later
-    add_property(repo, item, 'P407', item_page(repo, english), 'language', transcription_page_title)
+    add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     
     return item_id
 
@@ -352,14 +392,14 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     version_edition_or_translation = 'Q3331189'
     english = 'Q1860'
 
-    add_property(repo, item, 'P31', item_page(repo, version_edition_or_translation), 'instance of', transcription_page_title)
-    add_property(repo, item, 'P407', item_page(repo, english), 'language', transcription_page_title)
-    add_property(repo, item, 'P50', item_page(repo, author_item), 'author', transcription_page_title)
-    add_property(repo, item, 'P629', item_page(repo, base_work), 'edition of work', transcription_page_title)
+    add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
+    add_property(repo, item, 'P407', english, 'language', transcription_page_title)
+    add_property(repo, item, 'P50', author_item, 'author', transcription_page_title)
+    add_property(repo, item, 'P629', base_work, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
-    add_property(repo, item, 'P123', item_page(repo, publisher), 'publisher', transcription_page_title)
-    add_property(repo, item, 'P291', item_page(repo, location), 'location', transcription_page_title)
+    add_property(repo, item, 'P123', publisher, 'publisher', transcription_page_title)
+    add_property(repo, item, 'P291', location, 'location', transcription_page_title)
     
     add_property(repo, item, 'P1844', hathitrust_id, 'HathiTrust ID', transcription_page_title)
     add_property(repo, item, 'P724', IA_id, 'Internet Archive ID', transcription_page_title)
@@ -391,7 +431,7 @@ def add_version_to_base_work_item(base_work, version_item):
     base_work_item = pywikibot.ItemPage(repo, base_work)
     base_work_item.get()
 
-    add_property(repo, base_work_item, 'P747', item_page(repo, version_item), 'has edition or translation')
+    add_property(repo, base_work_item, 'P747', version_item, 'has edition or translation')
 
 # add_to_works_item(base_work, version_item)
 

@@ -42,15 +42,14 @@ def initial_text_cleanup(text):
             text = re.sub(r"\n\n\n", r"\n\n", text)
         else:
             break
+    text = re.sub(r"\n ", r"\n", text)
+    text = re.sub(r" \n", r"\n", text)
     text = text.replace("<br>", "<br />")
     text = re.sub(r"\n\n-\n\nn\n\n", r"/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)
     text = re.sub(r"(.)\n/n/\n([- —])", r"\1\n/n/\n\n\2", text)
-    text = re.sub(r"(.)\n/pbr/\n-", r"\1\n/n/\n\n\2", text)
-    text = re.sub(r"(.)—\n\n-", r"\1{{peh|—}}\n\n-", text)
     text = re.sub(r"(.)\n\n-\n\n—(.)", r"\1{{peh|}}\n\n-\n\n—\2", text) #check back up on this one later
-    text = re.sub(r"\n ", r"\n", text)
-    text = re.sub(r" \n", r"\n", text)
+    text = re.sub(r"(.)—\n\n-", r"\1{{peh|—}}\n\n-", text)
 
     # save page.text
 
@@ -206,10 +205,47 @@ def find_probable_scannos(text):
                     scannos.append(word)
                     break
 
-    # get <br> out of scannos list
+    # Create a new list to store the filtered elements
+    filtered_scannos = []
+
+    take_out_contains = [
+        "<br",
+        "...",
+    ]
+
+    take_out_endswith = [
+        ",\"",
+        ".\"",
+        "!\"",
+        "?\"",
+
+        ",'",
+        ".'",
+        "!'",
+        "?'",
+    ]
+
+    # Iterate over the original list
     for scanno in scannos:
-        if "<br" in scanno:
-            scannos.remove(scanno)
+        # Check if "<br" or "..." is present in the element
+        to_continue_function = False
+        for symbol in take_out_contains:
+            if symbol in scanno:
+                # filtered_scannos.append(scanno)
+                to_continue_function = True
+                break
+        if to_continue_function:
+            continue
+        for symbol in take_out_endswith:
+            if scanno.endswith(symbol):
+                # filtered_scannos.append(scanno)
+                to_continue_function = True
+                break
+        if to_continue_function:
+            continue
+        filtered_scannos.append(scanno)
+
+    scannos = filtered_scannos
     
     print("\n\n\n")
     if len(scannos) == 0:
@@ -328,6 +364,7 @@ def find_irregular_single_symbols(text):
         "O",
         "à",
         ".",
+        "&",
     ]
 
     single_symbols_with_spaces = re.findall(r" (.) ", text)
@@ -347,6 +384,23 @@ def find_irregular_single_symbols(text):
         print_in_yellow(bad_symbols_with_spaces)
     
     return bad_symbols_with_spaces
+
+
+def find_possible_bad_quotation_spacing(text):
+    bad_quotation_spacing_pattern = r"([^\/n\/]\n\n-(.+?)\n\n\")"
+    bad_quotation_spacing = re.findall(bad_quotation_spacing_pattern, text)
+
+    if "\" \"" in text:
+        # print_in_yellow("Found \" \" pattern.")
+        bad_quotation_spacing.append("\" \"")
+
+    if len(bad_quotation_spacing) == 0:
+        print_in_green("No bad quotation spacing patterns found.")
+    else:
+        print_in_yellow("Bad quotation spacing patterns found:")
+        print_in_yellow(bad_quotation_spacing)
+    
+    return bad_quotation_spacing
 
 # checking total pages against the Commons scan file
 # filename = 'Jalna.pdf'

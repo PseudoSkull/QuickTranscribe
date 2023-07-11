@@ -14,6 +14,11 @@
 #* "Calm, Passive, & Gentle" (oxford comma, symbol)
 
 
+# Oxford comma
+#* and
+#* or
+#* nor
+
 
 # Ok so here's a plan for the combos:
 {
@@ -97,31 +102,6 @@ redirect_words = [
         "Honorable",
     ],
     [
-        "Pres.",
-        "Pres",
-        "President",
-    ],
-    [
-        "Gov.",
-        "Gov",
-        "Governor",
-    ],
-    [
-        "Sen.",
-        "Sen",
-        "Senator",
-    ],
-    [
-        "Rep.",
-        "Rep",
-        "Representative",
-    ],
-    [
-        "Sec.",
-        "Sec",
-        "Secretary",
-    ],
-    [
         "Jr.",
         "Jr",
         "Junior",
@@ -139,14 +119,14 @@ redirect_words = [
 ]
 
 end_symbol_combos = [
-    ("?!", "?"),
+    ["?!", "?"],
 ]
 
 ending_symbols = [
     ".",
     "!",
     "?",
-    "...",
+    # "...",
     # ". . .",
     "—",
 ]

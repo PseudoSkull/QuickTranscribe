@@ -192,11 +192,25 @@ def get_conf_values(page_title):
 def get_work_data(work_data, value, dictionary=None):
     print(f"Retrieving {value} from work data...")
     try:
-        value_from_work_data = work_data[value]
-        if dictionary:
-            value_from_work_data = get_common_wikidata_item(value_from_work_data, dictionary)
-        print_in_green(f"Retrieved {value} from work data.")
-        return value_from_work_data
+        values_from_work_data = work_data[value]
+        if "/" in values_from_work_data:
+            values_from_work_data = values_from_work_data.split("/")
+        else:
+            values_from_work_data = [values_from_work_data,]
+        
+        wikidata_items = []
+        for value in values_from_work_data:
+            if dictionary:
+                value = get_common_wikidata_item(value, dictionary)
+            wikidata_items.append(value)
+        
+        values_from_work_data = wikidata_items
+
+        if len(values_from_work_data) == 1:
+            values_from_work_data = values_from_work_data[0]
+        
+        print_in_green(f"Retrieved {values_from_work_data} from work data.")
+        return values_from_work_data
     except KeyError:
         print_in_yellow(f"Could not retrieve {value} from work data.")
         return None
