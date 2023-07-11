@@ -22,9 +22,14 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 
 # Wikidata handle multiple locations, genres
 # CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
-# From image data, AUTOMATICALLY IDENTIFY LOGO IMAGE FROM -TI PAGE MARKER
+# PROGRAM IN SETTINGS FOR IMAGE SIZES
 # handle /sec/ tags
 # handle /i/ tags
+
+# Index styles: IF NO STYLE IS SPECIFIED, USE THIS
+    # """	text-align: center;
+	# margin-bottom: 0.75em;""",
+
 # handle redirects after transclusion
 #: for now should only handle "!" -> ""
 

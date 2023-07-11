@@ -37,6 +37,8 @@ def is_file_size_greater_than_3mb(file_path):
         print_in_red(f"Error occurred while checking file size: {e}")
 
 def upload_file_to_commons(filename, file_text, file_path, transcription_page_title):
+    # filename = "Test upload with batch upload.pdf"
+
     print(f"Uploading file {filename} to Wikimedia Commons from {file_path}...")
     
     summary = f"Uploading \"{filename}\"..."
@@ -235,6 +237,13 @@ def generate_image_title(image_type, seq_num, work_title, year):
         image_title = f"{work_title_with_year} {image_type}"
     return image_title
 
+def get_image_size(image_type):
+    if image_type == "title illustration":
+        size = 75
+    else:
+        size = 300
+    return size
+
 {
     "seq_num": 0,
     # "img_num": 1,
@@ -281,6 +290,7 @@ def generate_image_data(page_data, work_title, year):
                     img_num += 1
                     image_title = generate_image_title(image_type, seq_num, work_title, year)
                     image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
+                    image_size = get_image_size(image_type)
                     # extension = "png" # for now!!!!
 
 
@@ -291,8 +301,7 @@ def generate_image_data(page_data, work_title, year):
                     image["caption"] = caption
                     image["extension"] = extension
                     image["path"] = image_path
-                    # for now. Will change when in future I have different image sizes and alignments
-                    image["size"] = 300
+                    image["size"] = image_size
                     image["alignment"] = "center"
 
                     image_data.append(image)

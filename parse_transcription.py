@@ -996,11 +996,14 @@ def convert_images(page, image_data, img_num):
         image = image_data[img_num]
         image_filename = get_image_filename(image)
         image_caption = image["caption"]
+        if image_caption:
+            caption_display = f"\n | caption = {image_caption}\n"
+        else:
+            caption_display = ""
         image_size = image["size"]
 
         image_text = f"""{{{{FreedImg
- | file = {image_filename}
- | caption = {image_caption}
+ | file = {image_filename}{caption_display}
  | width = {image_size}px
 }}}}"""
 

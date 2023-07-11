@@ -45,7 +45,9 @@ def find_scan_file_to_upload(scan_source):
             return scan_file_path
     
     for file in os.listdir(folder_path): # because DJVU is superior, we do it again
-        if scan_source == "ia" and file.endswith(".pdf") and "_bw" not in file:
+        if scan_source == "ia" and file.endswith(".pdf") and "_bw" not in file and file != "hathi.pdf":
+            # folder_path = "projectfiles3"
+            # scan_file_path = os.path.join(folder_path, "hathi.pdf")
             scan_file_path = os.path.join(folder_path, file)
             print_in_green(f"PDF file {file} was found!")
             return scan_file_path
@@ -85,6 +87,8 @@ def compare_image_counts(image_data):
     print(f"Comparing number of images in image_data against number of images in {folder_path}...")
     image_count = len(image_data)
     image_file_count = len(os.listdir(folder_path))
+    if ".DS_Store" in os.listdir(folder_path):
+        image_file_count -= 1
     if image_count == image_file_count:
         print_in_green(f"Number of images in image_data matches number of images in folder. Image number: {image_count}")
         # return True

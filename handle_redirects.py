@@ -132,3 +132,5 @@ ending_symbols = [
 ]
 
 
+page_title_to_parse = "O Genteel Lady!"
+redirect_target = page_title_to_parse # later, when dealing with disambig etc., this will be changed

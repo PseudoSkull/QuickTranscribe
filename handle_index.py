@@ -238,7 +238,7 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     classes_used += classes_used_in_html_tags
 
     # include captions
-    if "FreedImg" in transcription_text:
+    if "FreedImg" in transcription_text and " | caption = " in transcription_text:
         classes_used.append("wst-freedimg-caption")
     
     # put parent class in too
