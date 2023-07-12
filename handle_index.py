@@ -59,6 +59,10 @@ style_defaults = {
 	margin-top: 2em;
     margin-bottom: 2em;""",
 
+    "section":
+    """	text-align: center;
+	margin-bottom: 1.5em;""",
+    
     "title":
     """	text-align: center;
     font-size: 144%;

@@ -380,6 +380,9 @@ chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages
 chapters = get_chapter_data(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts)
 sections = get_section_data(chapters, page_data, transcription_text)
 
+chapter_type = get_work_data(work_data, "chapter type")
+section_type = get_work_data(work_data, "section type")
+
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
@@ -394,7 +397,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 

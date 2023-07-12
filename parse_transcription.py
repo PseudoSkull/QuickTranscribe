@@ -516,8 +516,8 @@ def get_section_data(chapters, page_data, transcription_text):
                 else:
                     if chapter_num != previous_chapter_num:
                         section_num = 1
-                        overall_page_num = None # CHANGE LATER
-                        sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, overall_page_num)
+                        unreadable_overall_page_num = None # Change later when logic can do this
+                        sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, unreadable_overall_page_num)
                 
                 # add first section of chapter if it's the first time encountering that chapter
                 
@@ -767,7 +767,7 @@ def add_toc_to_transcription(page, toc, block_continuations):
 
     return block_continuations, page
 
-def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format):
+def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type):
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
@@ -814,6 +814,11 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
 
         real_chapter_num = chapter["chapter_num"]
         roman_chapter_num = roman.toRoman(real_chapter_num)
+        if chapter_type == "num":
+            displayed_section_num = real_chapter_num
+        else:
+            displayed_section_num = roman_chapter_num
+        
         chapter_prefix = chapter["prefix"]
         chapter_title = chapter["title"]
         chapter_has_sections = chapter["has_sections"]
@@ -830,11 +835,11 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
             # else: handle section tags
         else:
             if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
-                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix} {roman_chapter_num}}}}}"
+                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix} {displayed_section_num}}}}}"
             else:
                 # print(type(chapter_title))
                 # print(chapter_title)
-                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
         
         if chapter_has_sections:
             chapter_text += "\n/sec/"
@@ -847,8 +852,60 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
     return overall_chapter_num, page
 
 
+def convert_section_headers(page, sections, overall_section_num, section_format, section_type):
+    content = page["content"]
+    sec_tag = get_plain_tag("sec")
 
+    if string_not_in_content(content, sec_tag, "Converting chapter headings"):
+        return overall_section_num, page
+    
+    sections_in_page = get_string_from_lines(content, sec_tag)
 
+    for line_num, sec_tag in sections_in_page.items():
+        # part_num_zero_indexed = part_num - 1
+        # chapter = chapters[chapter_num]
+
+        overall_section_num += 1
+
+        overall_section_num_zero_indexed = overall_section_num - 1
+        section = sections[overall_section_num_zero_indexed]
+
+        real_section_num = section["section_num"]
+        roman_section_num = roman.toRoman(real_section_num)
+        if section_type == "num":
+            displayed_section_num = real_section_num
+        else:
+            displayed_section_num = roman_section_num
+        section_prefix = section["prefix"]
+        section_anchor_prefix = "Section"
+        section_anchor = f"{section_anchor_prefix} {displayed_section_num}"
+
+        section_title = section["title"]
+        if section_title:
+            section_anchor = section_title
+    
+        if section_format:
+            replacements = {
+                    "snam": section_title,
+                    "snum": roman_section_num,
+                    "spre": section_prefix,
+                }
+
+            section_text = format_form_tag(section_format, replacements)
+        else:
+            if section_title == None: # try this very verbose solution, but why on earth is it needed???
+                section_text = f"{{{{anchor|{section_anchor}}}}}{{{{ph|class=section|{displayed_section_num}}}}}"
+        
+        content = replace_line(content, section_text, line_num)
+    
+    page["content"] = content
+    return overall_section_num, page
+
+            # else:
+            #     # print(type(chapter_title))
+            #     # print(chapter_title)
+            #     # section_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+            #     pass # for now
 
 
 ########################## formatting ##########################
@@ -1171,7 +1228,7 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -1187,7 +1244,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         page = add_half_to_transcription(page, title)
         page = add_space_to_apostrophe_quotes(page)
-        if chapter_beginning_formatting == "sc":
+        if chapter_beginning_formatting == "sc" or not chapter_beginning_formatting:
             page = format_chapter_beginning_to_smallcaps(page)
         elif chapter_beginning_formatting == "di":
             page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes)
@@ -1207,8 +1264,8 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
-        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
-        # overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format)
+        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type)
+        overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
 
 
         page = remove_split_tag(page)
