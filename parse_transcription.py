@@ -426,7 +426,39 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
-def get_sections(sections, chapters, page_data, transcription_text):
+def get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num):
+    for chapter_num, chapter in enumerate(chapters):
+        chapter_page_num = chapter["page_num"]
+        try:
+            next_chapter = chapters[chapter_num + 1]
+            next_chapter_page_num = next_chapter["page_num"]
+        except IndexError:
+            next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
+            
+        
+        # if previous_chapter_page_num == 0 and chapter_page_num > overall_page_num:
+        #     front_matter = {}
+        #     front_matter["chapter_num"] = 0
+        #     front_matter["part_num"] = 0
+        #     front_matter["page_num"] = 0
+        if chapter_page_num > page_num and chapter_page_num < next_chapter_page_num:
+            return chapter
+
+def add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num, section_name=None, section_prefix=None):
+    section = {}
+    overall_page_num += 1 # not zero indexed
+    section["chapter_num"] = chapter_num
+    section["part_num"] = part_num
+    section["section_num"] = section_num
+    section["page_num"] = page_num
+    section["overall_page_num"] = overall_page_num
+    section["title"] = section_name
+    section["prefix"] = section_prefix
+    sections.append(section)
+    return sections
+    
+
+def get_section_data(chapters, page_data, transcription_text):
     print("Getting section data...")
     sections_json_file = "section_data.json"
     sections = get_json_data(sections_json_file)
@@ -440,39 +472,46 @@ def get_sections(sections, chapters, page_data, transcription_text):
 
     if section_tag in transcription_text:
         chapter_num = 0
+        section_num = 0
         for overall_page_num, page in enumerate(page_data):
             section_pattern = r"(\/sec\/)\n"
 
             page_num = page["marker"]
             content = page["content"]
-
+            
             section_matches = re.findall(section_pattern, content)
 
             for match in section_matches:
-                # chapter = get_chapter_from_page_num(overall_page_num, page_num, chapters)
+                chapter = get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num)
                 chapter = {}
+                previous_chapter_num = chapter_num
                 chapter_num = chapter["chapter_num"]
                 part_num = chapter["part_num"]
+                
 
                 chapter_has_sections = chapter["has_sections"]
                 if not chapter_has_sections:
                     print_in_red(f"ERROR: Chapter data says chapter has no sections, but section was found in chapter when collecting section data! Something is wrong with the code. Please fix it. Chapter num: {chapter_num}, part num: {part_num}, page num: {page_num}, overall page num: {overall_page_num}, match: {match}")
                     exit()
                 
-
-                for section in sections:
-                    if section["chapter_num"] == chapter_num and section["part_num"] == part_num:
-                        section_num = section["section_num"]
-                        section["section_num"] = section_num + 1
-                        section["page_num"] = pa
-                pass
+                # add first section of chapter if it's the first time encountering that chapter
+                if chapter_num != previous_chapter_num:
+                    section_num = 1 # resetting section nums
+                    sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
                 
+                section_num += 1
+
+                # add section
+                sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
+                # section_num += 1
 
 
     else:
         print_in_yellow("No sections found in transcription text.")
 
-    write_to_json_file(sections_json_file, sections)
+    # write_to_json_file(sections_json_file, sections)
+    print(sections)
+    exit()
     return sections
     
 

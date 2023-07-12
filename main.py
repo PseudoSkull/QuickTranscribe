@@ -10,7 +10,7 @@ from edit_mw import save_page
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
-from parse_transcription import get_chapter_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages
+from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
 from handle_transclusion import transclude_pages
@@ -24,6 +24,7 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 # CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
 # PROGRAM IN SETTINGS FOR IMAGE SIZES
 # PUT IN SOME KIND OF LOGIC FOR THE TOC BEGINNINGS AND ENDINGS
+# TRY TO GET SECTIONS OF FRONT MATTER IN SECTION DATA
 
 # Wikidata handle multiple locations, genres
 
@@ -375,7 +376,7 @@ chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages
 
 
 chapters = get_chapter_data(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts)
-
+sections = get_section_data(chapters, page_data, transcription_text)
 
 
 toc_format = find_form_section(transcription_text, "toc")
