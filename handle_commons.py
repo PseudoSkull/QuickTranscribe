@@ -241,6 +241,7 @@ def get_image_size(image_type):
     if image_type == "title illustration":
         size = 75
     else:
+        print(f"Got to else. Image type was {image_type}")
         size = 300
     return size
 

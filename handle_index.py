@@ -27,19 +27,19 @@ style_defaults = {
     {
         "has_children":
         """	text-align: center;
-	margin-bottom: 0.75em;""",
+	margin-bottom: 1.5em;""",
 
         "no_children":
         """	text-align: center;
 	text-transform: uppercase;
 	font-size: 120%;
-	margin-bottom: 0.75em;""",
+	margin-bottom: 1.5em;""",
     },
 
     "chapter num":
     """	text-transform: uppercase;
     font-size: 120%;
-    margin-bottom: 1em;""",
+    margin-bottom: 1.5em;""",
 
     "chapter title":
     """	font-variant: all-small-caps;""",
@@ -69,6 +69,10 @@ style_defaults = {
     margin-left: auto;
     margin-right: auto;
     """,
+
+    "wst-fineblock":
+    """	margin-bottom: 2em;
+	margin-top: 2em;""",
 
     "wst-freedimg-caption":
     """	font-size: 92%;""",
@@ -245,6 +249,8 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     # include captions
     if "FreedImg" in transcription_text and " | caption = " in transcription_text:
         classes_used.append("wst-freedimg-caption")
+    if "{{fine block" in transcription_text:
+        classes_used.append("wst-fineblock")
     
     # put parent class in too
     for css_class in classes_used:

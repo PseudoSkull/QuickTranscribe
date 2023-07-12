@@ -323,12 +323,12 @@ def determine_if_books_or_parts_exist(text):
         return True
     return False
 
-def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts):
-    print("Getting chapters...")
+def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts, transcription_text):
+    print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
     if chapters:
-        print("Chapter data JSON found!")
+        print_in_green("Chapter data JSON found!")
         return chapters
     parts_exist = determine_if_books_or_parts_exist(text)
 
@@ -336,72 +336,145 @@ def get_chapters(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_par
 
     if parts_exist:
         part_num = 0
+    else:
+        part_num = None
 
     chapters = []
 
-    for page in page_data:
-        page_num = page["marker"]
-        content = page["content"]
+    if "/ch/" in transcription_text:
+        print_in_green("Chapters found in transcription text. Getting chapter data...")
 
-        if toc_is_auxiliary:
-            chapter_pattern = r"(\/ch\/)\n"
-        else:
-            chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+        previous_chapter = None
+        section_tag = get_plain_tag("sec")
 
-        book_pattern = r"(\/bk\/)"
-        part_pattern = r"(\/pt\/)"
-
-        all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}"
-
-        # page_number_pattern = r"\n\n-([0-9]+)\n\n"
-        # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
-        chapter_matches = re.findall(all_chapter_types_pattern, content)
-        chapter_splice_points = get_chapter_splice_points(text)
-
-        for match in chapter_matches:
-            is_chapter = match[0]
-            is_book = match[1]
-            is_part = match[2]
-            # print(match)
-            chapter = {}
-
-            if is_book or is_part:
-                part_num += 1
-                if is_book:
-                    chapter["prefix"] = "Book"
-                elif is_part:
-                    chapter["prefix"] = "Part"
-                chapter["chapter_num"] = part_num
-                # chapter["subchapters"] = []
-
-                if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
-                    chapter_num = 0
-
-            else:
-                chapter_num += 1
-                chapter["prefix"] = "Chapter" # for now
-                chapter["chapter_num"] = chapter_num
-
+        for page in page_data:
+            page_num = page["marker"]
+            content = page["content"]
 
             if toc_is_auxiliary:
-                chapter["title"] = None
+                chapter_pattern = r"(\/ch\/)\n"
             else:
-                chapter["title"] = convert_to_title_case(match)
-            
-            chapter["page_num"] = int(page_num)
-            chapter["refs"] = False # for now
+                chapter_pattern = r"\/ch\/\/(.+?)\n\n"
 
-            splice_chapter = False
-            if chapter_splice_points:
-                if chapter_num in chapter_splice_points:
-                    splice_chapter = True
-            chapter["splice"] = splice_chapter
+            book_pattern = r"(\/bk\/)"
+            part_pattern = r"(\/pt\/)"
 
-            chapters.append(chapter)
+            all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}"
+
+            # page_number_pattern = r"\n\n-([0-9]+)\n\n"
+            # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
+            chapter_matches = re.findall(all_chapter_types_pattern, content)
+            chapter_splice_points = get_chapter_splice_points(text)
+
+            for match in chapter_matches:
+                is_chapter = match[0]
+                is_book = match[1]
+                is_part = match[2]
+                # print(match)
+                chapter = {}
+
+                if is_book or is_part:
+                    part_num += 1
+                    if is_book:
+                        chapter["prefix"] = "Book"
+                        match = is_book
+                    elif is_part:
+                        chapter["prefix"] = "Part"
+                        match = is_part
+                    chapter["chapter_num"] = part_num
+                    # chapter["subchapters"] = []
+
+                    if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
+                        chapter_num = 0
+
+                else:
+                    chapter_num += 1
+                    chapter["prefix"] = "Chapter" # for now
+                    chapter["chapter_num"] = chapter_num
+                    match = is_chapter
+
+
+                if toc_is_auxiliary:
+                    chapter["title"] = None
+                else:
+                    chapter["title"] = convert_to_title_case(match)
+                
+                chapter["page_num"] = int(page_num)
+                chapter["refs"] = False # for now
+                chapter["part_num"] = part_num
+                chapter["has_sections"] = False
+
+                splice_chapter = False
+                if chapter_splice_points:
+                    if chapter_num in chapter_splice_points:
+                        splice_chapter = True
+                chapter["splice"] = splice_chapter
+
+                chapters.append(chapter)
+
+        # START PREVIOUS CHAPTER LOGIC, to find sections within next pages
+                previous_chapter = chapter
+                previous_chapter_index = len(chapters) - 1
             
+            if section_tag in content:
+                previous_chapter["has_sections"] = True
+                chapters[previous_chapter_index] = previous_chapter
+        # END PREVIOUS CHAPTER LOGIC
+    else:
+        print_in_yellow("No chapters found in transcription text. Assuming this is a front-matter-only work...")
 
     write_to_json_file(chapters_json_file, chapters)
     return chapters
+
+def get_sections(sections, chapters, page_data, transcription_text):
+    print("Getting section data...")
+    sections_json_file = "section_data.json"
+    sections = get_json_data(sections_json_file)
+    if sections:
+        print_in_green("Section data JSON found!")
+        return sections
+
+    sections = []
+
+    section_tag = get_plain_tag("sec")
+
+    if section_tag in transcription_text:
+        chapter_num = 0
+        for overall_page_num, page in enumerate(page_data):
+            section_pattern = r"(\/sec\/)\n"
+
+            page_num = page["marker"]
+            content = page["content"]
+
+            section_matches = re.findall(section_pattern, content)
+
+            for match in section_matches:
+                # chapter = get_chapter_from_page_num(overall_page_num, page_num, chapters)
+                chapter = {}
+                chapter_num = chapter["chapter_num"]
+                part_num = chapter["part_num"]
+
+                chapter_has_sections = chapter["has_sections"]
+                if not chapter_has_sections:
+                    print_in_red(f"ERROR: Chapter data says chapter has no sections, but section was found in chapter when collecting section data! Something is wrong with the code. Please fix it. Chapter num: {chapter_num}, part num: {part_num}, page num: {page_num}, overall page num: {overall_page_num}, match: {match}")
+                    exit()
+                
+
+                for section in sections:
+                    if section["chapter_num"] == chapter_num and section["part_num"] == part_num:
+                        section_num = section["section_num"]
+                        section["section_num"] = section_num + 1
+                        section["page_num"] = pa
+                pass
+                
+
+
+    else:
+        print_in_yellow("No sections found in transcription text.")
+
+    write_to_json_file(sections_json_file, sections)
+    return sections
+    
 
 def get_aux_toc_items(chapters, mainspace_work_title):
     aux_toc_items = []
@@ -438,7 +511,7 @@ def get_aux_toc_items(chapters, mainspace_work_title):
 
         aux_toc_items.append(aux_toc_entry)
     
-    return aux_toc_items
+    return aux_toc_items    
 
 def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, smallcaps=True, header=False):
     print("Generating TOC...")
@@ -461,14 +534,16 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         header = f"\n{{{{TOC row 1-1-1|{{{{x-smaller|CHAPTER}}}}||{{{{x-smaller|PAGE}}}}}}"
     else:
         header = ""
-#     toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
-# {{{{TOC begin|sc=yes|max-width=25em}}}}{header}
-# """
-    toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
-<div class="toc-block">
+    # WHY DOES
+    toc_beginning = f"""c|{{{{larger|CONTENTS}}}}}}}}
+{{{{TOC begin|sc=yes|max-width=25em}}}}{header}
 """
-    # toc_ending = """{{TOC end}}"""
-    toc_ending = "</div>"
+    print(f"TOC BEGINNING IS {toc_beginning} BEFORE")
+#     toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
+# <div class="toc-block">
+# """
+    toc_ending = """{{TOC end}}"""
+    # toc_ending = "</div>"
 
     for chapter_num, chapter in enumerate(chapters):
         page_num = chapter["page_num"]
@@ -497,6 +572,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
 
         else:
             toc_beginning += f"{{{{TOC row 1-1-1|{{{{fine|{chapter_num_as_roman}}}}}|{{{{fine|{toc_link}}}}}|{{{{fine|{page_num}}}}}}}}}\n"
+    print(f"TOC BEGINNING IS {toc_beginning} AFTER")
     toc = toc_beginning + toc_ending
     print_in_green("TOC generated.")
     return toc
@@ -680,6 +756,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
         roman_chapter_num = roman.toRoman(real_chapter_num)
         chapter_prefix = chapter["prefix"]
         chapter_title = chapter["title"]
+        chapter_has_sections = chapter["has_sections"]
 
         if chapter_format:
             if len(chapters_in_page) == 1:
@@ -698,6 +775,9 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
                 # print(type(chapter_title))
                 # print(chapter_title)
                 chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+        
+        if chapter_has_sections:
+            chapter_text += "\n/sec/"
 
         content = replace_line(content, chapter_text, line_num)
 

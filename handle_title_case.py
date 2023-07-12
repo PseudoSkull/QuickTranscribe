@@ -115,7 +115,7 @@ def handle_apostrophes(word):
         print_in_yellow(f"Apostrophes found in word \" {word} \". Do you want to lowercase it? (y/n)")
         answer = process_break()
         print(answer)
-        if answer == "" or answer == "y":
+        if answer == "y":
             return word.lower()
         else:
             print("Got here")
@@ -124,7 +124,8 @@ def handle_apostrophes(word):
 
 def handle_punctuation_exceptions(word):
     for punctuation in punctuation_exceptions:
-        if punctuation in word:
+        last_symbol_of_word = word[-1]
+        if punctuation in word and last_symbol_of_word != punctuation:
             split_words = word.split(punctuation)
             new_words = []
             for split_word_num, split_word in enumerate(split_words):
@@ -143,6 +144,7 @@ def convert_to_title_case(text):
 
     # Split the text into words
     words = text.split()
+    print(words)
 
     # Iterate over the words
     for word_num, word in enumerate(words):
@@ -152,6 +154,7 @@ def convert_to_title_case(text):
 
         # Add the reconstructed word to the result list
         result.append(word)
+        print(f"Result at convert_to_title_case: {result}")
 
     # Join the words back into a string
     title_case_text = ' '.join(result)
