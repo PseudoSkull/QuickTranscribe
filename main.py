@@ -21,8 +21,10 @@ from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing
 
 # To do later:
+# CLEANUP: LOOK FOR CONTENT PAGES WITH NO MARKER AFTER PAGE NUMBERS ADDED
 # CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
 # PROGRAM IN SETTINGS FOR IMAGE SIZES
+# FIGURE OUT WHY AN EXTRA {{ }} IS BEING ADDED TO THE GENERATED TOC AND STOP THAT FROM HAPPENING
 # PUT IN SOME KIND OF LOGIC FOR THE TOC BEGINNINGS AND ENDINGS
 # TRY TO GET SECTIONS OF FRONT MATTER IN SECTION DATA
 
@@ -381,6 +383,7 @@ sections = get_section_data(chapters, page_data, transcription_text)
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
+section_format = find_form_section(transcription_text, "sec")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
 
@@ -391,7 +394,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 

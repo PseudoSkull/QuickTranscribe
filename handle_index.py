@@ -76,6 +76,11 @@ style_defaults = {
 
     "wst-freedimg-caption":
     """	font-size: 92%;""",
+
+    "wst-toc-table":
+    """	font-variant: small-caps;
+	max-width: 25em;
+	font-size: 92%;"""
 }
 
 def extract_file_extension(filename):
@@ -251,6 +256,8 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
         classes_used.append("wst-freedimg-caption")
     if "{{fine block" in transcription_text:
         classes_used.append("wst-fineblock")
+    if "{{TOC begin}}" in transcription_text:
+        classes_used.append("wst-toc-table")
     
     # put parent class in too
     for css_class in classes_used:

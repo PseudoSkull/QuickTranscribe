@@ -29,6 +29,7 @@ from handle_commons import get_image_filename
 
 basic_elements = {
     "d": "dhr",
+    "end": "dhr|2}}\n{{c|{{asc|The end}}",
     "n": "nop",
     "peh": "peh",
     "-": "<spl>", # for handling split between tags
@@ -515,8 +516,6 @@ def get_section_data(chapters, page_data, transcription_text):
                         page_num = chapter_start_page_num
                         overall_page_num = None # CHANGE LATER
                         sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
-                        print(sections)
-                        # exit()
                 
                 # add first section of chapter if it's the first time encountering that chapter
                 
@@ -531,9 +530,7 @@ def get_section_data(chapters, page_data, transcription_text):
     else:
         print_in_yellow("No sections found in transcription text.")
 
-    # write_to_json_file(sections_json_file, sections)
-    print(sections)
-    exit()
+    write_to_json_file(sections_json_file, sections)
     return sections
     
 
@@ -597,13 +594,13 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         header = ""
     # WHY DOES
     toc_beginning = f"""c|{{{{larger|CONTENTS}}}}}}}}
-{{{{TOC begin|sc=yes|max-width=25em}}}}{header}
+{{{{TOC begin}}}}{header}
 """
     print(f"TOC BEGINNING IS {toc_beginning} BEFORE")
 #     toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
 # <div class="toc-block">
 # """
-    toc_ending = """{{TOC end}}"""
+    toc_ending = """{{TOC end"""
     # toc_ending = "</div>"
 
     for chapter_num, chapter in enumerate(chapters):
@@ -632,7 +629,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
                 toc_beginning += splice_tag + "\n"
 
         else:
-            toc_beginning += f"{{{{TOC row 1-1-1|{{{{fine|{chapter_num_as_roman}}}}}|{{{{fine|{toc_link}}}}}|{{{{fine|{page_num}}}}}}}}}\n"
+            toc_beginning += f"{{{{TOC row 1-1-1|{chapter_num_as_roman}|{toc_link}|{page_num}}}}}\n"
     print(f"TOC BEGINNING IS {toc_beginning} AFTER")
     toc = toc_beginning + toc_ending
     print_in_green("TOC generated.")
@@ -1172,13 +1169,14 @@ def convert_images(page, image_data, img_num):
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, mainspace_work_title, title, toc, chapter_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
     # chapter_num = 0
     # part_num = 0
     overall_chapter_num = 0
+    overall_section_num = 0
     block_continuations = {} # dictionary because of TOC needing split indices, CHANGE THIS LATER NOT SEMANTICALLY CORRECT
     inline_continuations = []
     for page in page_data:
@@ -1208,6 +1206,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
         overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format)
+        # overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format)
 
 
         page = remove_split_tag(page)
