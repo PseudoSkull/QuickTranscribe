@@ -491,7 +491,10 @@ def get_section_data(chapters, page_data, transcription_text):
         for overall_page_num, page in enumerate(page_data):
             section_pattern = r"(\/sec\/)\n"
 
-            page_num = page["marker"]
+            try:
+                page_num = int(page["marker"])
+            except ValueError:
+                page_num = page["marker"]
             content = page["content"]
             
             section_matches = re.findall(section_pattern, content)
@@ -513,9 +516,8 @@ def get_section_data(chapters, page_data, transcription_text):
                 else:
                     if chapter_num != previous_chapter_num:
                         section_num = 1
-                        page_num = chapter_start_page_num
                         overall_page_num = None # CHANGE LATER
-                        sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
+                        sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, overall_page_num)
                 
                 # add first section of chapter if it's the first time encountering that chapter
                 
