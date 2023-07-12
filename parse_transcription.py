@@ -323,7 +323,7 @@ def determine_if_books_or_parts_exist(text):
         return True
     return False
 
-def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts, transcription_text):
+def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -341,7 +341,7 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
 
     chapters = []
 
-    if "/ch/" in transcription_text:
+    if "/ch/" in text:
         print_in_green("Chapters found in transcription text. Getting chapter data...")
 
         previous_chapter = None
@@ -399,7 +399,11 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
                 else:
                     chapter["title"] = convert_to_title_case(match)
                 
-                chapter["page_num"] = int(page_num)
+                if type(page_num) == str and page_num.isdigit():
+                    chapter["page_num"] = int(page_num)
+                else:
+                    chapter["page_num"] = page_num
+                
                 chapter["refs"] = False # for now
                 chapter["part_num"] = part_num
                 chapter["has_sections"] = False
@@ -427,7 +431,14 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
     return chapters
 
 def get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num):
+    try:
+        page_num = int(page_num)
+    except ValueError:
+        print_in_red(f"Page number {page_num} is not an integer.")
+        exit()
     for chapter_num, chapter in enumerate(chapters):
+        # print(f"Chapter {chapter}")
+        # print(f"Page {page_num}")
         chapter_page_num = chapter["page_num"]
         try:
             next_chapter = chapters[chapter_num + 1]
@@ -441,12 +452,14 @@ def get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num):
         #     front_matter["chapter_num"] = 0
         #     front_matter["part_num"] = 0
         #     front_matter["page_num"] = 0
-        if chapter_page_num > page_num and chapter_page_num < next_chapter_page_num:
+        # print(f"Type of chapter page num: {type(chapter_page_num)}. Type of page num: {type(page_num)} Type of next chapter page num: {type(next_chapter_page_num)}")
+        if chapter_page_num < page_num and next_chapter_page_num > page_num:
             return chapter
 
 def add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num, section_name=None, section_prefix=None):
     section = {}
-    overall_page_num += 1 # not zero indexed
+    if overall_page_num:
+        overall_page_num += 1 # not zero indexed
     section["chapter_num"] = chapter_num
     section["part_num"] = part_num
     section["section_num"] = section_num
@@ -473,6 +486,7 @@ def get_section_data(chapters, page_data, transcription_text):
     if section_tag in transcription_text:
         chapter_num = 0
         section_num = 0
+        # first_section_added = False
         for overall_page_num, page in enumerate(page_data):
             section_pattern = r"(\/sec\/)\n"
 
@@ -483,21 +497,29 @@ def get_section_data(chapters, page_data, transcription_text):
 
             for match in section_matches:
                 chapter = get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num)
-                chapter = {}
+                # chapter = {}
                 previous_chapter_num = chapter_num
                 chapter_num = chapter["chapter_num"]
+                chapter_start_page_num = chapter["page_num"]
                 part_num = chapter["part_num"]
                 
+                # print(sections)
 
                 chapter_has_sections = chapter["has_sections"]
                 if not chapter_has_sections:
                     print_in_red(f"ERROR: Chapter data says chapter has no sections, but section was found in chapter when collecting section data! Something is wrong with the code. Please fix it. Chapter num: {chapter_num}, part num: {part_num}, page num: {page_num}, overall page num: {overall_page_num}, match: {match}")
                     exit()
+                else:
+                    if chapter_num != previous_chapter_num:
+                        section_num = 1
+                        page_num = chapter_start_page_num
+                        overall_page_num = None # CHANGE LATER
+                        sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
+                        print(sections)
+                        # exit()
                 
                 # add first section of chapter if it's the first time encountering that chapter
-                if chapter_num != previous_chapter_num:
-                    section_num = 1 # resetting section nums
-                    sections = add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num)
+                
                 
                 section_num += 1
 

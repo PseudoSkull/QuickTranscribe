@@ -26,7 +26,7 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 # PUT IN SOME KIND OF LOGIC FOR THE TOC BEGINNINGS AND ENDINGS
 # TRY TO GET SECTIONS OF FRONT MATTER IN SECTION DATA
 
-# Wikidata handle multiple locations, genres
+# " 'Time Stays; We Go!' " comes out as " 'Time Stays; We Go! ". Fix handle title case
 
 # handle /sec/ tags
 # handle /i/ tags
