@@ -152,21 +152,32 @@ def get_time_from_property(item, property):
         print_in_red(f"Value not found for {property} in {item}.")
         return None
 
-def get_label(item):
-    print(f"Retrieving (existing) label for Wikidata item {item}.")
+def get_label(items):
+    print(f"Retrieving (existing) label for Wikidata item {items}.")
     site = pywikibot.Site("wikidata", "wikidata")
-    page = item_page(site, item)  # Create an ItemPage for the author
 
-    # Retrieve the label of the author item in English
-    page.get()
-    label = page.labels.get("en")
+    if type(items) != list:
+        items = [items,]
+    
+    labels = []
+    for item in items:
+        page = item_page(site, item)
 
-    if label:
-        print_in_green(f"Label retrieved for {item}: {label}.")
-        return label
+        # Retrieve the label of the author item in English
+        page.get()
+        label = page.labels.get("en")
+
+        if label:
+            print_in_green(f"Label retrieved for {item}: {label}.")
+            labels.append(label)
+        else:
+            print_in_yellow(f"Label not found for {item}.")
+            return None
+    
+    if len(labels) == 1:
+        return labels[0]
     else:
-        print_in_yellow(f"Label not found for {item}.")
-        return None
+        return labels
 
 def get_description(item):
     print(f"Retrieving (existing) description for Wikidata item {item}.")

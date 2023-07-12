@@ -24,13 +24,18 @@ marker_definitions = {
 
 style_defaults = {
     "chapter": # IF NO STYLE IS SPECIFIED, USE THIS
-    # """	text-align: center;
-	# margin-bottom: 0.75em;""",
-    """	text-align: center;
+    {
+        "has_children":
+        """	text-align: center;
+	margin-bottom: 0.75em;""",
+
+        "no_children":
+        """	text-align: center;
 	text-transform: uppercase;
 	font-size: 120%;
 	margin-bottom: 0.75em;""",
-    
+    },
+
     "chapter num":
     """	text-transform: uppercase;
     font-size: 120%;
