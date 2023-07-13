@@ -73,7 +73,7 @@ def get_page_data(transcription_text, page_break_string=None):
                 content_as_string = "\n\n".join(content)
                 if content_as_string == "/ign/":
                     page_quality = "i"
-                if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string:
+                if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string or "{{TOC " in content_as_string:
                     page_type = "toc"
                 if page_break_string and page_break_string in content_as_string:
                     page_type = "break"
@@ -82,6 +82,7 @@ def get_page_data(transcription_text, page_break_string=None):
                 # if len(content) < 100:
                 #     print(f"Marker is {marker} and page_num is {page_num} and content is {content}")
                 add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
+                page_type = "" # temporary solution, because it happens again above, dunno why this helps
                 data_item = {}
                 read_page = False
             page_num += 1

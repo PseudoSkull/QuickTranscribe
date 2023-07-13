@@ -38,8 +38,8 @@ style_defaults = {
 
     "chapter num":
     """	text-transform: uppercase;
-    font-size: 120%;
-    margin-bottom: 1.5em;""",
+	font-size: 120%;
+	margin-bottom: 1.5em;""",
 
     "chapter title":
     """	font-variant: all-small-caps;""",
@@ -51,13 +51,13 @@ style_defaults = {
 
     "part-header":
     """	text-align: center;
-    font-size: 120%;
+	font-size: 120%;
     text-transform: uppercase;""",
 
     "poem": 
     """	font-size: 92%;
 	margin-top: 2em;
-    margin-bottom: 2em;""",
+	margin-bottom: 2em;""",
 
     "section":
     """	text-align: center;
@@ -65,7 +65,7 @@ style_defaults = {
 
     "title":
     """	text-align: center;
-    font-size: 144%;
+ 	font-size: 144%;
 	text-transform: uppercase;""",
 
     "toc-block":
@@ -240,8 +240,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Footer=
 |Transclusion=no
 }}}}"""
-    print(index_page_text)
-    exit()
+    # print(index_page_text)
     save_page(index_page, site, index_page_text, summary, transcription_page_title)
     add_index_page_to_version_item(version_item, index_page_title)
     create_index_styles(transcription_text, index_page_title, transcription_page_title)
@@ -266,17 +265,26 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     if "{{TOC begin}}" in transcription_text:
         classes_used.append("wst-toc-table")
     
+    classes_that_have_children = []
     # put parent class in too
+    # for css_class in classes_used:
     for css_class in classes_used:
-        if "." in css_class:
-            css_parent_class = css_class.split(".")[0]
+        if " " in css_class:
+            css_parent_class = css_class.split(" ")[0]
             if css_parent_class not in classes_used:
                 classes_used.append(css_parent_class)
+                classes_that_have_children.append(css_parent_class)
 
     classes_used.sort()
 
     for css_class, default_style in style_defaults.items():
         if css_class in classes_used:
+            css_class = css_class.replace(" ", ".")
+            if type(default_style) == dict: # i.e. if it is a class that could be a parent class
+                if css_class in classes_that_have_children:
+                    default_style = default_style["has_children"]
+                else:
+                    default_style = default_style["no_children"]
             index_styles_text += f".{css_class} {{\n{default_style}\n}}\n\n"
 
     save_page(index_styles_page, site, index_styles_text, "Creating index style sheet with some default styles...", transcription_page_title)
