@@ -45,6 +45,13 @@
 # ^... -> ^. . . 
 
 
+
+import itertools
+import pywikibot
+from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+from edit_mw import save_page
+
+
 defaultsort_prefixes = [
     # English
     "The ",
@@ -201,13 +208,56 @@ def generate_combinations(title_with_variants):
 
     # return combinations
 
-def generate_variant_titles(page_title_to_parse, redirect_target):
-    redirects = []
+def generate_combinations(title_with_variants):
+    combinations = []
+
+    title_with_variants = [p if type(p) == list else [p] for p in title_with_variants]
+
+    for result in itertools.product(*title_with_variants):
+        variant = " ".join(result)
+        combinations.append(variant)
+    
+    return combinations
+ 
+
+    
+
+    # for i in range(max_length):
+    #     combo = []
+    #     for sublist in sublists:
+    #         if i < len(sublist):
+    #             combo.append(str(sublist[i]))
+    #     if combo:
+    #         combinations.append(", ".join(combo))
+    
+    # return combinations
+
+# sublists = [[1, 2, 8], [3, 4], [5, 6, 4, 2]]
+# combinations = generate_combinations(sublists)
+
+# for combination in combinations:
+#     print(combination)
+
+# exit()
+
+def generate_variant_titles(page_title_to_parse):
+    print(f"Generating variant titles for: {page_title_to_parse}")
     words = page_title_to_parse.split(" ")
     title_with_variants = generate_title_with_variants(words)
-    # print(title_with_variants)
+    print(title_with_variants)
     combinations = generate_combinations(title_with_variants)
-    print(combinations)
+    combinations.remove(page_title_to_parse)
+    combination_length = len(combinations)
+    print_in_green(f"Successfully generated {combination_length} variant titles.")
+    return combinations
 
-
-print(generate_variant_titles(page_title_to_parse, redirect_target))
+def create_redirects(page_title_to_parse):
+    variant_titles = generate_variant_titles(page_title_to_parse)
+    redirect_target = page_title_to_parse # for now; when we get to disambig situations it'll be different
+    print(f"Creating redirects to {redirect_target}...")
+    site = pywikibot.Site("en", "wikisource")
+    for title in variant_titles:
+        redirect_page = pywikibot.Page(site, title)
+        redirect_text = f"# REDIRECT [[{redirect_target}]]"
+        save_page(redirect_page, site, redirect_text, f"Creating redirect to {redirect_target}")
+    print_in_green("All redirect pages successfully created!")
