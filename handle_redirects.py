@@ -253,6 +253,8 @@ def generate_variant_titles(page_title_to_parse):
 
 def create_redirects(page_title_to_parse):
     variant_titles = generate_variant_titles(page_title_to_parse)
+    if len(variant_titles) == 0:
+        print("No variant titles to create redirects for. Skipping redirects...")
     redirect_target = page_title_to_parse # for now; when we get to disambig situations it'll be different
     print(f"Creating redirects to {redirect_target}...")
     site = pywikibot.Site("en", "wikisource")

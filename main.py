@@ -17,6 +17,7 @@ from handle_transclusion import transclude_pages
 from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file
 from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
+from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing
 
@@ -469,6 +470,8 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 if not at_expected_progress:
     transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary)
 
+    create_redirects(mainspace_work_title)
+    
     process_break()
 
     change_transclusion_progress(index_page_title)

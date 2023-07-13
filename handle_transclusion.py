@@ -23,13 +23,20 @@ eras = {
 # Modern	1900–present
 
 
-def generate_genre_category(genre_name, work_type_name):
-    category = genre_name.capitalize()
-    if genre_name == "children's" or genre_name == "children":
-        category = "Children's books"
-    elif genre_name == "historical":
-        category = f"Historical {work_type_name}s"
-    return category
+def generate_genre_categories(genre_name, work_type_name):
+    categories = genre_name.capitalize()
+    if type(category) == str:
+        categories = [categories,]
+    for category in categories:
+        if genre_name == "children's" or genre_name == "children":
+            category = "Children's books"
+        elif genre_name == "historical":
+            if work_type_name == "novel":
+                category = f"Historical fiction novels"
+            else:
+                category = f"Historical {work_type_name}s"
+        categories.append(category)
+    return categories
 
 def generate_type_category(work_type_name, country):
     # print(work_type_name)
@@ -353,8 +360,8 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     categories.append(type_category)
 
     if genre_name:
-        genre_category = generate_genre_category(genre_name)
-        categories.append(genre_category)
+        genre_categories = generate_genre_categories(genre_name)
+        categories += genre_categories
 
 
 
