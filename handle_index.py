@@ -60,8 +60,7 @@ style_defaults = {
 	margin-bottom: 2em;""",
 
     "section":
-    """	text-align: center;
-	margin-bottom: 1.5em;""",
+    """	text-align: center;""",
 
     "title":
     """	text-align: center;

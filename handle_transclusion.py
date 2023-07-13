@@ -24,13 +24,16 @@ eras = {
 
 
 def generate_genre_categories(genre_name, work_type_name):
-    categories = genre_name.capitalize()
-    if type(category) == str:
-        categories = [categories,]
-    for category in categories:
-        if genre_name == "children's" or genre_name == "children":
+    # categories = genre_name.capitalize()
+    if type(genre_name) == str:
+        genres = [genre_name,]
+    else:
+        genres = genre_name
+    categories = []
+    for genre in genres:
+        if genre == "children's" or genre == "children":
             category = "Children's books"
-        elif genre_name == "historical":
+        elif genre == "historical":
             if work_type_name == "novel":
                 category = f"Historical fiction novels"
             else:
@@ -320,7 +323,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     # produce all the page tags
     pages_tags = []
     toc_pages = []
-    for page_num in range(1, first_content_page):
+    for page_num in range(1, first_content_page+1):
         page_num_zero_indexed = page_num - 1
         page = page_data[page_num_zero_indexed]
         page_quality = page["page_quality"]
@@ -328,16 +331,24 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if page_quality != "0":
             if page_type == "toc":
                 toc_pages.append(page_num)
+                print(toc_pages)
                 if page_num == first_content_page - 1:
                     page_tag = generate_toc_page_tag(toc_pages, filename)
                     toc_pages = []
                 else:
                     continue
             else:
+
                 if len(toc_pages) > 0:
-                    page_tag = generate_toc_page_tag(toc_pages, filename)
-                    toc_pages = []
-                page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+                    if len(toc_pages) == 1:
+                        page_num = toc_pages[0]
+                        page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+                        toc_pages = []
+                    else:
+                        page_tag = generate_toc_page_tag(toc_pages, filename)
+                        toc_pages = []
+                else:
+                    page_tag = f"<pages index=\"{filename}\" include={page_num} />"
             pages_tags.append(page_tag)
     page_break = "{{page break|label=}}"
     page_tags = f"\n{page_break}\n".join(pages_tags)
@@ -360,7 +371,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     categories.append(type_category)
 
     if genre_name:
-        genre_categories = generate_genre_categories(genre_name)
+        genre_categories = generate_genre_categories(genre_name, work_type_name)
         categories += genre_categories
 
 
