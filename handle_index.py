@@ -4,7 +4,7 @@
 # REDO THIS WHOLE SYSTEM, to include HANDLE_PAGES LOGIC rather than what we repeat here
 
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
-from edit_mw import save_page
+from edit_mw import save_page, parse_list_with_commas
 from cleanup import split_string_by_newline
 from handle_wikidata import add_index_page_to_version_item
 import pywikibot
@@ -62,7 +62,7 @@ style_defaults = {
     "section":
     """	text-align: center;
 	margin-bottom: 1.5em;""",
-    
+
     "title":
     """	text-align: center;
     font-size: 144%;
@@ -207,6 +207,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
     progress = "C"
     site = pywikibot.Site('en', 'wikisource')
     index_page = pywikibot.Page(site, index_page_title)
+    location_name = parse_list_with_commas(location_name)
     toc_section = generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mainspace_work_title, transcription_page_title)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
@@ -239,6 +240,8 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Footer=
 |Transclusion=no
 }}}}"""
+    print(index_page_text)
+    exit()
     save_page(index_page, site, index_page_text, summary, transcription_page_title)
     add_index_page_to_version_item(version_item, index_page_title)
     create_index_styles(transcription_text, index_page_title, transcription_page_title)

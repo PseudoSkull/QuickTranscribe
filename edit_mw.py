@@ -35,3 +35,22 @@ def remove_template_markup(text):
             break
 
     return str(wikicode)
+
+def parse_list_with_commas(list_of_words):
+    if type(list_of_words) != list:
+        return list_of_words
+    if len(list_of_words) == 0:
+        print_in_red("ERROR: Empty list of words passed to handle_list_as_commas()")
+        return
+    elif len(list_of_words) == 1:
+        first_word = list_of_words[0]
+        return list_of_words[0]
+    elif len(list_of_words) == 2:
+        first_word = list_of_words[0]
+        second_word = list_of_words[1]
+        return f"{first_word} and {second_word}"
+    else:
+        last_word = list_of_words[-1]
+        words_except_last_word = list_of_words[:-1]
+        words_with_commas = ', '.join(words_except_last_word)
+        return f"{words_with_commas}, and {last_word}"
