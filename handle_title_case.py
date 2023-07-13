@@ -19,7 +19,12 @@ ending_punctuations_to_test = ["!", ".", ",", ";", ":", "?", ")", "]", "}" "\""]
 title_case_exceptions = ['and', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'yet',
                   'a', 'an', 'the',
                   'as', 'at', 'by', 'for', 'in', 'of', 'per', 'to', 'up', 'via',
+                  # dubious
+                  'on', 'off',
+                  # abbreviations
                   'etc', 'cf', 'c.f', 'e.g', 'i.e', 'ie', 'vs', 'v', 'viz',
+                  # pronunciation spelling
+                  'an\'', 'o\'', '\'n\'', '\'n', 'n\'', 'fer',
 ]
 
 conditional_exceptions = [
@@ -78,12 +83,12 @@ def remove_ending_punctuation(ending_punctuation, word):
 
 def convert_word_to_title_case(word_num, word, capitalize_all=False):
     beginning_punctuation = get_beginning_punctuation(word)
-    # print(f"Beginning punctuation: {beginning_punctuation}")
     word = remove_beginning_punctuation(beginning_punctuation, word)
     # print(f"Word after removed beginning punctuation: {word}")
-    ending_punctuation = get_ending_punctuation(word)
-    # print(f"Ending punctuation: {ending_punctuation}")
-    word = remove_ending_punctuation(ending_punctuation, word)
+    # ending_punctuation = get_ending_punctuation(word)
+    # print(f"Ending punctuation: {word}")
+    # word = remove_ending_punctuation(ending_punctuation, word)
+    # print(f"Word after removed ending punctuation: {word}")
     # print(f"Word after removed ending punctuation: {word}")
     # for exception in conditional_exceptions:
     #     if exception.lower() == word:
@@ -106,19 +111,18 @@ def convert_word_to_title_case(word_num, word, capitalize_all=False):
                 word = word.capitalize()
             else:
                 word = word.lower()
-    word = beginning_punctuation + word + ending_punctuation
+    word = beginning_punctuation + word
     return word
 
 def handle_apostrophes(word):
     apostrophe = "'"
-    if word[0] == apostrophe or word[-1] == apostrophe:
+    if word[0] == apostrophe:
         print_in_yellow(f"Apostrophes found in word \" {word} \". Do you want to lowercase it? (y/n)")
         answer = process_break()
         print(answer)
         if answer == "y":
             return word.lower()
         else:
-            print("Got here")
             return f"{(word[0].upper() if word[0] is not apostrophe else word[0])}{word[1].upper() if word[0] is apostrophe else word[1]}{word[2:]}" # temporary messy solution
     return word
 
@@ -144,7 +148,6 @@ def convert_to_title_case(text):
 
     # Split the text into words
     words = text.split()
-    print(words)
 
     # Iterate over the words
     for word_num, word in enumerate(words):
@@ -154,7 +157,6 @@ def convert_to_title_case(text):
 
         # Add the reconstructed word to the result list
         result.append(word)
-        print(f"Result at convert_to_title_case: {result}")
 
     # Join the words back into a string
     title_case_text = ' '.join(result)

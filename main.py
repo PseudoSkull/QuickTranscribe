@@ -23,22 +23,30 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 # To do later:
 # CLEANUP: LOOK FOR CONTENT PAGES WITH NO MARKER AFTER PAGE NUMBERS ADDED
 # CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
+# TITLE CASE LOGIC CAPITALIZES "MR." COMPLETELY
 # PROGRAM IN SETTINGS FOR IMAGE SIZES
-# FIGURE OUT WHY AN EXTRA {{ }} IS BEING ADDED TO THE GENERATED TOC AND STOP THAT FROM HAPPENING - kinda done?
 # PUT IN SOME KIND OF LOGIC FOR THE DIFFERENT TOC BEGINNINGS AND ENDINGS
+
+
+# not so important:
+# FIGURE OUT WHY AN EXTRA {{ }} IS BEING ADDED TO THE GENERATED TOC AND STOP THAT FROM HAPPENING - kinda done?
 # TRY TO GET SECTIONS OF FRONT MATTER IN SECTION DATA
+# ITALICIZE NUMBERS WITH /I/ TAG
 
-# " 'Time Stays; We Go!' " comes out as " 'Time Stays; We Go! ". Fix handle title case
 
-# handle /sec/ tags
-# handle /i/ tags
 
+
+
+# Index: handle double location
 # Index styles: IF NO STYLE IS SPECIFIED, USE THIS
     # """	text-align: center;
 	# margin-bottom: 0.75em;""",
 
+# Transclusion: handle double genre
+
+
 # handle redirects after transclusion
-#: for now should only handle "!" -> ""
+#: for now should only handle "!" -> "" and "O" -> "Oh"
 
 page_break_string = "<!-- page break after this page -->"
 

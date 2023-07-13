@@ -398,7 +398,8 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
                 if toc_is_auxiliary:
                     chapter["title"] = None
                 else:
-                    chapter["title"] = convert_to_title_case(match)
+                    title = convert_to_title_case(match)
+                    chapter["title"] = title
                 
                 if type(page_num) == str and page_num.isdigit():
                     chapter["page_num"] = int(page_num)
@@ -856,7 +857,7 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
     content = page["content"]
     sec_tag = get_plain_tag("sec")
 
-    if string_not_in_content(content, sec_tag, "Converting chapter headings"):
+    if string_not_in_content(content, sec_tag, "Converting section headings"):
         return overall_section_num, page
     
     sections_in_page = get_string_from_lines(content, sec_tag)
@@ -1023,11 +1024,17 @@ def convert_italics(page):
 
     for match in strings_in_italics:
         match = match.replace("'", nowiki_apostrophe)
+
+        # legal lingo, for court case names
+        match = match.replace(" v. ", " ''v.'' ")
+        match = match.replace(" et. al.", " ''et. al.''")
+
+        # numbers
+        # TODO
+
         content = re.sub(italics_pattern, rf"''{match}''", content, count=1)
 
     page["content"] = content
-
-    print(content)
 
     return page
 
