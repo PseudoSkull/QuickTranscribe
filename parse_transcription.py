@@ -1000,6 +1000,37 @@ def convert_author_links(page):
 
     return page
 
+def nowiki(string):
+    return "<nowiki>" + string + "</nowiki>"
+
+def convert_italics(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/i/", "Converting /i/ to italics in transcription"):
+        return page
+    
+    nowiki_apostrophe = nowiki("'")
+
+    # replace apostrophes directly outside with nowiki
+    content = content.replace("'/i//", f"{nowiki_apostrophe}/i//")
+    content = content.replace("//i/'", f"//i/{nowiki_apostrophe}")
+
+    # replace apostrophes inside with nowiki
+
+    italics_pattern = r"\/i\//(.+?)/\/i\/"
+
+    strings_in_italics = re.findall(italics_pattern, content)
+
+    for match in strings_in_italics:
+        match = match.replace("'", nowiki_apostrophe)
+        content = re.sub(italics_pattern, rf"''{match}''", content, count=1)
+
+    page["content"] = content
+
+    print(content)
+
+    return page
+
 def convert_smallcaps(page):
     content = page["content"]
 
@@ -1046,7 +1077,6 @@ def convert_wikilinks(page, inline_continuations, page_data):
     content = re.sub(r"\/li\//(.+?)\//li\/", r"[[\1]]", content)
 
     page["content"] = content
-
 
 
     return page, inline_continuations
@@ -1256,6 +1286,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_title_headers(page, title)
         block_continuations, page = convert_block_elements(page, block_continuations)
         block_continuations, page = convert_poems(page, block_continuations, convert_fqms) # done
+        page = convert_italics(page)
         page = convert_smallcaps(page)
         page = convert_right(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
