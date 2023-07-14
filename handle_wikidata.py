@@ -50,6 +50,10 @@ def is_wikidata_item_string(value):
 def add_property(repo, item, property, values, descriptor, transcription_page_title=None):
     print(f"Adding {descriptor} claim to item {item}...")
 
+    if not item:
+        print_in_yellow(f"No item found for {descriptor}. No action taken.")
+        return
+
     if type(item) == str:
         item = item_page(repo, item)
 

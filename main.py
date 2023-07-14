@@ -62,9 +62,14 @@ chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
 common_genres = {
     "children": "Q56451354",
     "children's": "Q56451354",
+    "Christian": "Q1084059",
     "fiction": "Q306614",
     "historical": "Q1196408",
+    "mystery": "Q6585139",
     "nonfiction": "Q213051",
+    "science fiction": "Q24925",
+    "scifi": "Q24925",
+    "thriller": "Q182015",
 }
 
 common_work_types = {
@@ -77,6 +82,7 @@ common_work_types = {
 common_locations = {
     "Atlanta": "Q23556",
     "Boston": "Q100",
+    "Chicago": "Q1297",
     "London": "Q84",
     "New York": "Q60",
     "New York City": "Q60",
@@ -186,6 +192,8 @@ country_name = get_country_name(country)
 work_type = get_work_data(work_data, "work type", common_work_types)
 genre = get_work_data(work_data, "genre", common_genres)
 work_type_name = get_work_data(work_data, "work type")
+if not work_type_name:
+    work_type_name = "work"
 genre_name = get_work_data(work_data, "genre")
 pub_date = get_work_data(work_data, "date of publication")
 year = get_year_from_date(pub_date)
@@ -257,7 +265,10 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 if not at_expected_progress:
     version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
+
     process_break()
+    
+    transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that version item has been created...")
 
@@ -271,7 +282,7 @@ expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name)
+    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias)
 
     commons_category_page = pywikibot.Page(commons_site, commons_category)
     save_page(commons_category_page, commons_site, commons_category_text, f"Creating Commons category for book {title} that will be filled shortly...", transcription_page_title)
@@ -280,6 +291,7 @@ if not at_expected_progress:
     add_commons_category_to_item(base_work, commons_category, commons_category_title)
 
     process_break()
+
     transcription_text = update_conf_value(transcription_text, commons_category_conf_variable, commons_category)
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that Commons category has been created...")
@@ -471,7 +483,7 @@ if not at_expected_progress:
     transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary)
 
     create_redirects(mainspace_work_title)
-    
+
     process_break()
 
     change_transclusion_progress(index_page_title)

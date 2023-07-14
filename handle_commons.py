@@ -4,7 +4,7 @@ from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
 from edit_mw import linkify, edit_summary, save_page, remove_template_markup
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
-from handle_wikidata import get_value_from_property, add_property
+from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item
 import pywikibot
 import re
 import math
@@ -58,9 +58,9 @@ def upload_file_to_commons(filename, file_text, file_path, transcription_page_ti
             #  upload_file_chunks(file_path, filename, transcription_page_title)
             print("File size greater than 3 MB. Uploading in chunks...")
             chunk_size = convert_to_megabytes(3)
-            file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False)
+            file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         else:
-            file_page.upload(source=file_path, comment=edit_summary(summary, transcription_page_title), report_success=False)
+            file_page.upload(source=file_path, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         print_in_green("File uploaded successfully!")
     else:
         print_in_yellow(f"File {filename} already exists on Wikimedia Commons! Not uploading.")
@@ -92,6 +92,8 @@ def add_country_prefix(country_name):
     return country_name
 
 def generate_type_category(category_namespace_prefix, work_type_name, country_name):
+    if work_type_name == "work":
+        return None
     work_type_name = work_type_name.capitalize() + "s"
 
     type_category = f"{category_namespace_prefix}{work_type_name} from {country_name}"
@@ -105,15 +107,35 @@ def generate_year_category(category_namespace_prefix, original_year, country_nam
 
     return year_category
 
-def create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item):
+def create_author_category(author_item, author_WD_alias):
+    print_in_yellow(f"No Commons category for the author {author_WD_alias} was found. Creating author category...")
+
+    author_category_page_title = f"Category:{author_WD_alias}"
+    site = pywikibot.Site("commons", "commons")
+    author_category_page = pywikibot.Page(site, author_category_page_title)
+    author_category_page_text = "{{Wikidata Infobox}}"
+
+    save_page(author_category_page, site, author_category_page_text, "Creating author category...")
+
+    add_commons_category_to_item(author_item, author_category_page_title, author_WD_alias)
+
+    return author_category_page_title
+
+def create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias):
     print("Generating subcategories...")
     country_name = add_country_prefix(country_name)
 
-    author_category = linkify(get_commons_category_from_wikidata(author_item))
+    author_category = get_commons_category_from_wikidata(author_item)
+    if not author_category:
+        author_category = create_author_category(author_item, author_WD_alias)
+    author_category = linkify(author_category)
     type_category = generate_type_category(category_namespace_prefix, work_type_name, country_name)
     year_category = generate_year_category(category_namespace_prefix, original_year, country_name)
 
-    categories = [author_category, type_category, year_category]
+    if type_category:
+        categories = [author_category, type_category, year_category]
+    else:
+        categories = [author_category, year_category]
 
     categories.sort()
 
@@ -122,13 +144,13 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
     return categories
 
 
-def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name):
+def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias):
     category_page_title = category_namespace_prefix + title
     category_title_no_prefix = title
     print(f"Generating Commons category {category_page_title}...")
 
     # create subcategories
-    categories = create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item)
+    categories = create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias)
 
     commons_category_text = f"{{{{Wikidata Infobox}}}}\n\n{categories}"
 
@@ -202,12 +224,11 @@ def upload_scan_file(title, year, version_item, scan_source, commons_category, I
 #         return image_data
 
 def get_image_type_from_settings(settings):
-    pattern = r"p=(.+)"
-    image_data = re.findall(pattern, settings)
-    if image_data:
-        return image_data[0]
-    else:
-        return None
+    if type(settings) == str:
+        settings = [settings,]
+    for setting in settings:
+        if setting.startswith("ty=") or setting.startswith("p="):
+            return setting
 
 def determine_image_type(marker, settings):
     image_types = {
@@ -240,7 +261,11 @@ def generate_image_title(image_type, seq_num, work_title, year):
 def get_image_size(image_type, settings):
     if image_type == "title illustration":
         size = 75
-    elif settings.isdigit():
+    elif type(settings) == list:
+        for setting in settings:
+            if setting.startswith("s="):
+                size = int(setting[2:])
+    elif type(settings) == str and settings.isdigit():
         size = int(settings)
     else:
         print(f"Got to else. Image type was {image_type}")
@@ -286,6 +311,8 @@ def generate_image_data(page_data, work_title, year):
                     if len(line) > expected_image_tag_length:
                         img_suffix = line[expected_image_tag_length:]
                         settings, caption = img_suffix.split("/")
+                        if "," in settings:
+                            settings = settings.split(",")
                     # img_num += 1
                     image_type = determine_image_type(marker, settings)
                     if image_type == "sequential":
@@ -302,6 +329,7 @@ def generate_image_data(page_data, work_title, year):
                     image["type"] = image_type
                     image["title"] = image_title
                     image["caption"] = caption
+                    image["settings"] = settings
                     image["extension"] = extension
                     image["path"] = image_path
                     image["size"] = image_size
