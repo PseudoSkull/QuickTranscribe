@@ -403,10 +403,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
 
                 if chapter_has_name:
-                    chapter["title"] = None
-                else:
                     title = convert_to_title_case(match)
                     chapter["title"] = title
+                else:
+                    chapter["title"] = None
                 
                 if type(page_num) == str and page_num.isdigit():
                     chapter["page_num"] = int(page_num)
