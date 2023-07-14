@@ -267,7 +267,7 @@ if not at_expected_progress:
     add_version_to_base_work_item(base_work, version_item)
 
     process_break()
-    
+
     transcription_text = transcription_page.get()
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that version item has been created...")
@@ -395,10 +395,11 @@ chapter_beginning_formatting = get_work_data(work_data, "chapter beginning forma
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
+chapter_prefix = get_work_data(work_data, "chapter has prefix")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
-chapters = get_chapter_data(transcription_text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts)
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts)
 sections = get_section_data(chapters, page_data, transcription_text)
 
 chapter_type = get_work_data(work_data, "chapter type")

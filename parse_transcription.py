@@ -324,7 +324,7 @@ def determine_if_books_or_parts_exist(text):
         return True
     return False
 
-def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of_parts):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -351,11 +351,13 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
         for page in page_data:
             page_num = page["marker"]
             content = page["content"]
+            chapter_has_name = "/ch//" in content
 
-            if toc_is_auxiliary:
-                chapter_pattern = r"(\/ch\/)\n"
-            else:
+            # if toc_is_auxiliary:
+            if chapter_has_name:
                 chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+            else:
+                chapter_pattern = r"(\/ch\/)\n"
 
             book_pattern = r"(\/bk\/)"
             part_pattern = r"(\/pt\/)"
@@ -390,12 +392,17 @@ def get_chapter_data(text, page_data, toc_is_auxiliary, chapters_are_subpages_of
 
                 else:
                     chapter_num += 1
-                    chapter["prefix"] = "Chapter" # for now
+                    if chapter_prefix == "n":
+                        chapter["prefix"] = None
+                    elif not chapter_prefix:
+                        chapter["prefix"] = "Chapter"
+                    else:
+                        chapter["prefix"] = chapter_prefix
                     chapter["chapter_num"] = chapter_num
                     match = is_chapter
 
 
-                if toc_is_auxiliary:
+                if chapter_has_name:
                     chapter["title"] = None
                 else:
                     title = convert_to_title_case(match)
@@ -543,8 +550,10 @@ def get_aux_toc_items(chapters, mainspace_work_title):
     is_subchapter = False
     for chapter in chapters:
         # if parts_exist:
-
-        chapter_prefix = chapter["prefix"] + " "
+        chapter_prefix = chapter["prefix"]
+        if not chapter_prefix:
+            chapter_prefix = "Chapter"
+        chapter_prefix += " "
         chapter_num = chapter["chapter_num"]
         if chapter_prefix == "Chapter ":
             chapter_num = chapter["chapter_num"]
@@ -1101,7 +1110,7 @@ def convert_block_element(page, abbreviation, template_name):
     block_start_tag = get_noparams_start_tag(abbreviation)
     block_end_tag = get_end_tag(abbreviation)
     
-    content = content.replace(block_start_tag, f"{{{{{template_name} block|")
+    content = content.replace(block_start_tag, f"{{{{{template_name}|")
     content = content.replace(block_end_tag, "}}")
 
     page["content"] = content

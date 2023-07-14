@@ -227,8 +227,9 @@ def get_image_type_from_settings(settings):
     if type(settings) == str:
         settings = [settings,]
     for setting in settings:
-        if setting.startswith("ty=") or setting.startswith("p="):
-            return setting
+        if setting.startswith("ty="):
+            image_type = setting[3:]
+            return image_type
 
 def determine_image_type(marker, settings):
     image_types = {
@@ -259,16 +260,15 @@ def generate_image_title(image_type, seq_num, work_title, year):
     return image_title
 
 def get_image_size(image_type, settings):
-    if image_type == "title illustration":
-        size = 75
-    elif type(settings) == list:
+    if type(settings) == list:
         for setting in settings:
             if setting.startswith("s="):
                 size = int(setting[2:])
     elif type(settings) == str and settings.isdigit():
         size = int(settings)
+    elif image_type == "title illustration":
+        size = 75
     else:
-        print(f"Got to else. Image type was {image_type}")
         size = 300
     return size
 
