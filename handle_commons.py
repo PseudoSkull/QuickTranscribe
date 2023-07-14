@@ -237,9 +237,11 @@ def generate_image_title(image_type, seq_num, work_title, year):
         image_title = f"{work_title_with_year} {image_type}"
     return image_title
 
-def get_image_size(image_type):
+def get_image_size(image_type, settings):
     if image_type == "title illustration":
         size = 75
+    elif settings.isdigit():
+        size = int(settings)
     else:
         print(f"Got to else. Image type was {image_type}")
         size = 300
@@ -291,7 +293,7 @@ def generate_image_data(page_data, work_title, year):
                     img_num += 1
                     image_title = generate_image_title(image_type, seq_num, work_title, year)
                     image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
-                    image_size = get_image_size(image_type)
+                    image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
 

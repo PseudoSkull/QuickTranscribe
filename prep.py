@@ -66,13 +66,14 @@ expected_progress = "hathi_files_downloaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    if not hathitrust_full_text_id:
-        hathitrust_full_text_id = get_hathitrust_full_text_id(hathitrust_catalog_id)
-    
-    hathi_folder = get_hathitrust_images(hathitrust_full_text_id)
+    if hathitrust_catalog_id or hathitrust_full_text_id:
+        if not hathitrust_full_text_id:
+            hathitrust_full_text_id = get_hathitrust_full_text_id(hathitrust_catalog_id)
+        hathi_folder = get_hathitrust_images(hathitrust_full_text_id)
 
-    assemble_pdf(hathi_folder)
-
+        assemble_pdf(hathi_folder)
+    else:
+        print_in_yellow("No HathiTrust information was given. No downloads were made.")
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that Hathi files have been downloaded...")
 

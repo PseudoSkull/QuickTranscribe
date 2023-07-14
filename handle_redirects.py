@@ -260,6 +260,6 @@ def create_redirects(page_title_to_parse):
     site = pywikibot.Site("en", "wikisource")
     for title in variant_titles:
         redirect_page = pywikibot.Page(site, title)
-        redirect_text = f"# REDIRECT [[{redirect_target}]]"
+        redirect_text = f"#REDIRECT [[{redirect_target}]]"
         save_page(redirect_page, site, redirect_text, f"Creating redirect to {redirect_target}")
     print_in_green("All redirect pages successfully created!")
