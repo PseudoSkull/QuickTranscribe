@@ -830,6 +830,10 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             displayed_section_num = roman_chapter_num
         
         chapter_prefix = chapter["prefix"]
+        if chapter_prefix:
+            chapter_prefix += " "
+        else:
+            chapter_prefix = ""
         chapter_title = chapter["title"]
         chapter_has_sections = chapter["has_sections"]
 
@@ -845,11 +849,11 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             # else: handle section tags
         else:
             if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
-                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix} {displayed_section_num}}}}}"
+                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
             else:
                 # print(type(chapter_title))
                 # print(chapter_title)
-                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix} {displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
         
         if chapter_has_sections:
             chapter_text += "\n/sec/"

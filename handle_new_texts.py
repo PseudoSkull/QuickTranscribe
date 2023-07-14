@@ -43,11 +43,15 @@ def generate_nowiki_author(author):
     nowiki_author = f"[[Author:{author}|]]|nowiki=yes"
     return nowiki_author
 
+def generate_display_title(mainspace_work_title, title):
+    display_title = f"{mainspace_work_title}|display={title}"
+    return display_title
+
 def generate_new_texts_item(mainspace_work_title, author, year):
     new_texts_item = f"{{{{new texts/item|{mainspace_work_title}|{author}|{year}}}}}"
     return new_texts_item
 
-def add_to_new_texts(mainspace_work_title, author, year):
+def add_to_new_texts(mainspace_work_title, title, author, year):
     print("Adding finished transcription to new texts...")
 
     site = pywikibot.Site("en", "wikisource")
@@ -60,10 +64,14 @@ def add_to_new_texts(mainspace_work_title, author, year):
 
     new_texts_page_text = move_last_entry_to_old_texts(new_texts_page_text, last_entry)
 
+    if title != mainspace_work_title:
+        mainspace_work_title = generate_display_title(mainspace_work_title, title)
+
     if " (" in author:
         author = generate_nowiki_author(author)
     
     new_texts_item = generate_new_texts_item(mainspace_work_title, author, year)
+    print(new_texts_item)
     onlyinclude_start_tag = "<onlyinclude>\n"
 
     new_texts_page_text = new_texts_page_text.replace(onlyinclude_start_tag, f"{onlyinclude_start_tag}{new_texts_item}\n")

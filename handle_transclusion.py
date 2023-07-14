@@ -38,6 +38,8 @@ def generate_genre_categories(genre_name, work_type_name):
                 category = f"Historical fiction novels"
             else:
                 category = f"Historical {work_type_name}s"
+        elif genre == "Christian":
+            category = "Christian literature"
         categories.append(category)
     return categories
 
@@ -69,7 +71,10 @@ def generate_type_category(work_type_name, country):
         print_in_red(f"No demonym found for {country}.")
         process_break()
 
-    type_category = f"{demonym} {work_type_name}s"
+    if work_type_name == "work":
+        type_category = f"{demonym} literature"
+    else:
+        type_category = f"{demonym} {work_type_name}s"
 
     return type_category
 
@@ -105,6 +110,8 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed):
     chapter_num = chapter["chapter_num"]
     chapter_name = chapter["title"]
     chapter_prefix = chapter["prefix"]
+    if not chapter_prefix:
+        chapter_prefix = "Chapter"
     chapter_internal_name = f"{chapter_prefix} {chapter_num}"
 
     if chapter_name == None:
@@ -241,6 +248,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
         chapter_prefix = chapter["prefix"]
+        if not chapter_prefix:
+            chapter_prefix = "Chapter"
         chapter_internal_name = f"{chapter_prefix} {chapter_num}"
         if chapter_name == None:
             chapter_name = chapter_internal_name
@@ -266,6 +275,18 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
+def generate_defaultsort_tag(mainspace_work_title):
+    bad_prefixes = [
+        "A ",
+        "An ",
+        "The ",
+    ]
+    for prefix in bad_prefixes:
+        if mainspace_work_title.startswith(prefix):
+            defaultsort_title = mainspace_work_title[len(prefix):]
+            defaultsort = f"{{{{DEFAULTSORT:{defaultsort_title}}}}}"
+            return defaultsort
+    return ""
 
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
     # author_death_year, transcription_page_title
@@ -282,6 +303,8 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     first_chapter_page_num = first_chapter["page_num"]
     first_content_page = first_chapter_page_num + page_offset
     first_chapter_prefix = first_chapter["prefix"]
+    if not first_chapter_prefix:
+        first_chapter_prefix = "Chapter"
     first_chapter_num = 1
     if first_chapter_name == None:
         first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
@@ -295,7 +318,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         author_header_display = f"{override_author}[[Author:{author_WS_name}|]]"
     else:
         author_header_display = author_WS_name # for now. There will be logic here later.
-    defaultsort = "" # for now. There will be logic here later.
+    defaultsort = generate_defaultsort_tag(mainspace_work_title) # for now. There will be logic here later.
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
     disambiguation_pointer = "" # for now. There will be logic here later.
     # Hierarchy: disambig > work > version
@@ -323,7 +346,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     # produce all the page tags
     pages_tags = []
     toc_pages = []
-    for page_num in range(1, first_content_page+1):
+    for page_num in range(1, first_content_page):
         page_num_zero_indexed = page_num - 1
         page = page_data[page_num_zero_indexed]
         page_quality = page["page_quality"]

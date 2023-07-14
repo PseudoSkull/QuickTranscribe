@@ -395,7 +395,7 @@ chapter_beginning_formatting = get_work_data(work_data, "chapter beginning forma
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
-chapter_prefix = get_work_data(work_data, "chapter has prefix")
+chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
@@ -500,7 +500,7 @@ expected_progress = "added_to_new_texts"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    add_to_new_texts(mainspace_work_title, author, year)
+    add_to_new_texts(mainspace_work_title, title, author, year)
 
     process_break()
 
