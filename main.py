@@ -22,6 +22,38 @@ from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing
 
 # To do later:
+# Cleanup: Find same letter repeated more than three times, such as "lll".
+# Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
+# Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
+# Cleanup: Find periods with lowercase letters after them, or on next page.
+# Parse: Handle dimg elements
+# Parse: Make the TOC logic deal with "Index" chapter.
+# MAKE SURE IMAGE DATA GOES THRU PROPERLY
+# Parse: Handle illustrations
+# Parse: Handle index (appendix) pages.
+#: Parse page numbers into links
+#: <div class="index-chapter"></div>, formatting_continuations
+#: Make the lines hang indent?
+
+# IN A SIMILAR VEIN, do the /pl// (pagelink) tags.
+
+# Parse: Hyphenation template for, specifically, instances of this:
+"""
+en-
+
+-i
+
+/img//WHITESIDE MOUNTAIN
+
+—
+
+-
+
+hanced
+"""
+
+
+# PREP: PREPARE INDEX PAGE OCR FOR TRANSCRIPTION through /ind/ tags
 # CLEANUP: LOOK FOR CONTENT PAGES WITH NO MARKER AFTER PAGE NUMBERS ADDED
 # CREATE COMMONS CATEGORY FOR AUTHOR IF AUTHOR COMMONS CATEGORY DOES NOT EXIST
 # TITLE CASE LOGIC CAPITALIZES "MR." COMPLETELY
