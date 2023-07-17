@@ -317,9 +317,9 @@ def place_page_numbers(text):
         line_prefix = line[:1]
         line_length = len(line)
         if line_length <= 4 and (line_prefix == "-" or line_prefix == "—"):
-            if line_suffix.isdigit():
+            if line_suffix.isdigit() or (line_suffix == "" and line_prefix == "-") or (line_suffix == "p" and line_prefix == "—"):
                 can_count_number = True
-            elif line_prefix == "—" and line_suffix != "p" and not line_suffix.isdigit():
+            elif (line_prefix == "—" and line_suffix != "p") or not line_suffix.isdigit() or line_suffix != "":
                 can_count_number = False
             # replace line with count                
             if can_count_number:
@@ -401,6 +401,19 @@ def find_possible_bad_quotation_spacing(text):
         print_in_yellow(bad_quotation_spacing)
     
     return bad_quotation_spacing
+
+def find_repeated_characters(text):
+    repeated_characters_pattern = r'(.)\1{3,}'  # Matches any character (.) repeated three or more times (\1{3,})
+    repeated_characters = re.findall(repeated_characters_pattern, text)
+
+    if len(repeated_characters) == 0:
+        print_in_green("No repeated characters, 3 or more, patterns found.")
+    else:
+        print_in_yellow("Repeated characters, 3 or more, patterns found:")
+        print_in_yellow(repeated_characters)
+
+    return repeated_characters
+
 
 # checking total pages against the Commons scan file
 # filename = 'Jalna.pdf'
