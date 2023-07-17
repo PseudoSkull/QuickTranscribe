@@ -74,6 +74,15 @@ hanced
 
 # THE STORY OF THE EARTH
 # Parse: /fig/ tag, /figform/
+# Parse: /plt/ tag
+# Parse: /dt/7/
+
+
+
+
+# TO THE SUMMIT OF CARDIGAN
+# Transclude single speech
+# Parse: /st/7/
 
 
 
