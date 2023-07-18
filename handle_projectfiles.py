@@ -114,7 +114,13 @@ def create_folder(folder_path_to_create):
 def create_projectfiles_folders():
     print("Creating projectfiles folder structure...")
     folder_path = "projectfiles"
-    folder_names = ["files_to_process", "processed_files", "json_data"]
+    folder_names = [
+        "files_to_process",
+        "gutenberg",
+        "json_data",
+        "librivox",
+        "processed_files"
+    ]
 
     # create parent folder
     create_folder(folder_path)

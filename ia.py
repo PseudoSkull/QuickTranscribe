@@ -138,5 +138,38 @@ def unzip_jp2_folder(IA_files):
     
     print_in_red("No accepted .zip file found.")
 
+def remove_all_instances(lst, value_to_remove):
+    new_list = []
+    for item in lst:
+        if item != value_to_remove:
+            new_list.append(item)
+    return new_list
+
+def get_ia_id_from_url(url):
+    if "\/" in url:
+        parameters = url.split("\/")
+    else:
+        parameters = url.split("/")
+
+    parameters = remove_all_instances(parameters, "")
+
+    print(parameters)
+    acceptable_parameters = [
+        "compress",
+        "details",
+        "download",
+        "stream",
+    ]
+
+    internet_archive_id = None
+
+    for parameter_num, parameter in enumerate(parameters):
+        if parameter in acceptable_parameters:
+            internet_archive_id = parameters[parameter_num + 1]
+            internet_archive_id = internet_archive_id.split("?")[0]
+            internet_archive_id = internet_archive_id.split("&")[0]
+            break
+    
+    return internet_archive_id
 
 # get_IA_files("masterfrisky00hawk")
