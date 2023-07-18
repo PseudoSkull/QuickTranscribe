@@ -3,6 +3,7 @@
 import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+from edit_mw import remove_all_instances
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -137,13 +138,6 @@ def unzip_jp2_folder(IA_files):
             return
     
     print_in_red("No accepted .zip file found.")
-
-def remove_all_instances(lst, value_to_remove):
-    new_list = []
-    for item in lst:
-        if item != value_to_remove:
-            new_list.append(item)
-    return new_list
 
 def get_ia_id_from_url(url):
     if "\/" in url:

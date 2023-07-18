@@ -54,3 +54,11 @@ def parse_list_with_commas(list_of_words):
         words_except_last_word = list_of_words[:-1]
         words_with_commas = ', '.join(words_except_last_word)
         return f"{words_with_commas}, and {last_word}"
+    
+
+def remove_all_instances(lst, value_to_remove):
+    new_list = []
+    for item in lst:
+        if item != value_to_remove:
+            new_list.append(item)
+    return new_list
