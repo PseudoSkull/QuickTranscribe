@@ -22,6 +22,12 @@ from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters
 
 
+
+# GET OCR DIRECTLY FROM TESSERACT, NOT JUST IA!!!!!!!!!
+# modify ia.py and hathi.py logic to use handle_web_downloads
+
+
+
 # THE CAROLINA MOUNTAINS
 # Cleanup: Find same letter repeated more than three times, such as "lll".
 # Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
@@ -97,6 +103,14 @@ hanced
 # Parse: fine block continuation across pages
 # Parse: /sec/n=y/ -> numbered section
 # Parse: /sec/f=sc/
+
+
+
+
+
+# PUTTING ON THE SCREWS
+# Waylaid: regex "[any consonant]j " -> "$1, "
+
 
 
 
@@ -197,6 +211,14 @@ common_locations = {
     "New York City": "Q60",
     "Philadelphia": "Q1345",
     "Toronto": "Q172",
+}
+
+common_publishers = {
+    "Dodd": "Q5287721",
+    "Doubleday": "Q1251563",
+    "Grosset": "Q3117078",
+    "Houghton": "Q390074",
+    "Small": "Q7542583",
 }
 
 # get and define the necessary data
@@ -349,7 +371,7 @@ version_conf_variable = "ver"
 
 filename = get_work_data(work_data, "filename")
 version_item = get_work_data(work_data, wikidata_item_of("version"))
-publisher = get_work_data(work_data, wikidata_item_of("publisher"))
+publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
 
 
 

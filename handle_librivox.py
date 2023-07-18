@@ -5,6 +5,7 @@ from edit_mw import remove_all_instances
 import os
 import requests
 import json
+from handle_web_downloads import download_json_data, download_page_html
 from ia import get_ia_id_from_url
 from bs4 import BeautifulSoup
 
@@ -34,49 +35,9 @@ api_feed_url_prefix = "https://librivox.org/api/feed/"
 api_url_json_suffix = "&format=json"
 
 
-def download_file(url, filename, file_extension, folder):
-    file_extension_for_string = file_extension.upper()
-    print(f"Attempting to download {file_extension_for_string} data from {url}...")
-    filename = f"{filename}.{file_extension}"
-    file_path = os.path.join(folder, filename)
-    if os.path.exists(file_path):
-        # Open the file and read its contents based on the file type
-        print_in_green(f"{file_extension} file already exists. Using data from existent file...")
-        with open(file_path, 'r') as file:
-            data = file.read()
-            return data
 
-    response = requests.get(url)
 
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Save the data to a file
-        data = response.content
-        with open(file_path, 'wb') as file:
-            file.write(data)
-        print_in_green(f"{file_extension_for_string} file downloaded successfully to {file_path}.")
-        return data
-        # data = json.loads(response.content)
-        # return data
-    else:
-        print_in_red(f"Error: Unable to download {file_extension_for_string} file. Status code: {response.status_code}")
-        return None
 
-def download_json_data(url, filename, folder):
-    # track_data_url = f"{api_feed_url_prefix}?project_id={librivox_id}&format=json"
-    file_extension = "json"
-    json_data = download_file(url, filename, file_extension, folder)
-
-    if json_data:
-        json_data = json.loads(json_data)
-        return json_data
-
-def download_page_html(url, filename, folder):
-    file_extension = "html"
-    html_data = download_file(url, filename, file_extension, folder)
-    html_data = BeautifulSoup(html_data, 'html.parser')
-
-    return html_data
 
 def append_book_data(book_data, catalog_html_data=None):
     if "books" in book_data:
@@ -94,10 +55,10 @@ def append_book_data(book_data, catalog_html_data=None):
     meta_coordinator_key = 'Meta Coordinator:'
     proof_listener_key = 'Proof Listener:'
 
-    reader = get_reader_data(catalog_html_data, reader_key)
-    book_coordinator = get_reader_data(catalog_html_data, book_coordinator_key)
-    meta_coordinator = get_reader_data(catalog_html_data, meta_coordinator_key)
-    proof_listener = get_reader_data(catalog_html_data, proof_listener_key)
+    reader = get_book_reader_data(catalog_html_data, reader_key)
+    book_coordinator = get_book_reader_data(catalog_html_data, book_coordinator_key)
+    meta_coordinator = get_book_reader_data(catalog_html_data, meta_coordinator_key)
+    proof_listener = get_book_reader_data(catalog_html_data, proof_listener_key)
 
     cover_url, cd_case_insert_url = get_librivox_image_data(catalog_html_data)
 
@@ -114,6 +75,31 @@ def append_book_data(book_data, catalog_html_data=None):
     return book_data
     # print(book_data)
 
+def append_track_data(track_data, catalog_html_data, book_reader):
+    if "sections" in track_data:
+        track_data = track_data["sections"]
+
+    "chapter-download"
+    book_reader_id = book_reader["id"]
+    if not book_reader_id:
+        readers = get_track_reader_data(catalog_html_data)
+
+    # exit()
+
+    new_track_data = []
+    for track_num, track in enumerate(track_data):
+
+        if book_reader_id:
+            track["reader"] = book_reader
+        else:
+            track["reader"] = readers[track_num]
+        
+        new_track_data.append(track)
+
+
+    return new_track_data
+
+
 def get_librivox_catalog_name_from_url(url):
     if "\/" in url:
         parameters = url.split("\/")
@@ -126,7 +112,7 @@ def get_librivox_catalog_name_from_url(url):
 
     return catalog_name
 
-def get_reader_data(catalog_html_data, reader_key):
+def get_book_reader_data(catalog_html_data, reader_key):
     reader_anchor = catalog_html_data.find('dt', string=reader_key).find_next('dd').find('a')
     if reader_anchor:
         reader_url = reader_anchor['href']
@@ -142,6 +128,25 @@ def get_reader_data(catalog_html_data, reader_key):
     }
 
     return reader_data
+
+def get_track_reader_data(catalog_html_data):
+    download_anchors = catalog_html_data.find_all('a', class_='chapter-name')
+
+    readers = []
+    for anchor in download_anchors:
+        link = anchor.find_next('a')
+        reader_url = link['href']
+        reader_name = link.text
+        reader_id = get_librivox_reader_id_from_url(reader_url)
+
+        reader = {
+            "id": reader_id,
+            "name": reader_name,
+        }
+
+        readers.append(reader)
+    
+    return readers
 
 def get_librivox_image_data(catalog_html_data):
     download_links = catalog_html_data.find_all('a', class_='download-cover')
@@ -173,7 +178,7 @@ def get_librivox_reader_id_from_url(url):
 def download_audio_files(librivox_id):
     pass
 
-def download_librivox_data(librivox_id):
+def download_librivox_data(librivox_id, title):
     print("Downloading LibriVox data...")
     librivox_folder = "projectfiles/librivox"
 
@@ -194,8 +199,14 @@ def download_librivox_data(librivox_id):
     book_data = append_book_data(book_data, catalog_html_data)
     print(book_data)
 
+    reader = book_data["reader"]
+
+    track_data = append_track_data(track_data, catalog_html_data, reader)
+
+    print(track_data)
+
 
     "https://archive.org/compress/{internet_archive_id}/formats=128KBPS%20MP3&file=/{internet_archive_id}.zip"
 
 
-download_librivox_data("7777")
+download_librivox_data("12800", "Aristopia")
