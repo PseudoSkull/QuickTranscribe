@@ -1,7 +1,7 @@
 # WS_collection
 
 from debug import print_in_red, print_in_green, print_in_yellow, process_break
-from edit_mw import remove_all_instances
+from edit_mw import remove_all_instances, remove_bad_symbols_from_filename
 import os
 import requests
 import json
@@ -75,7 +75,17 @@ def append_book_data(book_data, catalog_html_data=None):
     return book_data
     # print(book_data)
 
-def append_track_data(track_data, catalog_html_data, book_reader):
+def generate_track_commons_filename(track, work_title):
+    "File:Aristopia LibriVox track 00 - Introduction.mp3"
+
+    section_number = track['section_number']
+    section_title = track['title']
+
+    track_title = f"{work_title} LibriVox track {section_number} - {section_title}.mp3"
+    track_title = remove_bad_symbols_from_filename(track_title)
+    return track_title
+
+def append_track_data(track_data, catalog_html_data, book_reader, work_title):
     if "sections" in track_data:
         track_data = track_data["sections"]
 
@@ -84,7 +94,7 @@ def append_track_data(track_data, catalog_html_data, book_reader):
     if not book_reader_id:
         readers = get_track_reader_data(catalog_html_data)
 
-    # exit()
+    
 
     new_track_data = []
     for track_num, track in enumerate(track_data):
@@ -94,6 +104,10 @@ def append_track_data(track_data, catalog_html_data, book_reader):
         else:
             track["reader"] = readers[track_num]
         
+        track_commons_filename = generate_track_commons_filename(track, work_title)
+
+        track["commons_filename"] = track_commons_filename
+
         new_track_data.append(track)
 
 
@@ -175,10 +189,10 @@ def get_librivox_reader_id_from_url(url):
 
     return reader_id
 
-def download_audio_files(librivox_id):
+def download_audio_tracks(librivox_id):
     pass
 
-def download_librivox_data(librivox_id, title):
+def download_librivox_data(librivox_id, work_title):
     print("Downloading LibriVox data...")
     librivox_folder = "projectfiles/librivox"
 
@@ -201,7 +215,7 @@ def download_librivox_data(librivox_id, title):
 
     reader = book_data["reader"]
 
-    track_data = append_track_data(track_data, catalog_html_data, reader)
+    track_data = append_track_data(track_data, catalog_html_data, reader, work_title)
 
     print(track_data)
 
@@ -209,4 +223,4 @@ def download_librivox_data(librivox_id, title):
     "https://archive.org/compress/{internet_archive_id}/formats=128KBPS%20MP3&file=/{internet_archive_id}.zip"
 
 
-download_librivox_data("12800", "Aristopia")
+download_librivox_data("7777", "Aristopia")

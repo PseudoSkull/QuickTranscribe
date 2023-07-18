@@ -62,3 +62,9 @@ def remove_all_instances(lst, value_to_remove):
         if item != value_to_remove:
             new_list.append(item)
     return new_list
+
+def remove_bad_symbols_from_filename(filename):
+    bad_symbols = ["<", ">", ":", '"', "/", "\\", "|", "?", "*"]
+    for symbol in bad_symbols:
+        filename = filename.replace(symbol, "")
+    return filename
