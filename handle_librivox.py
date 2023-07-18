@@ -33,8 +33,6 @@ from bs4 import BeautifulSoup
 api_feed_url_prefix = "https://librivox.org/api/feed/"
 api_url_json_suffix = "&format=json"
 
-def get_librivox_work_link(librivox_id):
-    pass
 
 def download_file(url, filename, file_extension, folder):
     file_extension_for_string = file_extension.upper()
@@ -101,13 +99,20 @@ def append_book_data(book_data, catalog_html_data=None):
     meta_coordinator = get_reader_data(catalog_html_data, meta_coordinator_key)
     proof_listener = get_reader_data(catalog_html_data, proof_listener_key)
 
+    cover_url, cd_case_insert_url = get_librivox_image_data(catalog_html_data)
+
     book_data["reader"] = reader
     book_data["book_coordinator"] = book_coordinator
     book_data["meta_coordinator"] = meta_coordinator
     book_data["proof_listener"] = proof_listener
+
     book_data["internet_archive_id"] = internet_archive_id
 
-    print(book_data)
+    book_data["cover_url"] = cover_url
+    book_data["cd_case_insert_url"] = cd_case_insert_url
+
+    return book_data
+    # print(book_data)
 
 def get_librivox_catalog_name_from_url(url):
     if "\/" in url:
@@ -138,6 +143,21 @@ def get_reader_data(catalog_html_data, reader_key):
 
     return reader_data
 
+def get_librivox_image_data(catalog_html_data):
+    download_links = catalog_html_data.find_all('a', class_='download-cover')
+
+    # Loop through the results and print the HREF and text of each link
+    for link in download_links:
+        href = link['href']
+        text = link.text
+        if "cover" in text:
+            cover_url = href
+        if "CD case insert" in text:
+            cd_case_insert_url = href
+    
+    return cover_url, cd_case_insert_url
+
+
 def get_librivox_reader_id_from_url(url):
     if "\/" in url:
         parameters = url.split("\/")
@@ -154,6 +174,7 @@ def download_audio_files(librivox_id):
     pass
 
 def download_librivox_data(librivox_id):
+    print("Downloading LibriVox data...")
     librivox_folder = "projectfiles/librivox"
 
     book_data_url = f"{api_feed_url_prefix}audiobooks/?id={librivox_id}{api_url_json_suffix}"
@@ -171,7 +192,7 @@ def download_librivox_data(librivox_id):
     catalog_html_data = download_page_html(librivox_url, html_filename, librivox_folder)
 
     book_data = append_book_data(book_data, catalog_html_data)
-
+    print(book_data)
 
 
     "https://archive.org/compress/{internet_archive_id}/formats=128KBPS%20MP3&file=/{internet_archive_id}.zip"
