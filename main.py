@@ -64,13 +64,6 @@ hanced
 
 
 
-# THE IFS OF HISTORY
-# Prep: IMPORT GUTENBERG TRANSCRIPTION
-# Chapters: /auxpre/
-
-
-
-
 
 # THE STORY OF THE EARTH
 # Parse: /fig/ tag, /figform/
@@ -83,6 +76,27 @@ hanced
 # TO THE SUMMIT OF CARDIGAN
 # Transclude single speech
 # Parse: /st/7/
+
+
+
+
+
+# THE IFS OF HISTORY
+# Prep: IMPORT GUTENBERG TRANSCRIPTION
+# Chapters: /auxpre/
+
+
+
+# GRAVESTONES OF EARLY NEW ENGLAND
+# Parse: /ix4/ tag
+# Parse: Section linking within chapter?
+# Parse: \ symbol to escape the / symbol
+# Parse: /brp/ British Pound symbol
+# /cr/ - cross symbol
+# /ast/ - * symbol
+# Parse: fine block continuation across pages
+# Parse: /sec/n=y/ -> numbered section
+# Parse: /sec/f=sc/
 
 
 
