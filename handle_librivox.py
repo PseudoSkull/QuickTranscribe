@@ -5,7 +5,7 @@ from edit_mw import remove_all_instances, remove_bad_symbols_from_filename
 import os
 import requests
 import json
-from handle_web_downloads import download_json_data, download_page_html, dump_json_data_into_file
+from handle_web_downloads import download_json_data, download_page_html, dump_json_data_into_file, download_zip_file
 from ia import get_ia_id_from_url
 from bs4 import BeautifulSoup
 
@@ -201,13 +201,23 @@ def get_librivox_reader_id_from_url(url):
 
     return reader_id
 
-def download_audio_tracks(librivox_id):
-    pass
+def download_audio_tracks(librivox_folder, book_data):
+    print("Downloading LibriVox audio tracks...")
+    internet_archive_id = book_data["internet_archive_id"]
+    audio_tracks_zip_link = f"https://archive.org/compress/{internet_archive_id}/formats=128KBPS%20MP3&file={internet_archive_id}.zip"
+
+    # Download the zip file
+    zip_filename = "audio_tracks"
+
+    download_zip_file(audio_tracks_zip_link, zip_filename, librivox_folder)
+
+    print_in_green("Finished downloading LibriVox audio tracks!")
 
 def download_librivox_data(librivox_id, work_title):
     print("Downloading LibriVox data...")
     librivox_folder = "projectfiles/librivox"
 
+    # Download and append JSON data
     book_data_url = f"{api_feed_url_prefix}audiobooks/?id={librivox_id}{api_url_json_suffix}"
     book_data_filename = "book_data"
     book_data = download_json_data(book_data_url, book_data_filename, librivox_folder)
@@ -223,16 +233,16 @@ def download_librivox_data(librivox_id, work_title):
     catalog_html_data = download_page_html(librivox_url, html_filename, librivox_folder)
 
     book_data = append_book_data(book_data, book_data_filename, librivox_folder, catalog_html_data)
-    print(book_data)
 
     reader = book_data["reader"]
 
     track_data = append_track_data(track_data, catalog_html_data, reader, work_title, track_data_filename, librivox_folder)
 
-    print(track_data)
 
 
-    "https://archive.org/compress/{internet_archive_id}/formats=128KBPS%20MP3&file=/{internet_archive_id}.zip"
+    # Download the actual LibriVox files
+
+    download_audio_tracks(librivox_folder, book_data)
 
 
 download_librivox_data("7777", "Aristopia")

@@ -147,7 +147,6 @@ def get_ia_id_from_url(url):
 
     parameters = remove_all_instances(parameters, "")
 
-    print(parameters)
     acceptable_parameters = [
         "compress",
         "details",
