@@ -5,7 +5,7 @@ from edit_mw import remove_all_instances, remove_bad_symbols_from_filename
 import os
 import requests
 import json
-from handle_web_downloads import download_json_data, download_page_html
+from handle_web_downloads import download_json_data, download_page_html, dump_json_data_into_file
 from ia import get_ia_id_from_url
 from bs4 import BeautifulSoup
 
@@ -39,7 +39,7 @@ api_url_json_suffix = "&format=json"
 
 
 
-def append_book_data(book_data, catalog_html_data=None):
+def append_book_data(book_data, book_data_filename, librivox_folder, catalog_html_data=None):
     if "books" in book_data:
         book_data = book_data["books"][0]
 
@@ -60,6 +60,8 @@ def append_book_data(book_data, catalog_html_data=None):
     meta_coordinator = get_book_reader_data(catalog_html_data, meta_coordinator_key)
     proof_listener = get_book_reader_data(catalog_html_data, proof_listener_key)
 
+    catalog_date = get_catalog_date(catalog_html_data)
+
     cover_url, cd_case_insert_url = get_librivox_image_data(catalog_html_data)
 
     book_data["reader"] = reader
@@ -68,9 +70,13 @@ def append_book_data(book_data, catalog_html_data=None):
     book_data["proof_listener"] = proof_listener
 
     book_data["internet_archive_id"] = internet_archive_id
+    book_data["catalog_date"] = catalog_date
 
     book_data["cover_url"] = cover_url
     book_data["cd_case_insert_url"] = cd_case_insert_url
+
+    book_data_filename = f"{book_data_filename}.json"
+    dump_json_data_into_file(librivox_folder, book_data, book_data_filename)
 
     return book_data
     # print(book_data)
@@ -85,7 +91,12 @@ def generate_track_commons_filename(track, work_title):
     track_title = remove_bad_symbols_from_filename(track_title)
     return track_title
 
-def append_track_data(track_data, catalog_html_data, book_reader, work_title):
+def get_catalog_date(catalog_html_data):
+    catalog_key = "Catalog date:"
+    catalog_date = catalog_html_data.find('dt', string=catalog_key).find_next('dd').text
+    return catalog_date
+
+def append_track_data(track_data, catalog_html_data, book_reader, work_title, track_data_filename, librivox_folder):
     if "sections" in track_data:
         track_data = track_data["sections"]
 
@@ -110,7 +121,8 @@ def append_track_data(track_data, catalog_html_data, book_reader, work_title):
 
         new_track_data.append(track)
 
-
+    track_data_filename = f"{track_data_filename}.json"
+    dump_json_data_into_file(librivox_folder, new_track_data, track_data_filename)
     return new_track_data
 
 
@@ -204,18 +216,18 @@ def download_librivox_data(librivox_id, work_title):
     track_data_filename = "track_data"
     track_data = download_json_data(track_data_url, track_data_filename, librivox_folder)
 
-    book_data = append_book_data(book_data)
+    book_data = append_book_data(book_data, book_data_filename, librivox_folder)
 
     librivox_url = book_data["url_librivox"]
     html_filename = "catalog"
     catalog_html_data = download_page_html(librivox_url, html_filename, librivox_folder)
 
-    book_data = append_book_data(book_data, catalog_html_data)
+    book_data = append_book_data(book_data, book_data_filename, librivox_folder, catalog_html_data)
     print(book_data)
 
     reader = book_data["reader"]
 
-    track_data = append_track_data(track_data, catalog_html_data, reader, work_title)
+    track_data = append_track_data(track_data, catalog_html_data, reader, work_title, track_data_filename, librivox_folder)
 
     print(track_data)
 

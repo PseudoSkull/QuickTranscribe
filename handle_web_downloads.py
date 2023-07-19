@@ -49,3 +49,10 @@ def download_page_html(url, filename, folder):
     html_data = BeautifulSoup(html_data, 'html.parser')
 
     return html_data
+
+def dump_json_data_into_file(folder, data, filename):
+    # Dump the data into a JSON file
+    json_data = json.dumps(data)
+    file_path = os.path.join(folder, filename)
+    with open(file_path, 'w+') as file:
+        file.write(json_data)
