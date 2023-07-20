@@ -220,7 +220,7 @@ def download_cover_art(librivox_folder, book_data):
     cover_url = book_data["cover_url"]
     cover_filename = "cover_art"
     cover_file_extension = "jpg"
-    download_file(cover_url, cover_filename, cover_file_extension, librivox_folder)
+    download_file(cover_url, librivox_folder, cover_filename, cover_file_extension)
     print_in_green("Finished downloading LibriVox cover art!")
 
 def download_cd_case_insert(librivox_folder, book_data):
@@ -228,7 +228,7 @@ def download_cd_case_insert(librivox_folder, book_data):
     cd_case_insert_url = book_data["cd_case_insert_url"]
     cd_case_insert_filename = "cd_case_insert"
     cd_case_insert_file_extension = "pdf"
-    download_file(cd_case_insert_url, cd_case_insert_filename, cd_case_insert_file_extension, librivox_folder)
+    download_file(cd_case_insert_url, librivox_folder, cd_case_insert_filename, cd_case_insert_file_extension)
     print_in_green("Finished downloading LibriVox CD case insert!")
 
 def download_librivox_data(librivox_id, work_title):

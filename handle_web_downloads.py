@@ -7,10 +7,14 @@ import json
 from bs4 import BeautifulSoup
 import time
 
-def download_file(url, filename, file_extension, folder):
+def download_file(url, folder, filename, file_extension=None):
+    if not file_extension:
+        filename = filename
+        file_extension = filename.split(".")[-1]
+    else:
+        filename = f"{filename}.{file_extension}"
     file_extension_for_string = file_extension.upper()
     print(f"Attempting to download {file_extension_for_string} data from {url}...")
-    filename = f"{filename}.{file_extension}"
     file_path = os.path.join(folder, filename)
     if os.path.exists(file_path):
         # Open the file and read its contents based on the file type
@@ -56,7 +60,7 @@ def download_file(url, filename, file_extension, folder):
 def download_json_data(url, filename, folder):
     # track_data_url = f"{api_feed_url_prefix}?project_id={librivox_id}&format=json"
     file_extension = "json"
-    json_data = download_file(url, filename, file_extension, folder)
+    json_data = download_file(url, folder, filename, file_extension)
 
     if json_data:
         json_data = json.loads(json_data)
@@ -64,14 +68,14 @@ def download_json_data(url, filename, folder):
 
 def download_page_html(url, filename, folder):
     file_extension = "html"
-    html_data = download_file(url, filename, file_extension, folder)
+    html_data = download_file(url, folder, filename, file_extension)
     html_data = BeautifulSoup(html_data, 'html.parser')
 
     return html_data
 
 def download_zip_file(url, filename, folder):
     file_extension = "zip"
-    zip_file = download_file(url, filename, file_extension, folder)
+    zip_file = download_file(url, folder, filename, file_extension)
 
     unzip_file(filename, folder)
 
