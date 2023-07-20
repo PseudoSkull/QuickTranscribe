@@ -5,7 +5,7 @@ from edit_mw import remove_all_instances, remove_bad_symbols_from_filename
 import os
 import requests
 import json
-from handle_web_downloads import download_json_data, download_page_html, dump_json_data_into_file, download_zip_file
+from handle_web_downloads import download_file, download_json_data, download_page_html, dump_json_data_into_file, download_zip_file
 from ia import get_ia_id_from_url
 from bs4 import BeautifulSoup
 
@@ -215,6 +215,22 @@ def download_audio_tracks(librivox_folder, book_data):
 
     print_in_green("Finished downloading LibriVox audio tracks!")
 
+def download_cover_art(librivox_folder, book_data):
+    print("Downloading LibriVox cover art...")
+    cover_url = book_data["cover_url"]
+    cover_filename = "cover_art"
+    cover_file_extension = "jpg"
+    download_file(cover_url, cover_filename, cover_file_extension, librivox_folder)
+    print_in_green("Finished downloading LibriVox cover art!")
+
+def download_cd_case_insert(librivox_folder, book_data):
+    print("Downloading LibriVox CD case insert...")
+    cd_case_insert_url = book_data["cd_case_insert_url"]
+    cd_case_insert_filename = "cd_case_insert"
+    cd_case_insert_file_extension = "pdf"
+    download_file(cd_case_insert_url, cd_case_insert_filename, cd_case_insert_file_extension, librivox_folder)
+    print_in_green("Finished downloading LibriVox CD case insert!")
+
 def download_librivox_data(librivox_id, work_title):
     print("Downloading LibriVox data...")
     librivox_folder = "projectfiles/librivox"
@@ -244,7 +260,12 @@ def download_librivox_data(librivox_id, work_title):
 
     # Download the actual LibriVox files
 
+    download_cover_art(librivox_folder, book_data)
+    download_cd_case_insert(librivox_folder, book_data)
     download_audio_tracks(librivox_folder, book_data)
+
+    print_in_green("All LibriVox files downloaded successfully!")
+
 
 
 download_librivox_data("7777", "Aristopia")
