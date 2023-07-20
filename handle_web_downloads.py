@@ -43,7 +43,11 @@ def download_file(url, filename, file_extension, folder):
         elapsed_time = time.time() - start_time
         print_in_green(f"\n{file_extension_for_string} file downloaded successfully to {file_path}.")
         print_in_green(f"Time taken: {elapsed_time:.2f} seconds.")
-        return data
+        if file_extension == "json" or file_extension == "html":
+            with open(file_path, 'r') as file:
+                data = file.read()
+                return data
+        # return data
     else:
         print_in_red(f"\nError: Unable to download {file_extension_for_string} file. Status code: {response.status_code}")
         return None

@@ -119,7 +119,8 @@ def create_projectfiles_folders():
         "gutenberg",
         "json_data",
         "librivox",
-        "processed_files"
+        "librivox/audio_tracks",
+        "processed_files",
     ]
 
     # create parent folder

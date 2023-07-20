@@ -209,7 +209,9 @@ def download_audio_tracks(librivox_folder, book_data):
     # Download the zip file
     zip_filename = "audio_tracks"
 
-    download_zip_file(audio_tracks_zip_link, zip_filename, librivox_folder)
+    audio_tracks_folder = f"{librivox_folder}/audio_tracks"
+
+    download_zip_file(audio_tracks_zip_link, zip_filename, audio_tracks_folder)
 
     print_in_green("Finished downloading LibriVox audio tracks!")
 
