@@ -4,6 +4,7 @@ import os
 import requests
 from handle_web_downloads import download_file
 from bs4 import BeautifulSoup
+import copy
 
 def download_gutenberg_directory(directory_url, base_folder, new_folder=None):
     response = requests.get(directory_url)
@@ -73,7 +74,7 @@ def find_gutenberg_html_file(base_folder):
 def remove_bad_elements(elements):
     while 1:
         bad_element_count = 0
-        new_elements = []
+        # new_elements = []
         for element in elements:
             extraction_conditions = [
                 not element.get_text(strip=True),
@@ -81,8 +82,6 @@ def remove_bad_elements(elements):
                 (len(element.contents) == 1 and element.contents[0].name == 'br'),
 
                 'pg-boilerplate' in element.get('class', []),
-
-                # 'style' in element.get('class', []),
 
                 element.name == "head",
 
@@ -92,26 +91,11 @@ def remove_bad_elements(elements):
             ]
 
             if any(extraction_conditions):
-                print(f"DELETING, ELEMENT IS {element}")
-                # exit()
                 element.extract()
-                # bad_element_count += 1
-                print(element)
-                # exit()
-            # else:
-            #     print("ADDING, ELEMENT IS " + str(element))
-            #     new_elements.append(element)
-        print(f"GOT BACK, with {bad_element_count}")
-        # exit()
-        elements = new_elements
-        new_elements = elements
-        print(new_elements)
+        # elements = new_elements
         if bad_element_count == 0:
             break
-    # exit()
 
-    print(elements)
-    # exit()
     return elements
 
 def final_cleanup(html_data):
@@ -155,18 +139,33 @@ def remove_white_space(string):
     return string
 
 def handle_paragraphs(elements):
-
-    new_elements = []
-
     for element in elements:
         if element.name == "p":
-            element = str(element.get_text())
-            print(element)
-            element = remove_white_space(element)
-            print(element)
-        new_elements.append(element)
+            element_text = str(element.get_text())
+            print("Original element text:", element_text)
+            element_text = remove_white_space(element_text)
+            print("Modified element text:", element_text)
 
-    return new_elements
+            # Update the content of the original BeautifulSoup element
+            element.string.replace_with(element_text)
+
+            # Create a new BeautifulSoup element with the modified text
+            # new_element = BeautifulSoup(element_text, "html.parser")
+
+            # Add the new element to the list of modified elements
+            # new_elements.append(new_element)
+
+        # else:
+            # For elements other than "p", add them to the list as is
+            # new_elements.append(element)
+
+    # Replace the original elements list with the new modified elements list
+    # elements.clear()
+    # elements.extend(new_elements)
+    return elements
+
+
+    # return new_elements
 
 
 # Example usa
@@ -176,24 +175,34 @@ def parse_gutenberg_text(gutenberg_id, base_folder):
     html_data = find_gutenberg_html_file(base_folder)
     
     # take out empty elements
+    # elements = html_data.find_all().copy()
+    
+    
+    elements = html_data.find_all()
+    
+    elements = remove_bad_elements(elements)
+    # print(html_data)
+    # print(elements)
     elements = html_data.find_all()
 
-    elements = remove_bad_elements(elements)
-    print(elements)
-
+    # print("THESE ARE ELEMENTS AFTER REMOVE BAD ELEMENTS")
     # exit()
+    # print("DID I EVEN GET HERE?")
+    # exit()
+    elements = handle_paragraphs(elements)
 
-    # elements = handle_paragraphs(elements)
+    # elements = html_data.find_all()
+    # exit()
 
     # html_data = BeautifulSoup("\n".join(list(elements)), "html.parser")
 
-    # html_data = final_cleanup(html_data)
+    html_data = final_cleanup(html_data)
     # print(html_data)
 
     # write new html to file
 
     with open("projectfiles/gutenberg/new.html", "w+") as html_file:
-        print(html_data)
+        # print(html_data)
         html_file.write(str(html_data))
         html_file.close()
     # print(html_data)

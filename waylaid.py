@@ -1152,6 +1152,7 @@ def correct_text(text_file):
     x = x.replace("Avith ", "with ")
     x = x.replace(", hut ", ", but ")
     x = x.replace("; hut ", "; but ")
+    x = x.replace(" bnt ", " but ")
     x = x.replace("lIy", "lly")
     x = x.replace("/*\n\n", ".\"\n\n")
     x = x.replace("/* ", ",\" ")
