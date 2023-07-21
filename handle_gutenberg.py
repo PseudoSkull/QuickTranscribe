@@ -69,41 +69,126 @@ def find_gutenberg_html_file(base_folder):
     html_data = BeautifulSoup(html_data, "html.parser")
     return html_data
 
+
+def remove_bad_elements(elements):
+    while 1:
+        bad_element_count = 0
+        new_elements = []
+        for element in elements:
+            extraction_conditions = [
+                not element.get_text(strip=True),
+
+                (len(element.contents) == 1 and element.contents[0].name == 'br'),
+
+                'pg-boilerplate' in element.get('class', []),
+
+                # 'style' in element.get('class', []),
+
+                element.name == "head",
+
+                'toc' in element.get('class', []),
+            ]
+
+            if any(extraction_conditions):
+                print(f"DELETING, ELEMENT IS {element}")
+                # exit()
+                element.extract()
+                bad_element_count += 1
+            # else:
+                # print("ADDING, ELEMENT IS " + str(element))
+                # new_elements.append(element)
+        # print(f"GOT BACK, with {bad_element_count}")
+        # exit()
+        new_elements = elements
+        print(new_elements)
+        if bad_element_count == 0:
+            break
+    exit()
+
+    print(elements)
+    exit()
+    return elements
+
+def final_cleanup(html_data):
+    html_data = str(html_data)
+
+    html_data = html_data.replace("<!DOCTYPE html>", "")
+    # get rid of too many newlines function
+
+    # bad apostrophes/quotes
+    html_data = html_data.replace("”", "\"")
+    html_data = html_data.replace("“", "\"")
+    html_data = html_data.replace("’", "'")
+    html_data = html_data.replace("‘", "'")
+
+    # trailing dots
+    html_data = html_data.replace(".....", " . . . . . ")
+    html_data = html_data.replace("....", " . . . . ")
+    html_data = html_data.replace("...", " . . . ")
+    html_data = html_data.replace("..", " . . ")
+
+    # hyphen/apostrophe combinations, because we might as well go ahead and do it so we see it more quickly during transcription
+    html_data = html_data.replace("\"'", "{{\" '}}")
+    html_data = html_data.replace("'\"", "{{' \"}}")
+    html_data = html_data.replace("''", "{{' '}}")
+    html_data = html_data.replace("\"\"", "{{\" \"}}")
+    html_data = html_data.replace("\"'\"", "{{\" ' \"}}")
+    html_data = html_data.replace("'\"'", "{{' \" '}}")
+
+    # tags
+    html_data = html_data.replace("<br/>", "<br />")
+
+    # bad formatting
+    html_data = html_data.replace("\n ", "\n")
+
+    return html_data
+
+def remove_white_space(string):
+    string = string.replace("\n", " ")
+    while "  " in string:
+        string = string.replace("  ", " ")
+    return string
+
+def handle_paragraphs(elements):
+
+    new_elements = []
+
+    for element in elements:
+        if element.name == "p":
+            element = str(element.get_text())
+            print(element)
+            element = remove_white_space(element)
+            print(element)
+        new_elements.append(element)
+
+    return new_elements
+
+
+# Example usa
+
 def parse_gutenberg_text(gutenberg_id, base_folder):
+    print("Parsing Gutenberg HTML file into QT markup...")
     html_data = find_gutenberg_html_file(base_folder)
     
     # take out empty elements
     elements = html_data.find_all()
 
-    
-    for element in elements:
-        extraction_conditions = [
-            not element.get_text(strip=True),
+    elements = remove_bad_elements(elements)
+    print(elements)
 
-            (len(element.contents) == 1 and element.contents[0].name == 'br'),
+    exit()
 
-            'pg-boilerplate' in element.get('class', []),
+    # elements = handle_paragraphs(elements)
 
-            'style' in element.get('class', []),
+    # html_data = BeautifulSoup("\n".join(list(elements)), "html.parser")
 
-            'toc' in element.get('class', []),
-        ]
-
-        if any(extraction_conditions):
-            element.extract()
-        # if (len(element.contents) == 1 and element.contents[0].name == 'br'):
-        #     element.extract()
-        #     print("GOT HERE")
-
-    
-    # html_data = elements
+    # html_data = final_cleanup(html_data)
     # print(html_data)
-    # for element in html_data.find_all(class_='pg-boilerplate'):
-    #     element.extract()
 
     # write new html to file
 
     with open("projectfiles/gutenberg/new.html", "w+") as html_file:
+        print(html_data)
         html_file.write(str(html_data))
         html_file.close()
     # print(html_data)
