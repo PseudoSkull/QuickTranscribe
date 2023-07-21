@@ -141,13 +141,16 @@ def remove_white_space(string):
 def handle_paragraphs(elements):
     for element in elements:
         if element.name == "p":
-            element_text = str(element.get_text())
-            print("Original element text:", element_text)
-            element_text = remove_white_space(element_text)
-            print("Modified element text:", element_text)
+            # element_text = element.get_text(strip=True)
+            # print("Original element text:", element_text)
+            # element_text = remove_white_space(element_text)
+            # print("Modified element text:", element_text)
+            # Extract the text content from the "p" element
+            element.unwrap()
+            # print("Original paragraph text:", paragraph_text)
 
             # Update the content of the original BeautifulSoup element
-            element.string.replace_with(element_text)
+            # element.string.replace_with(paragraph_text)
 
             # Create a new BeautifulSoup element with the modified text
             # new_element = BeautifulSoup(element_text, "html.parser")
