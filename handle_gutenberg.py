@@ -86,6 +86,8 @@ def remove_bad_elements(elements):
 
                 element.name == "head",
 
+                element.name == "style",
+
                 'toc' in element.get('class', []),
             ]
 
@@ -93,20 +95,23 @@ def remove_bad_elements(elements):
                 print(f"DELETING, ELEMENT IS {element}")
                 # exit()
                 element.extract()
-                bad_element_count += 1
+                # bad_element_count += 1
+                print(element)
+                # exit()
             # else:
-                # print("ADDING, ELEMENT IS " + str(element))
-                # new_elements.append(element)
-        # print(f"GOT BACK, with {bad_element_count}")
+            #     print("ADDING, ELEMENT IS " + str(element))
+            #     new_elements.append(element)
+        print(f"GOT BACK, with {bad_element_count}")
         # exit()
+        elements = new_elements
         new_elements = elements
         print(new_elements)
         if bad_element_count == 0:
             break
-    exit()
+    # exit()
 
     print(elements)
-    exit()
+    # exit()
     return elements
 
 def final_cleanup(html_data):
@@ -176,7 +181,7 @@ def parse_gutenberg_text(gutenberg_id, base_folder):
     elements = remove_bad_elements(elements)
     print(elements)
 
-    exit()
+    # exit()
 
     # elements = handle_paragraphs(elements)
 
