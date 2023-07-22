@@ -464,16 +464,16 @@ expected_progress = "scan_file_uploaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    if not filename:
-        filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title)
+    # if not filename:
+    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title, filename)
 
-        add_scan_file_to_version_item(wikidata_site, version_item, filename, transcription_page_title)
+    add_scan_file_to_version_item(wikidata_site, version_item, filename, transcription_page_title)
 
-        process_break()
+    process_break()
 
-        transcription_text = update_conf_value(transcription_text, filename_conf_variable, filename)
-        transcription_text = update_QT_progress(transcription_text, expected_progress)
-        save_page(transcription_page, site, transcription_text, "Noting that scan file has been uploaded...")
+    transcription_text = update_conf_value(transcription_text, filename_conf_variable, filename)
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that scan file has been uploaded...")
 
 
 

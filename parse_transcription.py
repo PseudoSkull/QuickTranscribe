@@ -670,6 +670,32 @@ def format_chapter_beginning_to_smallcaps(page):
 
     return page
 
+def format_arbitrary_drop_inital(page, image_data, img_num):
+    content = page["content"]
+
+    if string_not_in_content(content, "/di/", "Formatting arbitrary drop initial") and string_not_in_content(content, "/dii/", "Formatting arbitrary drop initial with image"):
+        return page
+    
+    drop_initial_image_pattern = r"(\/dii\/.+?\/)"
+    drop_initial_pattern = r"\/di\/(.+)\/"
+
+    drop_initial_image = re.search(drop_initial_image_pattern, content)
+
+    if drop_initial_image:
+        image = image_data[img_num]
+        image_filename = image["filename"]
+        image_extension = image["extension"]
+        image_filename += "." + image_extension
+        # 
+        replacement = f"{{{{di|L|image={image_filename}}}}}"
+
+        content = re.sub(drop_initial_image_pattern, replacement, content)
+        img_num += 1
+
+    page["content"] = content
+
+    return img_num, page
+
 def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
 
     content = page["content"]
@@ -1301,6 +1327,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         else:
             # page = format_chapter_beginning_to_large_initial(page)
             pass
+        img_num, page = format_arbitrary_drop_inital(page, image_data, img_num)
         page = convert_complex_dhr(page)
         page = convert_basic_elements(page)
         page = convert_title_headers(page, title)
