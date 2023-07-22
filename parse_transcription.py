@@ -674,7 +674,7 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
     content = page["content"]
 
     if string_not_in_content(content, "/di/", "Formatting arbitrary drop initial") and string_not_in_content(content, "/dii/", "Formatting arbitrary drop initial with image"):
-        return page
+        return img_num, page
     
     drop_initial_image_pattern = r"(\/dii\/.+?\/)"
     drop_initial_pattern = r"\/di\/(.+)\/"
@@ -683,11 +683,11 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
 
     if drop_initial_image:
         image = image_data[img_num]
-        image_filename = image["filename"]
+        image_title = image["title"]
         image_extension = image["extension"]
-        image_filename += "." + image_extension
-        # 
-        replacement = f"{{{{di|L|image={image_filename}}}}}"
+        image_letter = image["letter"]
+        image_filename = image_title + "." + image_extension
+        replacement = f"{{{{di|{image_letter}|image={image_filename}|imgsize=75px}}}}"
 
         content = re.sub(drop_initial_image_pattern, replacement, content)
         img_num += 1

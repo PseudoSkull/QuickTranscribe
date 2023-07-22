@@ -288,6 +288,12 @@ def generate_defaultsort_tag(mainspace_work_title):
             return defaultsort
     return ""
 
+def get_first_content_page(page_data): # if there's no chapters in the book
+    for page_num, page in enumerate(page_data):
+        page_num += 1
+        if page["type"] == "begin":
+            return page_num
+
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
@@ -297,19 +303,22 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     # chapter_names = list(chapters.keys())
     # chapter_page_nums = list(chapters.values())
-
-    first_chapter = chapters[0]
-    first_chapter_name = first_chapter["title"]
-    first_chapter_page_num = first_chapter["page_num"]
-    first_content_page = first_chapter_page_num + page_offset
-    first_chapter_prefix = first_chapter["prefix"]
-    if not first_chapter_prefix:
-        first_chapter_prefix = "Chapter"
-    first_chapter_num = 1
-    if first_chapter_name == None:
-        first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
+    if len(chapters) > 0:
+        first_chapter = chapters[0]
+        first_chapter_name = first_chapter["title"]
+        first_chapter_page_num = first_chapter["page_num"]
+        first_content_page = first_chapter_page_num + page_offset
+        first_chapter_prefix = first_chapter["prefix"]
+        if not first_chapter_prefix:
+            first_chapter_prefix = "Chapter"
+        first_chapter_num = 1
+        if first_chapter_name == None:
+            first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
+        else:
+            first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
     else:
-        first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
+        first_content_page = get_first_content_page(page_data)
+        first_chapter_display = ""
     print("First content page:", first_content_page)
 
 
@@ -354,7 +363,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if page_quality != "0":
             if page_type == "toc":
                 toc_pages.append(page_num)
-                print(toc_pages)
+                # print(toc_pages)
                 if page_num == first_content_page - 1:
                     page_tag = generate_toc_page_tag(toc_pages, filename)
                     toc_pages = []
@@ -423,4 +432,5 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
-    transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)
+    if len(chapters) > 0:
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)

@@ -75,8 +75,10 @@ def get_page_data(transcription_text, page_break_string=None):
                     page_quality = "i"
                 if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string or "{{TOC " in content_as_string:
                     page_type = "toc"
-                if page_break_string and page_break_string in content_as_string:
+                elif page_break_string and page_break_string in content_as_string:
                     page_type = "break"
+                elif "/begin/" in content_as_string:
+                    page_type = "begin"
                 header, footer, content_as_string = get_header_and_footer(content_as_string)
 
                 # if len(content) < 100:
@@ -120,6 +122,8 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
         content = page_data_item["content"]
 
         content = content.replace(f"\n{page_break_string}", "") # remove page break comment from content, since it's not needed anymore
+        content = content.replace(f"\n/begin/", "") # remove page break comment from content, since it's not needed anymore
+        content = content.replace(f"/begin/", "") # remove page break comment from content, since it's not needed anymore
 
         site = pywikibot.Site("en", "wikisource")
         page_title = f"Page:{filename}/{page_num}"
