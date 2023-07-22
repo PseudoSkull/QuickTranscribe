@@ -89,8 +89,10 @@ def get_last_page(page_data, chapter_start):
         if page_num < chapter_start:
             continue
         else:
-            if page["page_quality"] == "0":
-                return page["page_num"] - 1
+            if page["type"] == "last":
+                return page["page_num"]
+            # if page["page_quality"] == "0":
+            #     return page["page_num"] - 1
 
 def generate_toc_page_tag(toc_pages, filename):
     toc_begin = toc_pages[0]
@@ -204,10 +206,13 @@ def generate_transclusion_tag(filename, start_page, end_page):
         transclusion_tag = f"<pages index=\"{filename}\" include={start_page} />"
     return transclusion_tag
 
-def get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename):
+def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter=None, first_content_page=None):
     # splits = []
-    page_num = chapter["page_num"]
-    actual_page_num = page_num + page_offset
+    if chapter:
+        page_num = chapter["page_num"]
+        actual_page_num = page_num + page_offset
+    else:
+        actual_page_num = first_content_page
     chapter_start = actual_page_num
     try:
         chapter_end = chapters[overall_chapter_num + 1]["page_num"] - 1 + page_offset
@@ -243,7 +248,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
-        chapter_transclusion_tags = get_chapter_transclusion_tags(chapter, chapters, page_data, page_offset, overall_chapter_num, filename)
+        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter)
 
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
@@ -382,8 +387,12 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
                 else:
                     page_tag = f"<pages index=\"{filename}\" include={page_num} />"
             pages_tags.append(page_tag)
+
     page_break = "{{page break|label=}}"
     page_tags = f"\n{page_break}\n".join(pages_tags)
+
+    if len(chapters) == 0:
+        page_tags += f"\n{page_break}\n" + get_transclusion_tags(chapters, page_data, page_offset, 0, filename, first_content_page=first_content_page)
 
     aux_toc = ""
 
