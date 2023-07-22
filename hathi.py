@@ -140,12 +140,14 @@ def get_number_of_pages(full_text_id):
     print_in_red(f"Response code not 200. Was: {response.status_code}")
     return None
 
-def get_hathitrust_images(full_text_id):
+def get_hathitrust_images(full_text_id, folder_path=None):
     # page_source = get_full_text_page_source(url)
     number_of_pages = get_number_of_pages(full_text_id)
     print(f"Attempting to download the {number_of_pages} HathiTrust images from {full_text_id}...")
-
-    folder_path = "projectfiles/hathi_images"
+    
+    if not folder_path:
+        folder_path = "projectfiles/hathi_images"
+    
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         print_in_green(f"Created folder path {folder_path} as it did not exist.")

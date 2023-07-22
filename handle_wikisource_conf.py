@@ -40,6 +40,7 @@ variables_with_descriptions = {
         "sec": "section type",
         "secpre": "prefix for subsection names",
         "firstsec": "first section is automatically after chapter",
+        "gut": "Gutenberg ID",
         "progress": "QT progress flag",
     }
 

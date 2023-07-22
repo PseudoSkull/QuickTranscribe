@@ -114,6 +114,29 @@ hanced
 
 
 
+
+
+# ALADDIN O'BRIEN
+# Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
+# Parse: dii -> di images
+#: should handle floating quotes too
+# Somewhere: Find all the di images with their locations
+# Parse: make sure that fqms in all lines of a poem are converted
+# Parse: Poem continuations, nop assumed
+# Parse: /oe/ -> oe symbol
+# Handle Commons, upload di images
+# Transclusion: All book/part pages automatically get page breaks
+
+
+
+
+# WHAT THE PINE TREE HEARD
+# Parse: /begin/ tag, where the content (of a chapterless book) begins
+# Parse: /dii/ for drop initial image
+
+
+
+
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
 # PREP: MAKE HATHI IMAGES IN PDF ALL SAME SIZE
 # PREP: PREPARE INDEX PAGE OCR FOR TRANSCRIPTION through /ind/ tags
@@ -214,6 +237,7 @@ common_locations = {
 }
 
 common_publishers = {
+    "Century": "Q7721960",
     "Dodd": "Q5287721",
     "Doubleday": "Q1251563",
     "Grosset": "Q3117078",
@@ -304,7 +328,7 @@ if not at_expected_progress:
     process_break()
     find_possible_bad_quotation_spacing(transcription_text)
     process_break()
-    find_repeated_characters(text)
+    find_repeated_characters(transcription_text)
     process_break()
     transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)

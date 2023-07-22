@@ -45,7 +45,7 @@ def initial_text_cleanup(text):
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
     text = text.replace("<br>", "<br />")
-    text = re.sub(r"\n\n-\n\nn\n\n", r"/n/\n\n-\n\n", text)
+    text = re.sub(r"\n\n-\n\nn\n\n", r"\n/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)
     text = re.sub(r"(.)\n/n/\n([- —])", r"\1\n/n/\n\n\2", text)
     text = re.sub(r"(.)\n\n-\n\n—(.)", r"\1{{peh|}}\n\n-\n\n—\2", text) #check back up on this one later

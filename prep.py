@@ -48,6 +48,7 @@ work_data = get_conf_values(transcription_page_title)
 IA_id = get_work_data(work_data, "Internet Archive ID")
 hathitrust_catalog_id = get_work_data(work_data, "HathiTrust catalog ID")
 hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
+gutenberg_id = get_work_data(work_data, "Gutenberg ID")
 
 transcription_text = transcription_page.text
 expected_progress = "ia_files_downloaded"

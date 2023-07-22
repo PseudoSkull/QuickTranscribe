@@ -146,9 +146,10 @@ def sort_by_digital_values(list_to_sort):
     sorted_list = sorted(list_to_sort, key=get_digital_value)
     return sorted_list
 
-def assemble_pdf(folder_path):
+def assemble_pdf(folder_path, output_path=None):
     print(f"Assembling PDF from images in {folder_path}...")
-    output_path = "projectfiles/hathi.pdf"
+    if not output_path:
+        output_path = "projectfiles/hathi.pdf"
     with open(output_path, "wb") as f:
         images = [os.path.join(folder_path, img) for img in os.listdir(folder_path) if img.endswith(".jpg")]
 
