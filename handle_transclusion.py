@@ -4,7 +4,7 @@ import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from handle_wikidata import get_value_from_property
-from edit_mw import save_page
+from edit_mw import save_page, get_english_plural
 import json
 
 # FIND A WAY TO CLEAN THE TRANSCLUDE PAGES LOGIC UP. IT'S A BIT OF A MESS.
@@ -31,13 +31,14 @@ def generate_genre_categories(genre_name, work_type_name):
         genres = genre_name
     categories = []
     for genre in genres:
+        work_type_plural = get_english_plural(work_type_name)
         if genre == "children's" or genre == "children":
             category = "Children's books"
         elif genre == "historical":
             if work_type_name == "novel":
                 category = f"Historical fiction novels"
             else:
-                category = f"Historical {work_type_name}s"
+                category = f"Historical {work_type_plural}"
         elif genre == "Christian":
             category = "Christian literature"
         categories.append(category)
@@ -74,7 +75,8 @@ def generate_type_category(work_type_name, country):
     if work_type_name == "work":
         type_category = f"{demonym} literature"
     else:
-        type_category = f"{demonym} {work_type_name}s"
+        work_type_plural = get_english_plural(work_type_name)
+        type_category = f"{demonym} {work_type_plural}"
 
     return type_category
 

@@ -86,3 +86,18 @@ def filter_existing_pages(pages, site):
         else:
             print_in_yellow(f"Page \"{page_title}\" that was checked does not exist... That link will not be used.")
     return valid_pages
+
+
+def get_english_plural(word):
+    es_endings = [
+        "ch",
+        "sh",
+        "s",
+        "x",
+        "z",
+    ]
+
+    for ending in es_endings:
+        if word.endswith(ending):
+            return f"{word}es"
+    return f"{word}s"
