@@ -15,10 +15,10 @@ def handle_date(pub_date_unparsed):
     print("Parsing date...")
     pub_date = date_parser.parse(pub_date_unparsed, default=None)
     year = pub_date.year
-    month_match = re.search(r"[A-Za-z]", pub_date_unparsed)
-    month = pub_date.month if month_match else None
-    day_match = re.search(r"\b(0?[1-9]|[12][0-9]|3[01])\b", pub_date_unparsed)
-    day = int(day_match.group()) if day_match else None
+    # month_match = re.search(r"[A-Za-z]", pub_date_unparsed)
+    month = pub_date.month
+    # day_match = re.search(r"\b(0?[1-9]|[12][0-9]|3[01])\b", pub_date_unparsed)
+    day = pub_date.day
     print_in_green(f"Date processed. Unparsed: {pub_date_unparsed} Parsed: Year: {year} Month: {month} Day: {day}")
 
     if not month:

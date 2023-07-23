@@ -2,7 +2,7 @@
 
 from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
-from edit_mw import linkify, edit_summary, save_page, remove_template_markup
+from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
 from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item
 import pywikibot
@@ -151,9 +151,14 @@ def add_country_prefix(country_name):
 def generate_type_category(category_namespace_prefix, work_type_name, country_name):
     if work_type_name == "work":
         return None
-    work_type_name = work_type_name.capitalize() + "s"
+    if work_type_name == "speech":
+        preposition = "in"
+        work_type_name = work_type_name.capitalize() + "es"
+    else:
+        work_type_name = work_type_name.capitalize() + "s"
+        preposition = "from"
 
-    type_category = f"{category_namespace_prefix}{work_type_name} from {country_name}"
+    type_category = f"{category_namespace_prefix}{work_type_name} {preposition} {country_name}"
     type_category = linkify(type_category)
 
     return type_category
@@ -195,6 +200,9 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
         categories = [author_category, year_category]
 
     categories.sort()
+    commons_site = pywikibot.Site("commons", "commons")
+    
+    categories = filter_existing_pages(categories, commons_site)
 
     categories = "\n".join(categories)
 

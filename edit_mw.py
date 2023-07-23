@@ -22,6 +22,9 @@ def save_page(page, site, text, summary, transcription_page_title=None):
 def linkify(text):
     return f"[[{text}]]"
 
+def delinkify(text):
+    return text.replace("[[", "").replace("]]", "")
+
 def remove_template_markup(text):
     wikicode = mwparserfromhell.parse(text)
     templates = wikicode.filter_templates()
@@ -68,3 +71,18 @@ def remove_bad_symbols_from_filename(filename):
     for symbol in bad_symbols:
         filename = filename.replace(symbol, "")
     return filename
+
+def page_exists(page_title, site):
+    page = pywikibot.Page(site, page_title)
+    return page.exists()
+
+
+def filter_existing_pages(pages, site):
+    valid_pages = []
+    for page_title in pages:
+        page_title_delinkified = delinkify(page_title)
+        if page_exists(page_title_delinkified, site):
+            valid_pages.append(page_title)
+        else:
+            print_in_yellow(f"Page \"{page_title}\" that was checked does not exist... That link will not be used.")
+    return valid_pages

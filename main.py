@@ -136,6 +136,20 @@ hanced
 
 
 
+# NATHAN HALE (JOHNSTON)
+# Parse: dii - automatically
+# Parse: If dii and /di/ is arbitrary, do not count that as a dii. Just convert it.
+# Parse: /intr/ tag = introduction, and allow // for name
+# Parse: /vign/ - img type
+# Parse: /cap// - image caption of previous or next image
+# Parse: /bc/ is automatically styled as fine block and width 20em
+# Parse: /cap/ty=2/ Type = num settings -> add class of what the normal class is + "2". And add that to the CSS as well.
+# Parse: /cap// //cap/ vs. \n/cap//
+# Parse: /lri/ - 2 images left and right
+# Parse: /Appendix/ should link to the actual appendix
+# Parse: /r/ and /rt// (rt doesn't have to end because EVERYTHING IS IN THE REFERENCES)
+#: Deal with smallrefs in page and transclusion.
+
 
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
 # PREP: MAKE HATHI IMAGES IN PDF ALL SAME SIZE
@@ -223,6 +237,7 @@ common_work_types = {
     "play": "Q25379",
     "poetry collection": "Q7010019",
     "short story collection": "Q1279564",
+    "speech": "Q861911",
 }
 
 common_locations = {
@@ -383,7 +398,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, variable_name=base_work_conf_variable)
     process_break()
 
     transcription_text = transcription_page.text
@@ -420,7 +435,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     process_break()

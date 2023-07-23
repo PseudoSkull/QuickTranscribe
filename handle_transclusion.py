@@ -100,13 +100,6 @@ def generate_toc_page_tag(toc_pages, filename):
     page_tag = f"<pages index=\"{filename}\" from={toc_begin} to={toc_end} />"
     return page_tag
 
-# def get_chapter_num(chapter):
-#     if "chapter_num" in chapter:
-#         chapter_num = chapter["chapter_num"]
-#     else:
-#         chapter_num = chapter["part_num"]
-#     return chapter_num
-
 def generate_chapter_link(chapters, chapter_num_zero_indexed):
     chapter = chapters[chapter_num_zero_indexed]
     chapter_num = chapter["chapter_num"]

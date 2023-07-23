@@ -32,6 +32,7 @@ basic_elements = {
     "end": "dhr|2}}\n{{c|{{asc|The end}}",
     "n": "nop",
     "peh": "peh",
+    "st": "***",
     "-": "<spl>", # for handling split between tags
 }
 

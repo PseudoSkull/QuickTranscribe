@@ -48,9 +48,9 @@ def initial_text_cleanup(text):
     text = re.sub(r"\n\n-\n\nn\n\n", r"\n/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)
     text = re.sub(r"(.)\n/n/\n([- —])", r"\1\n/n/\n\n\2", text)
-    text = re.sub(r"(.)\n\n-\n\n—(.)", r"\1{{peh|}}\n\n-\n\n—\2", text) #check back up on this one later
+    text = re.sub(r"(.)\n\n-\n\n—(.)", r"\1{{upe}}\n\n-\n\n—\2", text) #check back up on this one later
     text = re.sub(r"(.)—\n\n-", r"\1{{peh|—}}\n\n-", text)
-    text = re.sub(r"\n\n—\n\n(.)", r"\n\n—\n\n-\n\n\1", text) # fix page quality 0 with content
+    text = re.sub(r"\n\n—\n\n([A-Za-z])", r"\n\n—\n\n-\n\n\1", text) # fix page quality 0 with content
     text = re.sub(r"\n\n—p\n\n(.)", r"\n\n—p\n\n-\n\n\1", text) # fix page quality 0 with content
 
 
