@@ -545,15 +545,12 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that image counts have been compared...")
 
 
-exit()
-
-
 transcription_text = transcription_page.text
 expected_progress = "images_uploaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    upload_images_to_commons(image_data, filename, author_item, author, transcription_page_title, title, year, pub_date, country_name, commons_category, illustrator_item)
+    upload_images_to_commons(image_data, filename, author_item, author, transcription_page_title, title, year, pub_date, country_name, commons_category, illustrator_item, illustrator)
 
     add_main_image_to_wikidata_items(base_work, version_item, image_data, transcription_page_title)
 

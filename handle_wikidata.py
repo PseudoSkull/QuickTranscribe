@@ -498,10 +498,10 @@ def add_scan_file_to_version_item(repo, item, filename, transcription_page_title
 
 
 
-def check_for_image_type(image_data, image_type):
+def check_for_image_type(image_data, intended_image_type):
     for image in image_data:
         image_type = image['type']
-        if image_type == image_type:
+        if image_type == intended_image_type:
             return image
     return None
 
