@@ -28,6 +28,7 @@ from handle_commons import get_image_filename
 """
 
 basic_elements = {
+    "b2": "bar|2",
     "d": "dhr",
     "end": "dhr|2}}\n{{c|{{asc|The end}}",
     "n": "nop",

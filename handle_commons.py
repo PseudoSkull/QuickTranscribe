@@ -236,19 +236,21 @@ def create_commons_category(title, category_namespace_prefix, author_item, work_
 [[{commons_category}]]"""
 
 
-def generate_source_template(scan_source, IA_id, hathitrust_full_text_id):
+def generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id):
     if scan_source == "ia":
         return f"{{{{Internet Archive link|{IA_id}}}}}"
     elif scan_source == "ht":
         return f"{{{{HathiTrust link|{hathitrust_full_text_id}}}}}"
+    elif scan_source == "gb":
+        return f"{{{{Google Books link|{GB_id}}}}}"
 
 def generate_scan_filename(title, year, scan_file_path):
     extension = scan_file_path.split(".")[-1]
     scan_filename = f"{title} ({year}).{extension}"
     return scan_filename
 
-def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id):
-    source_template = generate_source_template(scan_source, IA_id, hathitrust_full_text_id)
+def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id):
+    source_template = generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
     copyright_template = f"{{{{PD-US-expired}}}}"
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
@@ -265,7 +267,7 @@ def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, 
     return commons_file_text
 
 
-def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename):
+def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id):
     print("Generating scan file data...")
     if filename:
         scan_file_path = None
@@ -274,7 +276,7 @@ def upload_scan_file(title, year, version_item, scan_source, commons_category, I
         scan_file_path = find_scan_file_to_upload(scan_source)
         scan_filename = generate_scan_filename(title, year, scan_file_path)
 
-    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id)
+    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 
@@ -383,17 +385,19 @@ def generate_image_data(page_data, work_title, year):
     image_data = []
     seq_num = 0
     img_num = 0
+    vignette_num = 0
     image_files_folder = "projectfiles/processed_files"
     for page in page_data:
         image_tag = "/img/"
         dii_tag = "/dii/"
+        vign_tag = "/vign/"
         content = page["content"]
         marker = page["marker"]
         page_num = page["page_num"]
-        if content != "" and (image_tag in content or dii_tag in content):
+        if content != "" and (image_tag in content or dii_tag in content or vign_tag in content):
             content_lines = content.split("\n")
             for line in content_lines:
-                if image_tag in line or dii_tag in line:
+                if image_tag in line or dii_tag in line or vign_tag in line:
                     image = {}
                     caption = ""
                     settings = ""
@@ -404,6 +408,9 @@ def generate_image_data(page_data, work_title, year):
                         image_type = "drop initial"
                         letter = get_letter_from_initial_image(line)
                     else:
+                        if vign_tag in line:
+                            image_type = "vignette"
+                            vignette_num += 1
                         if len(line) > expected_image_tag_length:
                             img_suffix = line[expected_image_tag_length:]
                             settings, caption = img_suffix.split("/")
@@ -418,8 +425,10 @@ def generate_image_data(page_data, work_title, year):
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
-
-                    image["seq_num"] = seq_num
+                    if image_type == "vignette":
+                        image["seq_num"] = vignette_num
+                    else:
+                        image["seq_num"] = seq_num
                     image["page_num"] = page_num
                     image["type"] = image_type
                     image["title"] = image_title

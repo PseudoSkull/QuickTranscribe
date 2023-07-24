@@ -1165,6 +1165,7 @@ def correct_text(text_file):
     x = x.replace("\nhm", "\nJim")
     x = x.replace("\"hm", "\"Jim")
     x = x.replace(" bom ", " born ")
+    x = x.replace(" yon ", " you ")
     x = x.replace("Hke", "like")
     x = x.replace("\"0", "\"O")
     x = re.sub(".\" ([a-z])", r",\" \1", x)

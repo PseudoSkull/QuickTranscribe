@@ -252,6 +252,9 @@ def generate_variant_titles(page_title_to_parse):
     return combinations
 
 def create_redirects(page_title_to_parse):
+    if "(" in page_title_to_parse:
+        print("Page title contains parentheses. Skipping redirects...")
+        return
     variant_titles = generate_variant_titles(page_title_to_parse)
     if len(variant_titles) == 0:
         print("No variant titles to create redirects for. Skipping redirects...")

@@ -79,13 +79,6 @@ hanced
 
 
 
-# TO THE SUMMIT OF CARDIGAN
-# Transclude single speech
-# Parse: /st/7/
-
-
-
-
 
 # THE IFS OF HISTORY
 # Prep: IMPORT GUTENBERG TRANSCRIPTION
@@ -151,6 +144,25 @@ hanced
 #: Deal with smallrefs in page and transclusion.
 
 
+
+
+
+
+
+
+
+
+
+# THE HISTORY OF LITTLE HENRY AND HIS BEARER
+# Commons: Google Books ID as a source
+# Parse: /lgi/ -> arbitrary lgi
+# Parse: /li/ -> link hyphenated words
+# /r/, /rt//, /r//, /ua//
+# Transclusion: Does it know that the original was 1814, and to use category based on OY?
+# Transclusion: PD-old
+
+
+# DETERMINE ITALICIZATION BASED ON WORK TYPE
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
 # PREP: MAKE HATHI IMAGES IN PDF ALL SAME SIZE
 # PREP: PREPARE INDEX PAGE OCR FOR TRANSCRIPTION through /ind/ tags
@@ -480,7 +492,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     # if not filename:
-    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title, filename)
+    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title, filename, GB_id)
 
     add_scan_file_to_version_item(wikidata_site, version_item, filename, transcription_page_title)
 
