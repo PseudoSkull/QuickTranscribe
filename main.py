@@ -6,7 +6,7 @@
 
 import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
-from edit_mw import save_page
+from edit_mw import save_page, get_author_page_title
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
@@ -367,7 +367,12 @@ if not at_expected_progress:
 
 author = get_work_data(work_data, "author")
 author_namespace_prefix = "Author:"
-author_page_title = author_namespace_prefix + author
+# this will break later if there are multiple authors
+author_page_title = get_author_page_title(author)
+
+illustrator = get_work_data(work_data, "illustrator")
+illustrator_page_title = get_author_page_title(illustrator)
+
 
 location = get_work_data(work_data, "location of publication", common_locations)
 country = get_value_from_property(location, "P17")
@@ -400,10 +405,12 @@ if base_work and author_item:
 else:
     author_item = get_wikidata_item_from_wikisource(author_page_title)
 
+illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
+
 author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
 base_work_conf_variable = "base"
-transcription_page.text
+# transcription_page.text
 
 transcription_text = transcription_page.text
 expected_progress = "base_work_item_created"
@@ -545,7 +552,7 @@ expected_progress = "images_uploaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    upload_images_to_commons(image_data, filename, author_item, author, transcription_page_title, title, year, pub_date, country_name, commons_category)
+    upload_images_to_commons(image_data, filename, author_item, author, transcription_page_title, title, year, pub_date, country_name, commons_category, illustrator_item)
 
     add_main_image_to_wikidata_items(base_work, version_item, image_data, transcription_page_title)
 

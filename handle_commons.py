@@ -473,17 +473,32 @@ def create_creator_page(creator_page_property, author_item, author_name, transcr
     
     return creator_page_title
 
-def get_creator_page(author_item, author, transcription_page_title):
-    print(f"Retrieving creator page for author item {author_item}...")
+def get_creator_page(author_item, author, transcription_page_title, illustrator_item):
     # if author == Anonymous etc. logic needs to be thrown in
     creator_page_property = "P1472"
-    creator_page = get_value_from_property(author_item, creator_page_property)
-    if not creator_page:
-        print("Creator page not found! Creating one...")
-        creator_page = create_creator_page(creator_page_property, author_item, author, transcription_page_title)
-    else:
-        creator_page = "Creator:" + creator_page
+
+    if not illustrator_item:
+        illustrator_item = author_item
     
+    if type(illustrator_item) != list:
+        illustrator_item = [illustrator_item,]
+
+    creator_pages = []
+
+    for item in illustrator_item:
+        print(f"Retrieving creator page for author item {author_item}...")
+        creator_page = get_value_from_property(item, creator_page_property)
+        if not creator_page:
+            print("Creator page not found! Creating one...")
+            creator_page = create_creator_page(creator_page_property, item, author, transcription_page_title)
+        else:
+            creator_page = "{{Creator:" + creator_page + "}}"
+        creator_pages.append(creator_page)
+    
+    creator_pages.sort()
+
+    creator_page = "".join(creator_pages)
+
     return creator_page
 
 def generate_file_description(caption, image_type, page_num, work_title, year, image_letter):
@@ -527,7 +542,7 @@ def generate_image_file_categories(image_type, country_name, main_commons_catego
     return categories
 
 def generate_illustrator(author_item, author, transcription_page_title):
-# {{Creator:Edmund Frederick}}
+# {{Creator:Edmund Frederick}}{{Creator:Amédée de Noé}}
     creator_page = get_creator_page(author_item, author, transcription_page_title)
 
     if creator_page:
@@ -535,14 +550,12 @@ def generate_illustrator(author_item, author, transcription_page_title):
     else:
         return author
 
-# {{Creator:Edmund Frederick}}
-
-def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter):
+def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item):
     print("Generating image text...")
     file_description = generate_file_description(caption, image_type, page_num, work_title, year, image_letter)
     # commons_file_date = generate_commons_file_date()
     image_file_categories = generate_image_file_categories(image_type, country_name, main_commons_category, image_letter)
-    illustrator = generate_illustrator(author_item, author, transcription_page_title)
+    illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item)
     copyright_template = f"{{{{PD-US-expired}}}}"
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
@@ -581,7 +594,7 @@ def get_file_path_and_extension(path, expected_filename):
         if os.path.isfile(image_path):
             return image_path, extension
 
-def upload_images_to_commons(image_data, scan_filename, author_item, author, transcription_page_title, work_title, year, pub_date, country_name, main_commons_category):
+def upload_images_to_commons(image_data, scan_filename, author_item, author, transcription_page_title, work_title, year, pub_date, country_name, main_commons_category, illustrator_item):
     print("Uploading work images to Wikimedia Commons...")
     image_folder_path = "projectfiles/processed_files"
     for image_num, image in enumerate(image_data):
@@ -596,7 +609,7 @@ def upload_images_to_commons(image_data, scan_filename, author_item, author, tra
         print(f"Uploading image {image_num} to Wikimedia Commons as \"{image_filename}\", from \"{image_file_path}\"...")
         image_caption = image["caption"]
         image_type = image["type"]
-        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter)
+        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item)
 
         
 

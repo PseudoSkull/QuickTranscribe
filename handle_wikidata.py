@@ -463,9 +463,21 @@ def add_version_to_base_work_item(base_work, version_item):
 def get_wikidata_item_from_wikisource(page_title):
     print(f"Getting Wikidata item of Wikisource page \"{page_title}\"...")
 
+    if type(page_title) != list:
+        page_title = [page_title,]
+    
     site = pywikibot.Site("en", "wikisource")
-    page = pywikibot.Page(site, page_title)
-    item = page.data_item().title()
+
+    page_titles = []
+    for title in page_title:
+        page = pywikibot.Page(site, page_title)
+        item = page.data_item().title()
+        page_titles.append(item)
+    
+    if len(page_titles) == 1:
+        item = page_titles[0]
+    else:
+        item = page_titles
 
     print_in_green(f"Got Wikidata item of \"{page_title}\": \"{item}\"")
     return item

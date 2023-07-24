@@ -42,6 +42,7 @@ variables_with_descriptions = {
         "firstsec": "first section is automatically after chapter",
         "gut": "Gutenberg ID",
         "rel": "related author",
+        "ill": "illustrator",
         "progress": "QT progress flag",
     }
 

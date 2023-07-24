@@ -101,3 +101,17 @@ def get_english_plural(word):
         if word.endswith(ending):
             return f"{word}es"
     return f"{word}s"
+
+
+def get_author_page_title(author_name):
+    if type(author_name) != list:
+        author_name = [author_name,]
+
+    author_names = []
+    for name in author_name:
+        author_names.append("Author:" + name)
+    
+    if len(author_names) == 1:
+        return author_names[0]
+    else:
+        return author_names
