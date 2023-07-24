@@ -470,7 +470,7 @@ def get_wikidata_item_from_wikisource(page_title):
 
     page_titles = []
     for title in page_title:
-        page = pywikibot.Page(site, page_title)
+        page = pywikibot.Page(site, title)
         item = page.data_item().title()
         page_titles.append(item)
     

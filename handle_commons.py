@@ -324,12 +324,14 @@ def determine_image_type(marker, settings):
     return image_type
         # image_type = image_types[marker]
 
-def generate_image_title(image_type, seq_num, work_title, year, letter):
+def generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num):
     work_title_with_year = f"{work_title} ({year})"
     if image_type == "sequential":
         image_title = f"{work_title_with_year} {seq_num}"
     elif image_type == "drop initial":
         image_title = f"{work_title_with_year} {image_type} letter {letter}"
+    elif image_type == "vignette":
+        image_title = f"{work_title_with_year} {image_type} {vignette_num}"
     else:
         image_title = f"{work_title_with_year} {image_type}"
     return image_title
@@ -401,6 +403,7 @@ def generate_image_data(page_data, work_title, year):
                     image = {}
                     caption = ""
                     settings = ""
+                    image_type = ""
                     letter = None
                     expected_image_tag_length = 5
                     # img_num += 1
@@ -410,17 +413,20 @@ def generate_image_data(page_data, work_title, year):
                     else:
                         if vign_tag in line:
                             image_type = "vignette"
+                            expected_image_tag_length = 6
                             vignette_num += 1
                         if len(line) > expected_image_tag_length:
+                            print(line)
                             img_suffix = line[expected_image_tag_length:]
                             settings, caption = img_suffix.split("/")
                             if "," in settings:
                                 settings = settings.split(",")
-                        image_type = determine_image_type(marker, settings)
+                        if not image_type == "vignette":
+                            image_type = determine_image_type(marker, settings)
                         if image_type == "sequential":
                             seq_num += 1
                     img_num += 1
-                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter)
+                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num)
                     image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
@@ -599,12 +605,10 @@ def upload_images_to_commons(image_data, scan_filename, author_item, author, tra
     image_folder_path = "projectfiles/processed_files"
     for image_num, image in enumerate(image_data):
         image_num += 1
-        
-        extension = image["extension"]
+
         page_num = image["page_num"]
         image_file_path = image["path"]
         image_letter = image["letter"]
-        # image_file_path = f"{image_folder_path}/{image_num}.{extension}"
         image_filename = get_image_filename(image)
         print(f"Uploading image {image_num} to Wikimedia Commons as \"{image_filename}\", from \"{image_file_path}\"...")
         image_caption = image["caption"]

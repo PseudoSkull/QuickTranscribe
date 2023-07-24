@@ -545,6 +545,7 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that image counts have been compared...")
 
 
+exit()
 
 
 transcription_text = transcription_page.text
