@@ -1,6 +1,6 @@
 # WS_collection
 
-# Obstinate Dan
+# VERSION ITEM IS NOT UPDATING!!!!!
 
 # https://www.wikidata.org/w/index.php?title=Q118876318&curid=113382411&diff=1912734568&oldid=1912670071
 
@@ -154,12 +154,37 @@ hanced
 
 
 # THE HISTORY OF LITTLE HENRY AND HIS BEARER
-# Commons: Google Books ID as a source
 # Parse: /lgi/ -> arbitrary lgi
 # Parse: /li/ -> link hyphenated words
 # /r/, /rt//, /r//, /ua//
+# Pages: Do not add adv pages
+# Index: Advertising not transcluded
 # Transclusion: Does it know that the original was 1814, and to use category based on OY?
 # Transclusion: PD-old
+# Transclusion: /Advertisements. If at this time you want to go through the torment that will entail rather than adding the redlink manually
+# 
+# ...
+
+
+
+
+
+
+# ON THE WAY THERE
+# /contch/ -> "title"
+# /pref/ -> "preface"
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # DETERMINE ITALICIZATION BASED ON WORK TYPE
@@ -384,6 +409,7 @@ work_type_name = get_work_data(work_data, "work type")
 if not work_type_name:
     work_type_name = "work"
 genre_name = get_work_data(work_data, "genre")
+subtitle = get_work_data(work_data, "subtitle")
 pub_date = get_work_data(work_data, "date of publication")
 year = get_year_from_date(pub_date)
 original_pub_date = get_work_data(work_data, "original date of publication")
@@ -417,7 +443,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, variable_name=base_work_conf_variable)
     process_break()
 
     transcription_text = transcription_page.text
@@ -454,7 +480,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     process_break()
@@ -588,7 +614,7 @@ chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts)
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title)
 sections = get_section_data(chapters, page_data, transcription_text)
 
 chapter_type = get_work_data(work_data, "chapter type")
@@ -600,7 +626,7 @@ chapter_format = find_form_section(transcription_text, "ch")
 section_format = find_form_section(transcription_text, "sec")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
-
+print(toc)
 
 
 transcription_text = transcription_page.text

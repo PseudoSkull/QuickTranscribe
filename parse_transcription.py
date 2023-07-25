@@ -326,7 +326,7 @@ def determine_if_books_or_parts_exist(text):
         return True
     return False
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -344,7 +344,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     chapters = []
 
-    if "/ch/" in text:
+    if "/ch/" in text or "/contch/" in text:
         print_in_green("Chapters found in transcription text. Getting chapter data...")
 
         previous_chapter = None
@@ -363,8 +363,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
             book_pattern = r"(\/bk\/)"
             part_pattern = r"(\/pt\/)"
+            preface_pattern = r"(\/pref\/)"
+            content_chapter_pattern = r"(\/contch\/)"
 
-            all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}"
+            all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}|{preface_pattern}|{content_chapter_pattern}"
 
             # page_number_pattern = r"\n\n-([0-9]+)\n\n"
             # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
@@ -372,9 +374,12 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter_splice_points = get_chapter_splice_points(text)
 
             for match in chapter_matches:
+                print(match)
                 is_chapter = match[0]
                 is_book = match[1]
                 is_part = match[2]
+                is_preface = match[3]
+                is_content_chapter = match[4]
                 # print(match)
                 chapter = {}
 
@@ -392,6 +397,19 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
                         chapter_num = 0
 
+                elif is_preface:
+                    chapter["prefix"] = None
+                    chapter["chapter_num"] = None
+                    chapter["title"] = "Preface"
+                    match = False
+                
+                elif is_content_chapter:
+                    chapter["prefix"] = None
+                    # chapter_has_name = False
+                    chapter["chapter_num"] = None
+                    chapter["title"] = work_title
+                    match = False
+                
                 else:
                     chapter_num += 1
                     if chapter_prefix == "n":
@@ -402,13 +420,15 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["prefix"] = chapter_prefix
                     chapter["chapter_num"] = chapter_num
                     match = is_chapter
+                    # chapter_has_name = False
 
 
-                if chapter_has_name:
-                    title = convert_to_title_case(match)
-                    chapter["title"] = title
-                else:
-                    chapter["title"] = None
+                if match:
+                    if chapter_has_name:
+                        title = convert_to_title_case(match)
+                        chapter["title"] = title
+                    else:
+                        chapter["title"] = None
                 
                 if type(page_num) == str and page_num.isdigit():
                     chapter["page_num"] = int(page_num)
@@ -572,9 +592,11 @@ def get_aux_toc_items(chapters, mainspace_work_title):
 
         chapter_title = chapter["title"]
         
-        if chapter_title:
+        if chapter_title and chapter_num:
             # aux_toc_entry = f"* [[{mainspace_work_title}/|{chapter_title}]]"
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}: {chapter_title}]]"
+        elif chapter_title and not chapter_num:
+            aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
         else:
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}]]"
 
@@ -812,14 +834,23 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
     ch_tag = get_plain_tag("ch")
     bk_tag = get_plain_tag("bk")
     pt_tag = get_plain_tag("pt")
+    pref_tag = get_plain_tag("pref")
+    contch_tag = get_plain_tag("contch")
 
-    if string_not_in_content(content, ch_tag, "Converting chapter headings") and string_not_in_content(content, bk_tag, "Converting book headings") and string_not_in_content(content, pt_tag, "Converting part headings"):
+    if string_not_in_content(content, ch_tag, "Converting chapter headings") and string_not_in_content(content, bk_tag, "Converting book headings") and string_not_in_content(content, pt_tag, "Converting part headings") and string_not_in_content(content, pref_tag, "Converting preface headings") and string_not_in_content(content, contch_tag, "Converting content chapter headings"):
         return overall_chapter_num, page
 
 
     chapters_in_page = get_string_from_lines(content, ch_tag)
     books_in_page = get_string_from_lines(content, bk_tag)
     parts_in_page = get_string_from_lines(content, pt_tag)
+    prefaces_in_page = get_string_from_lines(content, pref_tag)
+    if len(chapters_in_page) == 0 and len(prefaces_in_page) > 0:
+        chapters_in_page = prefaces_in_page
+    content_chapters_in_page = get_string_from_lines(content, contch_tag)
+    if len(chapters_in_page) == 0 and len(content_chapters_in_page) > 0:
+        chapters_in_page = content_chapters_in_page
+
 
     if books_in_page:
         parts_in_page = books_in_page # they're the same, so make it the same standard
@@ -844,18 +875,20 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
     for line_num, ch_tag in chapters_in_page.items():
         # part_num_zero_indexed = part_num - 1
         # chapter = chapters[chapter_num]
-
         overall_chapter_num += 1
 
         overall_chapter_num_zero_indexed = overall_chapter_num - 1
         chapter = chapters[overall_chapter_num_zero_indexed]
 
         real_chapter_num = chapter["chapter_num"]
-        roman_chapter_num = roman.toRoman(real_chapter_num)
-        if chapter_type == "num":
-            displayed_section_num = real_chapter_num
+        if real_chapter_num:
+            roman_chapter_num = roman.toRoman(real_chapter_num)
+            if chapter_type == "num":
+                displayed_section_num = real_chapter_num
+            else:
+                displayed_section_num = roman_chapter_num
         else:
-            displayed_section_num = roman_chapter_num
+            displayed_section_num = None
         
         chapter_prefix = chapter["prefix"]
         if chapter_prefix:
@@ -878,6 +911,10 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
         else:
             if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
                 chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
+            elif ch_tag == "/contch/":
+                chapter_text = f"{{{{ph|class=title|{chapter_title}}}}}"
+            elif not chapter_prefix and not displayed_section_num:
+                chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
             else:
                 # print(type(chapter_title))
                 # print(chapter_title)
