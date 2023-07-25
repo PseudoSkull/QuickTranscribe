@@ -116,3 +116,7 @@ def get_author_page_title(author_name):
             return author_names[0]
         else:
             return author_names
+
+
+def has_digits(input_string):
+    return any(char.isdigit() for char in input_string)

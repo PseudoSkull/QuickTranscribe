@@ -4,7 +4,7 @@ import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from handle_wikidata import get_value_from_property
-from edit_mw import save_page, get_english_plural
+from edit_mw import save_page, get_english_plural, has_digits
 import json
 
 # FIND A WAY TO CLEAN THE TRANSCLUDE PAGES LOGIC UP. IT'S A BIT OF A MESS.
@@ -111,7 +111,9 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed):
         chapter_prefix = "Chapter"
     chapter_internal_name = f"{chapter_prefix} {chapter_num}"
 
-    if chapter_name == None:
+    if chapter_num == None:
+        chapter_link = f"[[../{chapter_name}/]]"
+    elif chapter_name == None:
         chapter_link = f"[[../{chapter_internal_name}/]]"
     else:
         chapter_link = f"[[../{chapter_internal_name}|{chapter_name}]]"
@@ -248,11 +250,16 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
         chapter_prefix = chapter["prefix"]
-        if not chapter_prefix:
+        if not chapter_prefix and chapter_num:
             chapter_prefix = "Chapter"
         chapter_internal_name = f"{chapter_prefix} {chapter_num}"
+        if not chapter_prefix and not chapter_num:
+            chapter_internal_name = chapter_name
         if chapter_name == None:
             chapter_name = chapter_internal_name
+
+        if chapter_name == title:
+            chapter_internal_name = "main content chapter"
 
         chapter_page_title = f"{mainspace_work_title}/{chapter_internal_name}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
@@ -312,6 +319,9 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if not first_chapter_prefix:
             first_chapter_prefix = "Chapter"
         first_chapter_num = 1
+        if first_chapter["chapter_num"] == None:
+            first_chapter_num = None
+            first_chapter_display = f"[[/{first_chapter_name}/]]"
         if first_chapter_name == None:
             first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
         else:
@@ -424,6 +434,13 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         categories_text = "\n\n" + "\n".join(categories_text)
     else:
         categories_text = ""
+    
+    if "(" in mainspace_work_title:
+        parentheses_contents_index = mainspace_work_title.index("(")
+        parentheses_contents = mainspace_work_title[parentheses_contents_index:]
+        if has_digits(parentheses_contents):
+            categories_text = ""
+
     front_matter_footer = f"""
 
 
