@@ -219,22 +219,47 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
         chapter_end = get_last_page(page_data, chapter_start)
 
     chapter_end = pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end)
+    print(f"Okay so CHAPTER END IS {chapter_end}")
     splits = get_page_tag_splits(page_data, chapter_start, chapter_end)
+
     number_of_splits = len(splits)
 
     chapter_transclusion_tags = []
 
-    if number_of_splits == 1:
-        page_split = splits[0]
-        page_after_page_split = page_split + 1
-        first_tag = generate_transclusion_tag(filename, chapter_start, page_split)
-        last_tag = generate_transclusion_tag(filename, page_after_page_split, chapter_end)
-        chapter_transclusion_tags.append(first_tag)
-        chapter_transclusion_tags.append(last_tag)
-    elif number_of_splits > 1:
-        pass # logic later
-    else:
-        chapter_transclusion_tags = generate_transclusion_tag(filename, chapter_start, chapter_end)
+    # THIS WILL NEED TO BE MODIFIED LATER, TO ACCOMMODATE FOR PAGE QUALITY 0 PAGES
+
+    starting_page_num = chapter_start
+    for page_num in range(chapter_start, chapter_end+1):
+        page_num_zero_indexed = page_num - 1
+        page = page_data[page_num_zero_indexed]
+        page_num += 1
+        page_type = page["type"]
+        if page_type == "break" or page_num == chapter_end:
+            page_split = page_num
+            pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
+            chapter_transclusion_tags.append(pages_tag)
+            starting_page_num = page_split + 1
+            # chapter_transclusion_tags.append(f"<pages index=\"{filename}\" include={page_num} />")
+        # elif page["page_quality"] == "0":
+        #     if page_num == chapter_end:
+        #         chapter_transclusion_tags.append(f"<pages index=\"{filename}\" include={page_num} />")
+        #     else:
+        #         continue
+        else:
+            continue
+            # chapter_transclusion_tags.append(f"<pages index=\"{filename}\" include={page_num} />")
+
+    # if number_of_splits == 1:
+    #     page_split = splits[0]
+    #     page_after_page_split = page_split + 1
+    #     first_tag = generate_transclusion_tag(filename, chapter_start, page_split)
+    #     last_tag = generate_transclusion_tag(filename, page_after_page_split, chapter_end)
+    #     chapter_transclusion_tags.append(first_tag)
+    #     chapter_transclusion_tags.append(last_tag)
+    # elif number_of_splits > 1:
+    #     pass # logic later
+    # else:
+    #     chapter_transclusion_tags = generate_transclusion_tag(filename, chapter_start, chapter_end)
     
     page_break = "{{page break|label=}}"
 
@@ -304,6 +329,13 @@ def get_first_content_page(page_data): # if there's no chapters in the book
         page_num += 1
         if page["type"] == "begin":
             return page_num
+
+def generate_copyright_template(year, author_death_year):
+    if year < 1928:
+        template_name = f"PD-US|{author_death_year}"
+    elif year < 1964:
+        template_name = f"PD-US-not-renewed|pubyear={year}|{author_death_year}"
+    return template_name
 
 def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
     # author_death_year, transcription_page_title
@@ -408,8 +440,9 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     if toc_is_auxiliary:
         aux_toc = f"\n\n{{{{{mainspace_work_title}/TOC}}}}"
 
-    copyright_template_name = "PD-US" # for now, some logic later
-    additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
+
+    copyright_template = generate_copyright_template(year, author_death_year) # for now, some logic later
+    # additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
 
     # categories = ["Ready for export"] # for now, some logic later
     categories = []
@@ -449,7 +482,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
 
 {{{{authority control}}}}
-{{{{{copyright_template_name}{additional_copyright_parameters}}}}}{categories_text}"""
+{{{{{copyright_template}}}}}{categories_text}"""
 
     front_matter_text = front_matter_header + page_tags + aux_toc + front_matter_footer
 

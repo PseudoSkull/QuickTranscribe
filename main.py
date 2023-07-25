@@ -480,7 +480,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     process_break()

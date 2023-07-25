@@ -1305,7 +1305,13 @@ def convert_images(page, image_data, img_num):
     # pattern = r"\/img\/([0-9]+)\/"
     # images = re.findall(pattern, content)
     for line_num, image_tag in images_in_page.items():
-        image = image_data[img_num]
+        image_number_pattern = r"\/img\/n=([0-9]+)\/"
+        image_number = re.search(image_number_pattern, image_tag)
+        if image_number:
+            image_number = image_number.group(1)
+            image = image_data[int(image_number) - 1]
+        else:
+            image = image_data[img_num]
         image_filename = get_image_filename(image)
         image_caption = image["caption"]
         if image_caption:

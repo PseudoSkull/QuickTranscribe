@@ -249,9 +249,9 @@ def generate_scan_filename(title, year, scan_file_path):
     scan_filename = f"{title} ({year}).{extension}"
     return scan_filename
 
-def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id):
+def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id, year):
     source_template = generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
-    copyright_template = f"{{{{PD-US-expired}}}}"
+    copyright_template = generate_commons_copyright_template(year)
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
 {{{{Book
@@ -276,7 +276,7 @@ def upload_scan_file(title, year, version_item, scan_source, commons_category, I
         scan_file_path = find_scan_file_to_upload(scan_source)
         scan_filename = generate_scan_filename(title, year, scan_file_path)
 
-    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id)
+    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id, year)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 
@@ -400,6 +400,8 @@ def generate_image_data(page_data, work_title, year):
             content_lines = content.split("\n")
             for line in content_lines:
                 if image_tag in line or dii_tag in line or vign_tag in line:
+                    if "/n=" in line:
+                        continue
                     image = {}
                     caption = ""
                     settings = ""
@@ -477,7 +479,7 @@ def create_creator_page(creator_page_property, author_item, author_name, transcr
 
     process_break()
     
-    return "{{Creator:" + creator_page_title + "}}"
+    return "{{" + creator_page_title + "}}"
 
 def get_creator_page(author_item, authors, transcription_page_title, illustrator_item, illustrators):
     # if author == Anonymous etc. logic needs to be thrown in
@@ -568,13 +570,19 @@ def generate_illustrator(author_item, author, transcription_page_title, illustra
     else:
         return author
 
+def generate_commons_copyright_template(year):
+    if year < 1928:
+        return "{{PD-US-expired}}"
+    else:
+        return "{{PD-US-not renewed}}"
+
 def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator):
     print("Generating image text...")
     file_description = generate_file_description(caption, image_type, page_num, work_title, year, image_letter)
     # commons_file_date = generate_commons_file_date()
     image_file_categories = generate_image_file_categories(image_type, country_name, main_commons_category, image_letter)
     illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator)
-    copyright_template = f"{{{{PD-US-expired}}}}"
+    copyright_template = generate_commons_copyright_template(year)
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
 {{{{Information
