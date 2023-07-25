@@ -152,10 +152,11 @@ def pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end):
     pages_not_needing_proofreading = []
     for page_num, page in enumerate(page_data):
         page_num += 1
+        if chapter_end:
+            if page_num > chapter_end:
+                break
         if page_num < chapter_start:
             continue
-        elif page_num > chapter_end:
-            break
         else:
             if page["page_quality"] == "0":
                 # chapter_end = page["page_num"] - 1
@@ -177,10 +178,11 @@ def get_page_tag_splits(page_data, chapter_start, chapter_end):
         page_num_zero_indexed = page_num
         page_num += 1
         previous_page = page_data[page_num_zero_indexed - 1]
+        if chapter_end:
+            if page_num > chapter_end:
+                break
         if page_num < chapter_start:
             continue
-        elif page_num > chapter_end:
-            break
         else:
             page_type = page["type"]
             if page["page_quality"] == "0":
@@ -258,8 +260,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         if chapter_name == None:
             chapter_name = chapter_internal_name
 
-        if chapter_name == title:
-            chapter_internal_name = "main content chapter"
+        # if chapter_name == title:
+        #     chapter_internal_name = "main content chapter"
 
         chapter_page_title = f"{mainspace_work_title}/{chapter_internal_name}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
@@ -277,9 +279,11 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 
         if chapter_name == chapter_internal_name:
             edit_summary = f"Transcluding {chapter_name}..."
+        elif chapter_name == title:
+            edit_summary = f"Transcluding {chapter_name} (main content chapter)..."
         else:
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
-
+        print(chapter_text)
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 def generate_defaultsort_tag(mainspace_work_title):
@@ -322,7 +326,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if first_chapter["chapter_num"] == None:
             first_chapter_num = None
             first_chapter_display = f"[[/{first_chapter_name}/]]"
-        if first_chapter_name == None:
+        elif first_chapter_name == None:
             first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
         else:
             first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
