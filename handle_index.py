@@ -18,6 +18,7 @@ marker_definitions = {
     "fro": "frontis",
     "ha": "half",
     "i": "img",
+    "ill": "illus",
     "ti": "title",
     "toc": "toc",
 }

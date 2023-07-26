@@ -170,9 +170,13 @@ hanced
 
 
 
-# ON THE WAY THERE
-# /contch/ -> "title"
-# /pref/ -> "preface"
+# HELD TO ANSWER
+# Parse: automatically page break between images
+# Parse: hyphen between page broken images... present at page with "I give a little spring with my right leg,"
+# Parse: make sure /pt/8/ works
+# Parse: GENERATE ILLUSTRATIONS
+# Parse: /page ../ or /Page ../, link to specific page.
+# Parse: /oe/ -> oe symbol
 
 
 
@@ -186,7 +190,7 @@ hanced
 
 
 
-
+# DESIGNATE COVER PAGE FOR INDEX, (something like 7 if cover is blank)
 # DETERMINE ITALICIZATION BASED ON WORK TYPE
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
 # PREP: MAKE HATHI IMAGES IN PDF ALL SAME SIZE
@@ -267,6 +271,7 @@ common_genres = {
     "scifi": "Q24925",
     "thriller": "Q182015",
     "utopian": "Q112075077",
+    "western": "Q367591",
 }
 
 common_work_types = {
@@ -294,6 +299,7 @@ common_publishers = {
     "Doubleday": "Q1251563",
     "Grosset": "Q3117078",
     "Houghton": "Q390074",
+    "Little": "Q552959",
     "Small": "Q7542583",
 }
 

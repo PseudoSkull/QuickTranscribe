@@ -226,8 +226,6 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
 
     chapter_transclusion_tags = []
 
-    # THIS WILL NEED TO BE MODIFIED LATER, TO ACCOMMODATE FOR PAGE QUALITY 0 PAGES
-
     starting_page_num = chapter_start
     for page_num in range(chapter_start, chapter_end+1):
         page = page_data[page_num]
@@ -239,7 +237,8 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
         page_num += 1
         page_type = page["type"]
         next_page_quality = next_page["page_quality"]
-        if page_type == "break" or page_num == chapter_end or next_page_quality == "0":
+        next_page_marker = next_page["marker"]
+        if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit():
             page_split = page_num
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
             chapter_transclusion_tags.append(pages_tag)
