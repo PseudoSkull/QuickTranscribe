@@ -457,6 +457,7 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that base work item has been created...")
 
 
+
 version_conf_variable = "ver"
 
 filename = get_work_data(work_data, "filename")
@@ -492,8 +493,8 @@ if not at_expected_progress:
     process_break()
 
     transcription_text = transcription_page.text
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that version item has been created...")
+    transcription_text = update_QT_progress(transcription_page.text, expected_progress) # ugly solution to a common problem, fix later
+    save_page(transcription_page, site, transcription_page.text, "Noting that version item has been created...")
 
 category_namespace_prefix = "Category:"
 commons_category_conf_variable = "com"
