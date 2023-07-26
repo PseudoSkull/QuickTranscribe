@@ -80,11 +80,6 @@ hanced
 
 
 
-# THE IFS OF HISTORY
-# Prep: IMPORT GUTENBERG TRANSCRIPTION
-# Chapters: /auxpre/
-
-
 
 # GRAVESTONES OF EARLY NEW ENGLAND
 # Parse: /ix4/ tag
@@ -183,6 +178,11 @@ hanced
 
 
 
+
+
+# THE IFS OF HISTORY
+# Prep: IMPORT GUTENBERG TRANSCRIPTION
+# Parse: /auxpref/
 
 
 

@@ -132,9 +132,21 @@ def get_number_of_pages(full_text_id):
     if response.status_code == 200:
         print_in_green("Response code 200. Parsing the HTML...")
         soup = BeautifulSoup(response.content, 'html.parser')
-        output_group = soup.find('div', class_='output-group')
-        final_span = output_group.find_all('span')[-1]  # Get the last <span> element
-        number_of_pages = int(final_span.text)
+        output_group = soup.find('div', class_='bg-dark')
+        script_tag = soup.find('script')
+
+        # Get the JavaScript code within the script tag
+        js_code = script_tag.string
+
+        # Now, extract the value of "HT.params.totalSeq" from the JavaScript code
+        total_seq_value = None
+        lines = js_code.splitlines()
+        for line in lines:
+            if 'HT.params.totalSeq' in line:
+                total_seq_value = line.split('=')[-1].strip().rstrip(';')
+                break
+
+        number_of_pages = int(total_seq_value)
         print_in_green(f"Number of pages found! Number of pages in scan: {number_of_pages}")
         return number_of_pages
     print_in_red(f"Response code not 200. Was: {response.status_code}")
