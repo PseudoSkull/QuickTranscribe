@@ -420,7 +420,14 @@ def generate_image_data(page_data, work_title, year):
                         if len(line) > expected_image_tag_length:
                             print(line)
                             img_suffix = line[expected_image_tag_length:]
-                            settings, caption = img_suffix.split("/")
+                            img_suffix_split = img_suffix.split("/")
+                            settings = img_suffix_split[0]
+                            caption = img_suffix_split[1]
+                            if len(img_suffix_split) > 2:
+                                 caption += "/" + "/".join(img_suffix_split[2:])
+                                 if img_suffix.endswith("/"):
+                                    caption += "/"
+                            # settings, caption = "/" + "/".join(img_suffix.split("/")[:2])
                             if "," in settings:
                                 settings = settings.split(",")
                         if not image_type == "vignette":
@@ -451,6 +458,7 @@ def generate_image_data(page_data, work_title, year):
                     image_data.append(image)
     print_in_green("Image data generated!")
     write_to_json_file(image_data_json_file, image_data)
+    process_break()
     return image_data
 
 

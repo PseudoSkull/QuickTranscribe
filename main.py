@@ -171,12 +171,15 @@ hanced
 
 
 # HELD TO ANSWER
-# Parse: automatically page break between images
+# Parse or Transclusion: Automatically page offset to correct value if image or other pages are in the chapter... OR look specifically for the "marker" value with that page number
 # Parse: hyphen between page broken images... present at page with "I give a little spring with my right leg,"
-# Parse: make sure /pt/8/ works
+# Parse: make sure /bt/8/ works
 # Parse: GENERATE ILLUSTRATIONS
-# Parse: /page ../ or /Page ../, link to specific page.
-# Parse: /oe/ -> oe symbol
+# Parse: /page ../ or /Page ../, link to specific page. MAKE SURE TO DO THIS *AFTER* IMAGES ARE PROCESSED
+# Transclusion: automatically page break between images
+# Transclusion: Include advertisements in both TOC and transclusion
+# Transclusion: If advertisements page appears at end, automatically add them as a hidden export TOC
+#: Hidden export TOC
 
 
 
@@ -355,7 +358,7 @@ if not at_expected_progress:
     transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that page numbers have been placed...")
-    
+
 
 
 
@@ -494,7 +497,7 @@ if not at_expected_progress:
 
     transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_page.text, expected_progress) # ugly solution to a common problem, fix later
-    save_page(transcription_page, site, transcription_page.text, "Noting that version item has been created...")
+    save_page(transcription_page, site, transcription_text, "Noting that version item has been created...")
 
 category_namespace_prefix = "Category:"
 commons_category_conf_variable = "com"
