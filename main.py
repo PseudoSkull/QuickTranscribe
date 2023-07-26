@@ -183,6 +183,15 @@ hanced
 # THE IFS OF HISTORY
 # Prep: IMPORT GUTENBERG TRANSCRIPTION
 # Parse: /auxpref/
+# Parse: /tipg/ for designating title page, for Index
+
+
+
+
+
+# THE STORY OF MARY MACLANE
+# Parse: /ch/t=(.+?)/ . Do chapter settings, meaning: title=
+# Transclusion: If genre = autobiography, category: Autobiographies
 
 
 
@@ -193,6 +202,7 @@ hanced
 
 
 
+# Transclusion: If biography: Category:Biographies of people from the United States
 # DESIGNATE COVER PAGE FOR INDEX, (something like 7 if cover is blank)
 # DETERMINE ITALICIZATION BASED ON WORK TYPE
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
@@ -262,6 +272,8 @@ chapter_prefixes = { # MAKE FUNCTION THAT DOES THIS
 
 common_genres = {
     "alternate": "Q224989", # alternate history
+    "autobiography": "Q4184",
+    "biography": "Q36279",
     "children": "Q56451354",
     "children's": "Q56451354",
     "Christian": "Q1084059",

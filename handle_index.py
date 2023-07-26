@@ -78,6 +78,8 @@ style_defaults = {
     """	margin-bottom: 2em;
 	margin-top: 2em;""",
 
+    # wst-smallerblock
+
     "wst-freedimg-caption":
     """	font-size: 92%;""",
 

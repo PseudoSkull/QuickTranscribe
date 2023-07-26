@@ -154,6 +154,8 @@ def get_number_of_pages(full_text_id):
 
 def get_hathitrust_images(full_text_id, folder_path=None):
     # page_source = get_full_text_page_source(url)
+    if type(full_text_id) == list:
+        full_text_id = "/".join(full_text_id)
     number_of_pages = get_number_of_pages(full_text_id)
     print(f"Attempting to download the {number_of_pages} HathiTrust images from {full_text_id}...")
     
