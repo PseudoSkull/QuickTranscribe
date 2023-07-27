@@ -74,11 +74,13 @@ style_defaults = {
     margin-right: auto;
     """,
 
-    "wst-fineblock":
+    "wst-fine-block":
     """	margin-bottom: 2em;
 	margin-top: 2em;""",
 
-    # wst-smallerblock
+    "wst-smaller-block":
+    """	margin-bottom: 2em;
+	margin-top: 2em;""",
 
     "wst-freedimg-caption":
     """	font-size: 92%;""",

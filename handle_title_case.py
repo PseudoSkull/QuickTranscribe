@@ -20,7 +20,7 @@ title_case_exceptions = ['and', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'ye
                   'a', 'an', 'the',
                   'as', 'at', 'by', 'for', 'in', 'of', 'per', 'to', 'up', 'via',
                   # dubious
-                  'on', 'off',
+                  'on', 'off', 'not',
                   # abbreviations
                   'etc', 'cf', 'c.f', 'e.g', 'i.e', 'ie', 'vs', 'v', 'viz',
                   # pronunciation spelling

@@ -29,10 +29,6 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 
 
 # THE CAROLINA MOUNTAINS
-# Cleanup: Find same letter repeated more than three times, such as "lll".
-# Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
-# Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
-# Cleanup: Find periods with lowercase letters after them, or on next page.
 # Parse: Handle dimg elements
 # Parse: Make the TOC logic deal with "Index" chapter.
 # MAKE SURE IMAGE DATA GOES THRU PROPERLY
@@ -118,11 +114,6 @@ hanced
 
 
 
-# WHAT THE PINE TREE HEARD
-# Parse: /begin/ tag, where the content (of a chapterless book) begins
-# Parse: /dii/ for drop initial image
-
-
 
 # NATHAN HALE (JOHNSTON)
 # Parse: dii - automatically
@@ -168,9 +159,7 @@ hanced
 # HELD TO ANSWER
 # Parse or Transclusion: Automatically page offset to correct value if image or other pages are in the chapter... OR look specifically for the "marker" value with that page number
 # Parse: hyphen between page broken images... present at page with "I give a little spring with my right leg,"
-# Parse: make sure /bt/8/ works
 # Parse: GENERATE ILLUSTRATIONS
-# Parse: /page ../ or /Page ../, link to specific page. MAKE SURE TO DO THIS *AFTER* IMAGES ARE PROCESSED
 # Transclusion: automatically page break between images
 # Transclusion: Include advertisements in both TOC and transclusion
 # Transclusion: If advertisements page appears at end, automatically add them as a hidden export TOC
@@ -201,7 +190,9 @@ hanced
 
 
 
-
+# Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
+# Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
+# Cleanup: Find periods with lowercase letters after them, or on next page.
 # Transclusion: If biography: Category:Biographies of people from the United States
 # DESIGNATE COVER PAGE FOR INDEX, (something like 7 if cover is blank)
 # DETERMINE ITALICIZATION BASED ON WORK TYPE
@@ -505,6 +496,8 @@ if not at_expected_progress:
     version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
+    print_in_yellow("Add progress 'version_item_created' manually. Restart to mitigate ver= problem (temporary).")
+    exit()
     process_break()
 
     transcription_text = transcription_page.text

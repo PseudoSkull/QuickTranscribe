@@ -10,6 +10,7 @@ from handle_title_case import convert_to_title_case
 from handle_projectfiles import write_to_json_file, get_json_data
 from handle_wikisource_conf import get_regex_match
 from handle_commons import get_image_filename
+from handle_transclusion import get_last_page
 
 
 # DO THIS TIME: /i// tag.
@@ -34,6 +35,7 @@ basic_elements = {
     "n": "nop",
     "peh": "peh",
     "st": "***",
+    "bt": "***|char=·",
     "-": "<spl>", # for handling split between tags
 }
 
@@ -441,7 +443,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
                 splice_chapter = False
                 if chapter_splice_points:
+                    print(f"if chapter splice points. Chapter num: {chapter_num}")
                     if chapter_num in chapter_splice_points:
+                        print("if chapter num in chapter splice points")
                         splice_chapter = True
                 chapter["splice"] = splice_chapter
 
@@ -461,10 +465,16 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
-def get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num):
+def get_chapter_from_page_num(chapters, page_num):
     try:
         page_num = int(page_num)
+        first_chapter = chapters[0]
+        first_chapter_start_page = first_chapter["page_num"]
+        if page_num < first_chapter_start_page:
+            return "Front matter"
     except ValueError:
+        if page_num == "fro":
+            return "Front matter"
         print_in_red(f"Page number {page_num} is not an integer.")
         exit()
     for chapter_num, chapter in enumerate(chapters):
@@ -629,14 +639,14 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
     else:
         header = ""
     # WHY DOES
-    toc_beginning = f"""c|{{{{larger|CONTENTS}}}}}}}}
+    toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
 {{{{TOC begin}}}}{header}
 """
     print(f"TOC BEGINNING IS {toc_beginning} BEFORE")
 #     toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
 # <div class="toc-block">
 # """
-    toc_ending = """{{TOC end"""
+    toc_ending = """{{TOC end}}"""
     # toc_ending = "</div>"
 
     for chapter_num, chapter in enumerate(chapters):
@@ -644,6 +654,8 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         chapter_title = chapter["title"]
         splice = chapter["splice"]
         chapter_num = chapter_num + 1 # 1-indexed rather than 0
+        if chapter_num == 28:
+            print(splice)
         chapter_num_as_roman = roman.toRoman(chapter_num)
         toc_link = f"[[{mainspace_work_title}/Chapter {chapter_num}|{chapter_title}]]"
 
@@ -660,13 +672,13 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
 
             toc_beginning += toc_row + "\n"
 
-            if splice:
-                splice_tag = get_plain_tag("spl")
-                toc_beginning += splice_tag + "\n"
-
         else:
             toc_beginning += f"{{{{TOC row 1-1-1|{chapter_num_as_roman}|{toc_link}|{page_num}}}}}\n"
-    print(f"TOC BEGINNING IS {toc_beginning} AFTER")
+        
+        if splice:
+            splice_tag = get_plain_tag("spl")
+            toc_beginning += splice_tag + "\n"
+    # print(f"TOC BEGINNING IS {toc_beginning} AFTER")
     toc = toc_beginning + toc_ending
     print_in_green("TOC generated.")
     return toc
@@ -1044,14 +1056,29 @@ def add_half_to_transcription(page, title):
 def convert_complex_dhr(page):
     content = page["content"]
 
-    if string_not_in_content(content, "/d/2/", "Adding dhrs to transcription"): #fornow
+    if string_not_in_content(content, "/d/", "Adding dhrs to transcription"): #fornow
         return page
 
-    content = re.sub(r"\/d\/([0-9]+)\/", rf"{{{{dhr|\1}}}}", content) # replace /d/2/ with {{dhr|2}} for example
+    content = re.sub(r"\/d\/([0-9])\/", rf"{{{{dhr|\1}}}}", content) # replace /d/2/ with {{dhr|2}} for example
+    
+    page["content"] = content
+
+    return page
+
+def convert_complex_stars(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/st/", "Adding asterisk separator to transcription") and string_not_in_content(content, "/bt/", "Adding bullet points separator to transcription"): #fornow
+        return page
+
+    content = re.sub(r"\/st\/([0-9])\/", rf"{{{{***|\1}}}}", content) # replace /st/5/ with {{***|5}} for example
+    content = re.sub(r"\/bt\/([0-9])\/", rf"{{{{***|char=·|\1}}}}", content) # replace /bt/5/ with {{***|char=·|5}} for example
 
     page["content"] = content
 
     return page
+
+
 
 def convert_title_headers(page, title):
     content = page["content"]
@@ -1142,7 +1169,58 @@ def convert_right(page):
     return page
 
 
+def get_internal_chapter_name(chapter):
+    chapter_num = chapter["chapter_num"]
+    chapter_prefix = chapter["prefix"]
+    if not chapter_prefix:
+        chapter_prefix = "Chapter"
+    chapter_title = chapter["title"]
 
+    if not chapter_num:
+        internal_chapter_name = chapter_title
+    else:
+        internal_chapter_name = f"{chapter_prefix} {chapter_num}"
+
+    return internal_chapter_name
+
+def convert_page_links(page, chapters, mainspace_work_title):
+    content = page["content"]
+
+    if string_not_in_content(content.lower(), "/page ", "Converting /page / to page links in transcription") and string_not_in_content(content.lower(), "/pg. ", "Converting /pg. / to page links in transcription") and string_not_in_content(content.lower(), "/pages ", "Converting /pages / to page links in transcription") and string_not_in_content(content.lower(), "/pp. ", "Converting /pp. / to page links in transcription"):
+        return page
+
+    page_links_pattern = r"\/([Pp]age) ([0-9]+?)\/"
+    page_links = re.findall(page_links_pattern, content)
+    # pages_links = re.findall(r"\/([Pp])ages ([0-9]+?)[-|–| to ]([0-9]+?)\/", content)
+    # pp_links = re.findall(r"\/pp. ([0-9]+?)[-|–| to ]([0-9]+?)\/", content)
+    # pages_commas_links = re.findall(r"\/pages (.+?)\/", content).split(","), for ... : if " and " in ..., split on " and " too
+    # pg_links = re.findall(r"\/([Pp])g. ([0-9]+?)\/", content)
+
+    for page_link in page_links:
+        page_link = list(page_link)
+        text_in_page_link = page_link[0]
+        page_number_to_parse = page_link[1]
+        chapter = get_chapter_from_page_num(chapters, page_number_to_parse)
+        if chapter == "Front matter":
+            chapter_link = mainspace_work_title
+            if page_number_to_parse == "fro":
+                page_anchor = "frontis"
+            elif page_number_to_parse == "cov":
+                page_anchor = "cover"
+        else:
+            internal_chapter_name = get_internal_chapter_name(chapter)
+            chapter_link = f"{mainspace_work_title}/{internal_chapter_name}"
+            page_anchor = page_number_to_parse
+        chapter_link = chapter_link + "#" + page_anchor
+
+        # example: [[Sense and Sensibility/Chapter 1#3|Page 3]]
+        page_link = f"[[{chapter_link}|{text_in_page_link} {page_number_to_parse}]]"
+
+        content = re.sub(page_links_pattern, page_link, content, count=1)
+
+    page["content"] = content
+
+    return page
 
 
 def convert_wikilinks(page, inline_continuations, page_data):
@@ -1315,7 +1393,7 @@ def convert_images(page, image_data, img_num):
         image_filename = get_image_filename(image)
         image_caption = image["caption"]
         if image_caption:
-            caption_display = f"\n | caption = {image_caption}\n"
+            caption_display = f"\n | caption = {image_caption}"
         else:
             caption_display = ""
         image_size = image["size"]
@@ -1374,6 +1452,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
             pass
         img_num, page = format_arbitrary_drop_inital(page, image_data, img_num)
         page = convert_complex_dhr(page)
+        page = convert_complex_stars(page)
         page = convert_basic_elements(page)
         page = convert_title_headers(page, title)
         block_continuations, page = convert_block_elements(page, block_continuations)
@@ -1383,13 +1462,17 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_right(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
         page = convert_author_links(page)
+
+
         img_num, page = convert_images(page, image_data, img_num)
+        page = convert_page_links(page, chapters, mainspace_work_title)
+
+
         page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
         overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type)
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
-
 
         page = remove_split_tag(page)
 
@@ -1400,7 +1483,6 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
             # exit()
     print_in_green("All transcription pages parsed successfully!")
     return new_page_data
-
 
 
 
