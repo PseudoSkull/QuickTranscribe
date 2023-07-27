@@ -683,6 +683,71 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
     print_in_green("TOC generated.")
     return toc
 
+
+"""
+{{c|{{larger|LIST OF ILLUSTRATIONS}}}}
+{{dhr}}
+{{TOC begin|sc=|max-width=25em}}
+{{TOC row 2-1|[[The Blind Man's Eyes (July 1916)#frontis|"Until I come to you as—as you have never known me yet!"]]|''Frontispiece''}}
+{{TOC row 2-1|[[The Blind Man's Eyes (July 1916)/Chapter 6#img|"He's been murdered!"]]|{{sc|Page}} 64}}
+{{TOC row 2-1|[[The Blind Man's Eyes (July 1916)/Chapter 10#img|"It will not be merely accusation they make against me—it will be my sentence!"]]|{{ditto|Page}} 122}}
+{{TOC row 2-1|[[The Blind Man's Eyes (July 1916)/Chapter 18#img|She gazed about again, therefore, and told him what she saw]]|{{ditto|Page}} 266}}
+{{TOC end}}
+"""
+
+def determine_illustration_page_number(image, page_data):
+    image_page_number = image["page_num"] - 1
+    page_with_image = page_data[image_page_number]
+    page_marker = page_with_image["marker"]
+    if page_marker.isdigit():
+        return page_marker
+    else:
+        previous_page_number = image_page_number - 1
+        while 1:
+            previous_page = page_data[previous_page_number]
+            previous_page_marker = previous_page["marker"]
+            previous_page_quality = previous_page["page_quality"]
+            if previous_page_marker.isdigit() and previous_page_quality != "0":
+                return previous_page_marker
+            previous_page_number -= 1
+        # previous_page_number -= 1
+    # image_type = image["type"]
+    # if image_type == "sequential":
+    #     return image_page_number
+    # elif image_type == "frontispiece":
+    #     return "''Frontispiece''"
+    # elif image_type == "sequential":
+    #     return image_page_number
+
+
+def generate_illustrations(image_data, page_data, chapters, mainspace_work_title):
+    for image in image_data:
+        image_type = image["type"]
+        image_caption = image["caption"]
+        first_sequential_image_done = False
+        if image_type == "frontispiece":
+            page_number_parameter = "''Frontispiece''"
+            page_number_to_parse = "fro"
+        elif image_type == "sequential":
+            illustration_page_number = determine_illustration_page_number(image, page_data)
+            if first_sequential_image_done:
+                page_word = "{{ditto|page}}"
+            if not first_sequential_image_done:
+                first_sequential_image = True
+                page_word = "{{sc|page}} "
+            page_number_parameter = page_word + illustration_page_number
+            page_number_to_parse = "i"
+        else:
+            continue
+        chapter = get_chapter_from_page_num(chapters, illustration_page_number)
+        illustration_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
+        print(f"image caption: {image_caption}")
+        print(f"illustration link: {illustration_link}")
+        print(f"page number parameter: {page_number_parameter}")
+    exit()
+
+
+
 def format_chapter_beginning_to_smallcaps(page):
     content = page['content']
 
@@ -1183,6 +1248,23 @@ def get_internal_chapter_name(chapter):
 
     return internal_chapter_name
 
+def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
+    if chapter == "Front matter":
+        chapter_link = mainspace_work_title
+        if page_number_to_parse == "fro":
+            page_anchor = "frontis"
+        elif page_number_to_parse == "cov":
+            page_anchor = "cover"
+        elif page_number_to_parse == "i":
+            page_anchor = "img"
+    else:
+        internal_chapter_name = get_internal_chapter_name(chapter)
+        chapter_link = f"{mainspace_work_title}/{internal_chapter_name}"
+        page_anchor = page_number_to_parse
+    chapter_link = chapter_link + "#" + page_anchor
+
+    return chapter_link
+
 def convert_page_links(page, chapters, mainspace_work_title):
     content = page["content"]
 
@@ -1201,17 +1283,7 @@ def convert_page_links(page, chapters, mainspace_work_title):
         text_in_page_link = page_link[0]
         page_number_to_parse = page_link[1]
         chapter = get_chapter_from_page_num(chapters, page_number_to_parse)
-        if chapter == "Front matter":
-            chapter_link = mainspace_work_title
-            if page_number_to_parse == "fro":
-                page_anchor = "frontis"
-            elif page_number_to_parse == "cov":
-                page_anchor = "cover"
-        else:
-            internal_chapter_name = get_internal_chapter_name(chapter)
-            chapter_link = f"{mainspace_work_title}/{internal_chapter_name}"
-            page_anchor = page_number_to_parse
-        chapter_link = chapter_link + "#" + page_anchor
+        chapter_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
 
         # example: [[Sense and Sensibility/Chapter 1#3|Page 3]]
         page_link = f"[[{chapter_link}|{text_in_page_link} {page_number_to_parse}]]"
@@ -1416,8 +1488,6 @@ def convert_images(page, image_data, img_num):
 
 
 
-def get_overall_page_num(page, page_data):
-    page_num = page["marker"]
 
 def get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_page):
 

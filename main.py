@@ -10,7 +10,7 @@ from edit_mw import save_page, get_author_page_title
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
-from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages
+from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
 from handle_transclusion import transclude_pages
@@ -158,7 +158,6 @@ hanced
 
 # HELD TO ANSWER
 # Parse or Transclusion: Automatically page offset to correct value if image or other pages are in the chapter... OR look specifically for the "marker" value with that page number
-# Parse: hyphen between page broken images... present at page with "I give a little spring with my right leg,"
 # Parse: GENERATE ILLUSTRATIONS
 # Transclusion: automatically page break between images
 # Transclusion: Transclude advertisements at the end
@@ -641,7 +640,8 @@ chapter_format = find_form_section(transcription_text, "ch")
 section_format = find_form_section(transcription_text, "sec")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary)
-print(toc)
+
+illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title)
 
 
 transcription_text = transcription_page.text
