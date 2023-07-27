@@ -78,12 +78,12 @@ style_defaults = {
     """	margin-bottom: 2em;
 	margin-top: 2em;""",
 
+    "wst-freedimg-caption":
+    """	font-size: 92%;""",
+
     "wst-smaller-block":
     """	margin-bottom: 2em;
 	margin-top: 2em;""",
-
-    "wst-freedimg-caption":
-    """	font-size: 92%;""",
 
     "wst-toc-table":
     """	font-variant: small-caps;
@@ -161,42 +161,42 @@ def generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mains
 def create_index_pagelist(text):
     print("Generating index pagelist...")
     page_markers = get_page_markers(text)
+    page_markers.append("-end") # for the sake of parsing, doesn't actually do anything else
     pagelist = "<pagelist\n"
-    total_page_number = 0
-    content_page_number = 0
-    emdash_mode = False
-    emdash_start = 0
-    emdash_end = 0
+    stored_marker = None
+    stored_marker_pages = []
 
-    for marker in page_markers:
-        total_page_number += 1
-        marker_prefix = marker[:1]
+    for marker_num, marker in enumerate(page_markers):
+        
+        marker_num += 1 # not zero-indexed
+
         marker_suffix = marker[1:]
-        marker_length = len(marker)
-        # handle em dashes
-        if emdash_mode:
-            if marker != "—":
-                emdash_mode = False
-                emdash_end = total_page_number - 1
-                if emdash_start == emdash_end:
-                    pagelist += f"{emdash_start}=—\n"
-                else:
-                    pagelist += f"{emdash_start}to{emdash_end}=—\n"
-                emdash_mode = False
-                emdash_start = 0
-                emdash_end = 0
-            else:
-                continue
-        if marker == "—":
-            emdash_mode = True
-            emdash_start = total_page_number
-            continue
-        # handle others
         if marker_suffix in marker_definitions:
-            marker_definition = marker_definitions[marker_suffix]
-            pagelist += f"{total_page_number}={marker_definition}\n"
-        if marker_suffix == "1":
-            pagelist += f"{total_page_number}=1\n"
+            marker_suffix = marker_definitions[marker_suffix]
+
+        if not stored_marker and marker_suffix.isdigit():
+            continue
+        
+        if not marker_suffix:
+            marker_suffix = "—"
+
+        if marker_suffix != stored_marker and len(stored_marker_pages) > 0:
+            first_stored_marker_page = stored_marker_pages[0]
+            last_stored_marker_page = stored_marker_pages[-1]
+            if len(stored_marker_pages) == 1:
+                pagelist += f"{first_stored_marker_page}={stored_marker}\n"
+            else:
+                pagelist += f"{first_stored_marker_page}to{last_stored_marker_page}={stored_marker}\n"
+            stored_marker_pages = []
+            if marker_suffix.isdigit():
+                pagelist += f"{marker_num}={marker_suffix}\n"
+                stored_marker = None
+            # continue
+
+
+        if not marker_suffix.isdigit():
+            stored_marker = marker_suffix
+            stored_marker_pages.append(marker_num)
 
     pagelist += "/>"
 
@@ -206,13 +206,17 @@ def create_index_pagelist(text):
 
     # return index_pagelist
 
-def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
+def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
     summary = "Creating index page..."
     progress = "C"
     site = pywikibot.Site('en', 'wikisource')
     index_page = pywikibot.Page(site, index_page_title)
     location_name = parse_list_with_commas(location_name)
     toc_section = generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mainspace_work_title, transcription_page_title)
+    if illustrator_WS_name:
+        illustrator_display = f"[[Author:{illustrator_WS_name}|]]"
+    else:
+        illustrator_display = ""
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
 |Title=''[[{mainspace_work_title}|{title}]]''
@@ -221,7 +225,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Author=[[Author:{author_WS_name}|]]
 |Translator=
 |Editor=
-|Illustrator=
+|Illustrator={illustrator_display}
 |School=
 |Publisher=[[Portal:{publisher_name}|{publisher_name}]]
 |Address={location_name}

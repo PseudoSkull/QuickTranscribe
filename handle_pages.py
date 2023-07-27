@@ -74,7 +74,8 @@ def get_page_data(transcription_text, page_break_string=None):
                 if content_as_string == "/ign/":
                     page_quality = "i"
                 if "/toc/" in content_as_string or 'class="toc-block"' in content_as_string or "{{TOC " in content_as_string:
-                    page_type = "toc"
+                    if marker != "ill":
+                        page_type = "toc"
                 elif page_break_string and page_break_string in content_as_string:
                     page_type = "break"
                 elif "/begin/" in content_as_string:
