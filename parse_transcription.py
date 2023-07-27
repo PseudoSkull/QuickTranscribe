@@ -1456,23 +1456,25 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
             content = content.split(" ")
             content.pop(0)
             hyphenated_word_end = f"{{{{hwe|s={word_start}|e={word_end}}}}}"
-            content = hyphenated_word_end + " ".join(content)
+            content = hyphenated_word_end + " " + " ".join(content)
             hyphenated_word_continuations = []
     else:
         content = content.split(" ")
         last_word_in_content = content[-1]
         # page_marker = page["marker"]
-        next_page_num = overall_page_num + 1
-        next_page = page_data[next_page_num]
-        next_page_quality = next_page["page_quality"]
-        next_page_marker = next_page["marker"]
         if last_word_in_content.endswith("-"):
+            next_page_num = overall_page_num + 1
+            next_page = page_data[next_page_num]
+            next_page_quality = next_page["page_quality"]
+            next_page_marker = next_page["marker"]
             if not next_page_marker.isdigit() or next_page_quality == "0": # or next_page_content.startswith(/img/)
-                print("Word found that's hyphenated between page-broken pages. Handling hyphenation continuations...")
+                print("Word found that's hyphenated between images. Handling hyphenation continuations...")
                 word_start = content.pop()
                 word_start = word_start[:-1]
                 word_start_page = page_num
                 hyphenated_word_data = get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_page)
+                hyphenated_word_continuations.append(hyphenated_word_data)
+                word_end = hyphenated_word_data["end"]
                 hyphenated_word_start = f"{{{{hws|s={word_start}|e={word_end}}}}}"
                 content.append(hyphenated_word_start)
 
@@ -1486,7 +1488,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
     
     page["content"] = content
 
-    return page, hyphenated_word_continuations
+    return hyphenated_word_continuations, page
     
 
 {
@@ -1549,6 +1551,9 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
 
         page = remove_split_tag(page)
+
+        # If there's an image page between a hyphenated word, the hyphenation template should be used
+        hyphenated_word_continuations, page = handle_hyphenated_word_continuations(page, hyphenated_word_continuations, page_data)
 
 
         new_page_data.append(page)
