@@ -265,7 +265,9 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     if "FreedImg" in transcription_text and " | caption = " in transcription_text:
         classes_used.append("wst-freedimg-caption")
     if "{{fine block" in transcription_text:
-        classes_used.append("wst-fineblock")
+        classes_used.append("wst-fine-block")
+    if "{{smaller block" in transcription_text:
+        classes_used.append("wst-smaller-block")
     if "{{TOC begin}}" in transcription_text:
         classes_used.append("wst-toc-table")
     

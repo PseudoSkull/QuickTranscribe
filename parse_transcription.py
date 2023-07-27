@@ -721,19 +721,24 @@ def determine_illustration_page_number(image, page_data):
 
 
 def generate_illustrations(image_data, page_data, chapters, mainspace_work_title):
+    first_sequential_image_done = False
+    illustrations_beginning = """{{c|{{larger|LIST OF ILLUSTRATIONS}}}}
+{{dhr}}
+{{TOC begin|sc=}}
+"""
     for image in image_data:
         image_type = image["type"]
         image_caption = image["caption"]
-        first_sequential_image_done = False
         if image_type == "frontispiece":
             page_number_parameter = "''Frontispiece''"
             page_number_to_parse = "fro"
+            illustration_page_number = "fro"
         elif image_type == "sequential":
             illustration_page_number = determine_illustration_page_number(image, page_data)
             if first_sequential_image_done:
-                page_word = "{{ditto|page}}"
+                page_word = "{{ditto|page}} "
             if not first_sequential_image_done:
-                first_sequential_image = True
+                first_sequential_image_done = True
                 page_word = "{{sc|page}} "
             page_number_parameter = page_word + illustration_page_number
             page_number_to_parse = "i"
@@ -741,10 +746,11 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
             continue
         chapter = get_chapter_from_page_num(chapters, illustration_page_number)
         illustration_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
-        print(f"image caption: {image_caption}")
-        print(f"illustration link: {illustration_link}")
-        print(f"page number parameter: {page_number_parameter}")
-    exit()
+        illustrations_beginning += f"{{{{TOC row 2-1|[[{illustration_link}|{image_caption}]]|{page_number_parameter}}}}}\n"
+
+    illustrations_end = "{{TOC end}}"
+    illustrations = illustrations_beginning + illustrations_end
+    return illustrations
 
 
 
@@ -871,6 +877,20 @@ It will also have to account for this:
 
 So yes, on page 1 an fb EXISTS, but does not have a continuation. So we can't just check to see if it EXISTS, we have to check to see if it has a continuation.
 """
+
+def add_illustrations_to_transcription(page, illustrations):
+    content = page["content"]
+    illus_tag = get_plain_tag("illus")
+
+    if string_not_in_content(content, illus_tag, "Adding illustrations to transcription"):
+        return page
+    
+    content = convert_simple_markup(content, "illus", illustrations)
+
+    page["content"] = content
+    
+    return page
+
 
 def add_toc_to_transcription(page, toc, block_continuations):
 
@@ -1255,12 +1275,13 @@ def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
             page_anchor = "frontis"
         elif page_number_to_parse == "cov":
             page_anchor = "cover"
-        elif page_number_to_parse == "i":
-            page_anchor = "img"
     else:
         internal_chapter_name = get_internal_chapter_name(chapter)
         chapter_link = f"{mainspace_work_title}/{internal_chapter_name}"
-        page_anchor = page_number_to_parse
+        if page_number_to_parse == "i":
+            page_anchor = "img"
+        else:
+            page_anchor = page_number_to_parse
     chapter_link = chapter_link + "#" + page_anchor
 
     return chapter_link
@@ -1572,7 +1593,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -1617,6 +1638,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = handle_forced_page_breaks(page, page_break_string)
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
+        page = add_illustrations_to_transcription(page, illustrations)
         overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type)
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
 
