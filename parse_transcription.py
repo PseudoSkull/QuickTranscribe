@@ -1416,12 +1416,85 @@ def convert_images(page, image_data, img_num):
 
 
 
+def get_overall_page_num(page, page_data):
+    page_num = page["marker"]
 
+def get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_page):
 
+    for page_num in range(next_page_num, len(page_data)):
+        page = page_data[page_num]
+        content = page["content"]
+        page_quality = page["page_quality"]
+        marker = page["marker"]
+        if marker.isdigit() and page_quality != "0":
+            content = content.split(" ")
+            word_end = content[0]
+            marker = page["marker"]
+            hyphenated_word_data = {
+                "start": word_start,
+                "start_page": word_start_page,
+                "end": word_end,
+                "end_page": marker,
+            }
+            return hyphenated_word_data
 
+    # pass
 
+def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, page_data):
+    content = page["content"]
 
+    page_num = page["marker"]
+    overall_page_num = page["page_num"] - 1
+    
+    if len(hyphenated_word_continuations) != 0:
+        continuation = hyphenated_word_continuations[0]
+        word_start = continuation["start"]
+        word_end = continuation["end"]
+        end_page = continuation["end_page"]
+        if page_num == end_page:
+            print("Inserting hyphenation end template...")
+            content = content.split(" ")
+            content.pop(0)
+            hyphenated_word_end = f"{{{{hwe|s={word_start}|e={word_end}}}}}"
+            content = hyphenated_word_end + " ".join(content)
+            hyphenated_word_continuations = []
+    else:
+        content = content.split(" ")
+        last_word_in_content = content[-1]
+        # page_marker = page["marker"]
+        next_page_num = overall_page_num + 1
+        next_page = page_data[next_page_num]
+        next_page_quality = next_page["page_quality"]
+        next_page_marker = next_page["marker"]
+        if last_word_in_content.endswith("-"):
+            if not next_page_marker.isdigit() or next_page_quality == "0": # or next_page_content.startswith(/img/)
+                print("Word found that's hyphenated between page-broken pages. Handling hyphenation continuations...")
+                word_start = content.pop()
+                word_start = word_start[:-1]
+                word_start_page = page_num
+                hyphenated_word_data = get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_page)
+                hyphenated_word_start = f"{{{{hws|s={word_start}|e={word_end}}}}}"
+                content.append(hyphenated_word_start)
 
+                
+                # hyphenated_word_continuations.append({
+                #     "start": last_word_in_content,
+                #     "end": "",
+                #     "end_page": next_page_marker,
+                # })
+        content = " ".join(content)
+    
+    page["content"] = content
+
+    return page, hyphenated_word_continuations
+    
+
+{
+    "start": "an",
+    "start_page": 184,
+    "end": "grily,",
+    "end_page": 185,
+}
 
 
 
@@ -1437,6 +1510,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     overall_section_num = 0
     block_continuations = {} # dictionary because of TOC needing split indices, CHANGE THIS LATER NOT SEMANTICALLY CORRECT
     inline_continuations = []
+    hyphenated_word_continuations = []
     for page in page_data:
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")

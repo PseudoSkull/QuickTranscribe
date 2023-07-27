@@ -161,7 +161,7 @@ hanced
 # Parse: hyphen between page broken images... present at page with "I give a little spring with my right leg,"
 # Parse: GENERATE ILLUSTRATIONS
 # Transclusion: automatically page break between images
-# Transclusion: Include advertisements in both TOC and transclusion
+# Transclusion: Transclude advertisements at the end
 # Transclusion: If advertisements page appears at end, automatically add them as a hidden export TOC
 #: Hidden export TOC
 
