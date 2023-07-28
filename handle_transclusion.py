@@ -238,6 +238,14 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
         page_type = page["type"]
         next_page_quality = next_page["page_quality"]
         next_page_marker = next_page["marker"]
+        page_marker = page["marker"]
+            # continue
+
+        if not page_marker.isdigit() and page_quality == "0":
+            page_offset += 1
+            print(f"GOT HERE. Page offset: {page_offset} Page marker: {page_marker}")
+            continue
+            
         if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit():
             page_split = page_num
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
@@ -270,13 +278,13 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
     if type(chapter_transclusion_tags) == list:
         chapter_transclusion_tags = f"\n{page_break}\n".join(chapter_transclusion_tags)
 
-    return chapter_transclusion_tags
+    return page_offset, chapter_transclusion_tags
 
 def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename):
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
-        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter)
+        page_offset, chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter)
 
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
@@ -431,6 +439,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
                         toc_pages = []
                 else:
                     page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+                # page_tag = f"<pages index=\"{filename}\" include={page_num} />"
             pages_tags.append(page_tag)
 
     page_break = "{{page break|label=}}"
