@@ -18,7 +18,7 @@ ending_punctuations_to_test = ["!", ".", ",", ";", ":", "?", ")", "]", "}" "\""]
 
 title_case_exceptions = ['and', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'yet',
                   'a', 'an', 'the',
-                  'as', 'at', 'by', 'for', 'in', 'of', 'per', 'to', 'up', 'via',
+                  'as', 'at', 'by', 'for', 'in', 'of', 'per', 'to', 'via', #up
                   # dubious
                   'on', 'off', 'not',
                   # abbreviations

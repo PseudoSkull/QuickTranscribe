@@ -317,7 +317,7 @@ def get_chapter_splice_points(text):
         try:
             decimal_value = roman.fromRoman(roman_numeral)
             result.append(decimal_value)
-            print_in_green(f"Roman numeral found: {roman_numeral}")
+            # print_in_green(f"Roman numeral found: {roman_numeral}")
         except roman.InvalidRomanNumeralError:
             print_in_yellow(f"{roman_numeral} is not a valid roman numeral.")
 
@@ -357,6 +357,20 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             content = page["content"]
             chapter_has_name = "/ch//" in content
 
+            if page_num == "ad" or page_num == "adv":
+                chapter = {}
+                chapter["prefix"] = None
+                chapter["chapter_num"] = None
+                chapter["title"] = "Advertisements"
+                chapter["page_num"] = page_num
+                chapter["hidden"] = True # the important bit
+                chapter["refs"] = False # for now
+                chapter["part_num"] = None
+                chapter["has_sections"] = False
+                chapter["splice"] = False
+                chapters.append(chapter)
+                break
+
             # if toc_is_auxiliary:
             if chapter_has_name:
                 chapter_pattern = r"\/ch\/\/(.+?)\n\n"
@@ -376,7 +390,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter_splice_points = get_chapter_splice_points(text)
 
             for match in chapter_matches:
-                print(match)
                 is_chapter = match[0]
                 is_book = match[1]
                 is_part = match[2]
@@ -437,6 +450,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 else:
                     chapter["page_num"] = page_num
                 
+                chapter["hidden"] = False
                 chapter["refs"] = False # for now
                 chapter["part_num"] = part_num
                 chapter["has_sections"] = False
@@ -462,6 +476,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     else:
         print_in_yellow("No chapters found in transcription text. Assuming this is a front-matter-only work...")
 
+    # print(chapters)
+    # exit()
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 
@@ -484,6 +500,8 @@ def get_chapter_from_page_num(chapters, page_num):
         try:
             next_chapter = chapters[chapter_num + 1]
             next_chapter_page_num = next_chapter["page_num"]
+            if type(next_chapter_page_num) == int:
+                next_chapter_page_num = chapter_page_num + 1000
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
             
