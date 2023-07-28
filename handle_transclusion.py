@@ -205,21 +205,29 @@ def generate_transclusion_tag(filename, start_page, end_page):
         transclusion_tag = f"<pages index=\"{filename}\" include={start_page} />"
     return transclusion_tag
 
-def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter=None, first_content_page=None):
+def get_actual_page_num(page_num, page_data):
+    for actual_page_num, page in enumerate(page_data):
+        actual_page_num += 1 # not zero-indexed
+        page_marker = page["marker"]
+        if str(page_num) == str(page_marker):
+            return actual_page_num
+
+def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None):
     # splits = []
     if chapter:
         page_num = chapter["page_num"]
-        actual_page_num = page_num + page_offset
+        actual_page_num = get_actual_page_num(page_num, page_data)
     else:
         actual_page_num = first_content_page
     chapter_start = actual_page_num
     try:
-        chapter_end = chapters[overall_chapter_num + 1]["page_num"] - 1 + page_offset
+        chapter_end_page = chapters[overall_chapter_num + 1]["page_num"]
+        chapter_end = get_actual_page_num(chapter_end_page, page_data) - 1
     except IndexError:
         chapter_end = get_last_page(page_data, chapter_start)
 
     chapter_end = pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end)
-    print(f"Okay so CHAPTER END IS {chapter_end}")
+    print(f"Okay so CHAPTER START = {chapter_start} CHAPTER END IS {chapter_end}")
     splits = get_page_tag_splits(page_data, chapter_start, chapter_end)
 
     number_of_splits = len(splits)
@@ -241,10 +249,10 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
         page_marker = page["marker"]
             # continue
 
-        if not page_marker.isdigit() and page_quality == "0":
-            page_offset += 1
-            print(f"GOT HERE. Page offset: {page_offset} Page marker: {page_marker}")
-            continue
+        # if page_quality == "0":
+        #     # page_offset += 1
+        #     # print(f"GOT HERE. Page offset: {page_offset} Page marker: {page_marker}")
+        #     continue
             
         if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit():
             page_split = page_num
@@ -278,13 +286,13 @@ def get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num,
     if type(chapter_transclusion_tags) == list:
         chapter_transclusion_tags = f"\n{page_break}\n".join(chapter_transclusion_tags)
 
-    return page_offset, chapter_transclusion_tags
+    return chapter_transclusion_tags
 
 def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename):
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
-        page_offset, chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, page_offset, overall_chapter_num, filename, chapter)
+        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter)
 
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
