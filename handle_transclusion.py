@@ -360,7 +360,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         else:
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
         print(chapter_text)
-        # save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
+        save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 def generate_defaultsort_tag(mainspace_work_title):
     bad_prefixes = [
@@ -493,6 +493,15 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     if toc_is_auxiliary:
         aux_toc = f"\n\n{{{{{mainspace_work_title}/TOC}}}}"
 
+    hidden_export_toc = ""
+
+    if chapters:
+        if chapters[-1]["title"] == "Advertisements":
+            hidden_export_toc = """
+{{hidden export TOC|
+* [[/Advertisements/]]
+}}"""
+
 
     copyright_template = generate_copyright_template(year, author_death_year) # for now, some logic later
     # additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
@@ -537,12 +546,11 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 {{{{authority control}}}}
 {{{{{copyright_template}}}}}{categories_text}"""
 
-    front_matter_text = front_matter_header + page_tags + aux_toc + front_matter_footer
+    front_matter_text = front_matter_header + page_tags + aux_toc + hidden_export_toc + front_matter_footer
 
     print(front_matter_text)
-    exit()
 
-    # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
+    save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
         transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)
