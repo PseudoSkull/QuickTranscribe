@@ -63,10 +63,11 @@ block_elements = {
     "hi": "hanging indent",
 }
 
-named_chapter_pattern = r"\/ch\/\/.+?\n\n"
+named_chapter_pattern = r"\/ch\/.+?\n\n"
+named_chapter_pattern_with_settings = r"\/ch\/.+?\/.+?\n\n"
 empty_chapter_pattern = r"\/ch\/\n\n"
 
-chapter_pattern = rf"({named_chapter_pattern}|{empty_chapter_pattern})"
+chapter_pattern = rf"({named_chapter_pattern}|{named_chapter_pattern_with_settings}|{empty_chapter_pattern})"
 
 
 qt_markup = {
@@ -328,7 +329,11 @@ def determine_if_books_or_parts_exist(text):
         return True
     return False
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title):
+# def parse_chapter_settings(chapter_settings, chapter):
+#     title_pattern = r"t=(.+?)"
+#     if title_pattern:
+
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -356,12 +361,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             page_num = page["marker"]
             content = page["content"]
             chapter_has_name = "/ch//" in content
+            chapter_has_alternate_title_to_display = "/ch/t=" in content
 
             if page_num == "ad" or page_num == "adv":
                 chapter = {}
                 chapter["prefix"] = None
                 chapter["chapter_num"] = None
                 chapter["title"] = "Advertisements"
+                chapter["display_title"] = "Advertisements"
                 chapter["page_num"] = page_num
                 chapter["hidden"] = True # the important bit
                 chapter["refs"] = False # for now
@@ -374,6 +381,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             # if toc_is_auxiliary:
             if chapter_has_name:
                 chapter_pattern = r"\/ch\/\/(.+?)\n\n"
+            elif chapter_has_alternate_title_to_display:
+                chapter_pattern = r"\/ch\/(.+?)\/(.+?)\n\n"
             else:
                 chapter_pattern = r"(\/ch\/)\n"
 
@@ -382,7 +391,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             preface_pattern = r"(\/pref\/)"
             content_chapter_pattern = r"(\/contch\/)"
 
-            all_chapter_types_pattern = rf"{chapter_pattern}|{book_pattern}|{part_pattern}|{preface_pattern}|{content_chapter_pattern}"
+            all_chapter_types_pattern = rf"{book_pattern}|{part_pattern}|{preface_pattern}|{content_chapter_pattern}|{chapter_pattern}"
 
             # page_number_pattern = r"\n\n-([0-9]+)\n\n"
             # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
@@ -390,11 +399,16 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter_splice_points = get_chapter_splice_points(text)
 
             for match in chapter_matches:
-                is_chapter = match[0]
-                is_book = match[1]
-                is_part = match[2]
-                is_preface = match[3]
-                is_content_chapter = match[4]
+                print(match)
+                is_chapter_with_settings = ""
+                is_chapter = match[-1]
+                if len(match) > str(all_chapter_types_pattern).count("|"):
+                    is_chapter = match[-1]
+                    is_chapter_with_settings = match[-2]
+                is_book = match[0]
+                is_part = match[1]
+                is_preface = match[2]
+                is_content_chapter = match[3]
                 # print(match)
                 chapter = {}
 
@@ -415,7 +429,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 elif is_preface:
                     chapter["prefix"] = None
                     chapter["chapter_num"] = None
-                    chapter["title"] = "Preface"
+                    chapter_title = "Preface"
+                    chapter["title"] = chapter_title
+                    chapter["display_title"] = chapter_title
                     match = False
                 
                 elif is_content_chapter:
@@ -423,6 +439,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     # chapter_has_name = False
                     chapter["chapter_num"] = None
                     chapter["title"] = work_title
+                    chapter["display_title"] = work_title
                     match = False
                 
                 else:
@@ -437,11 +454,16 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     match = is_chapter
                     # chapter_has_name = False
 
+                chapter["title"] = None
+                chapter["display_title"] = None
 
                 if match:
-                    if chapter_has_name:
+                    if chapter_has_name or chapter_has_alternate_title_to_display:
                         title = convert_to_title_case(match)
-                        chapter["title"] = title
+                        chapter["title"] = match
+                        chapter["display_title"] = match
+                        if is_chapter_with_settings:
+                            chapter["title"] = is_chapter_with_settings[2:]
                     else:
                         chapter["title"] = None
                 
@@ -449,6 +471,11 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     chapter["page_num"] = int(page_num)
                 else:
                     chapter["page_num"] = page_num
+                
+                if chapter_type == "nam":
+                    chapter["prefix"] = None
+                    chapter["chapter_num"] = None
+                    # chapter["display_title"] = chapter["title"]
                 
                 chapter["hidden"] = False
                 chapter["refs"] = False # for now
@@ -829,7 +856,7 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
         return page
     
     quote_pattern = r"\"?\'?"
-    chapter_beginning_pattern = rf"{chapter_pattern}(.)"
+    # chapter_beginning_pattern = rf"{chapter_pattern}([A-Za-z])"
 
     chapter_beginning_pattern = rf"{chapter_pattern}(.)(.)"
 
@@ -851,10 +878,10 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
             replacement = r"\1{{di|\2\3}}"
 
         content = re.sub(chapter_beginning_pattern, replacement, content)
-    else:
+    elif first_letter.isalpha():
         replacement = r"\1{{di|\2}}\3"
         content = re.sub(chapter_beginning_pattern, replacement, content)
-    
+
     page["content"] = content
 
     return page
@@ -995,6 +1022,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
         overall_chapter_num_zero_indexed = overall_chapter_num - 1
         chapter = chapters[overall_chapter_num_zero_indexed]
 
+        roman_chapter_num = ""
         real_chapter_num = chapter["chapter_num"]
         if real_chapter_num:
             roman_chapter_num = roman.toRoman(real_chapter_num)
@@ -1004,13 +1032,14 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 displayed_section_num = roman_chapter_num
         else:
             displayed_section_num = None
-        
+
         chapter_prefix = chapter["prefix"]
+
         if chapter_prefix:
             chapter_prefix += " "
         else:
             chapter_prefix = ""
-        chapter_title = chapter["title"]
+        chapter_title = chapter["display_title"]
         chapter_has_sections = chapter["has_sections"]
 
         if chapter_format:
@@ -1424,14 +1453,26 @@ def remove_split_tag(page):
 ################################## poems ##################################
 
 def convert_fqms(pattern, text):
-    non_quotation_symbols = [
-        "'",
+    quotation_symbols = [
+        # "'",
+        '"',
         "{{\" '}}",
         "{{' \"}}",
     ]
-    text = text.replace(f"{pattern}\"", f"{pattern}{{{{fqm}}}}")
-    for symbol in non_quotation_symbols:
-        text = text.replace(f"{pattern}{symbol}", f"{pattern}{{{{fqm|{symbol}}}}}")
+
+    patterns = [
+        ":",
+        "\n",
+    ]
+
+    # text = text.replace(f"{pattern}\"", f"{pattern}{{{{fqm}}}}")
+    for symbol in quotation_symbols:
+        for pattern in patterns:
+            if symbol == '"':
+                fqm = "{{fqm}}"
+            else:
+                fqm = f"{{{{fqm|{symbol}}}}}"
+            text = text.replace(f"{pattern}{symbol}", f"{pattern}{fqm}")
     return text
 
 def handle_fqm(text):

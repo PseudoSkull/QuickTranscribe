@@ -32,6 +32,8 @@ def generate_genre_categories(genre_name, work_type_name):
     categories = []
     for genre in genres:
         work_type_plural = get_english_plural(work_type_name)
+        if genre == "autobiography":
+            category = "Autobiographies"
         if genre == "children's" or genre == "children":
             category = "Children's books"
         elif genre == "historical":

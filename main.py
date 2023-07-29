@@ -632,12 +632,12 @@ chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title)
-sections = get_section_data(chapters, page_data, transcription_text)
 
 chapter_type = get_work_data(work_data, "chapter type")
 section_type = get_work_data(work_data, "section type")
 
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type)
+sections = get_section_data(chapters, page_data, transcription_text)
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")

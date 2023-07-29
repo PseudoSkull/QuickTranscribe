@@ -31,7 +31,7 @@ variables_with_descriptions = {
         "beg": "chapter beginning formatting",
         "difl": "drop initials float quotes",
         "fqm": "convert fqms",
-        "ch": "section type",
+        "ch": "chapter type",
         "pre": "prefix for chapter names",
         "gen": "genre",
         "com": "Commons category",
