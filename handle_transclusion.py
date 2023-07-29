@@ -244,7 +244,8 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
     starting_page_num = chapter_start
     for page_num in range(chapter_start, chapter_end+1):
-        print(f"Page num: {page_num}")
+        if front_matter:
+            page_num -= 1
         page = page_data[page_num]
         page_quality = page["page_quality"]
         if chapter_start == chapter_end:
