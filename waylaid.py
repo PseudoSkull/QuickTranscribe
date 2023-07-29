@@ -1180,6 +1180,9 @@ def correct_text(text_file):
     x = x.replace("Tve", "I've")
     x = x.replace(" I\n\n", "!\n\n")
     x = x.replace(",\"\n\n", ".\"\n\n")
+    x = x.replace(", lie was ", ", he was ")
+    x = x.replace(", lie is ", ", he is ")
+    x = x.replace("gentie ", "gentle ")
 
 
 

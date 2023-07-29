@@ -29,7 +29,7 @@
 import pywikibot
 import re
 
-from edit_mw import save_page
+from edit_mw import save_page, is_even
 from handle_wikidata import handle_file
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 
@@ -420,6 +420,48 @@ def find_repeated_characters(text):
         print_in_yellow(repeated_characters)
 
     return repeated_characters
+
+def find_uneven_quotations(text):
+    text = text.split("\n\n")
+
+    lines_with_odd_double_quotes = []
+
+    for line_num, line in enumerate(text):
+        number_of_double_quotes = line.count("\"")
+        try:
+            previous_line = text[line_num-1]
+        except IndexError:
+            previous_line = ""
+
+        try:
+            next_line = text[line_num+1]
+        except IndexError:
+            next_line = ""
+        
+        if not is_even(number_of_double_quotes):
+            # print_in_yellow(f"Uneven quotations found: {line}")
+            if next_line.startswith("-") or next_line.startswith("—") or previous_line.startswith("-") or previous_line.startswith("—"):
+                continue
+
+            # continued quotations across paragraphs
+
+            ## He said, <">Well, I don't know.\n\n"Here's an explanation: ...\n\n"Here's a continued explanation..."
+            if not previous_line.endswith("\"") and "\"" in previous_line and line.startswith("\"") and number_of_double_quotes == 1:
+                continue
+            ## He said, "Well, I don't know.\n\n<">Here's an explanation: ...
+            if next_line.startswith("\"") and line.startswith("\"") and number_of_double_quotes == 1:
+                continue
+
+            lines_with_odd_double_quotes.append(line)
+    
+    if len(lines_with_odd_double_quotes) == 0:
+        print_in_green("No potentially problematic odd numbers of quotes found.")
+    else:
+        print_in_yellow("Potentially problematic odd numbers of quotes found:")
+        for paragraph_num, paragraph in enumerate(lines_with_odd_double_quotes):
+            print_in_yellow(f"{paragraph_num}: {paragraph}")
+    
+    return lines_with_odd_double_quotes
 
 
 # checking total pages against the Commons scan file

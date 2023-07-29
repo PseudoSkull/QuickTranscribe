@@ -440,11 +440,11 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
 
         if not hathitrust_id: # if no hathitrust_id was found...
             # if there is a Hathi ID listed on the commons page for the file, add it to the item
-            hathitrust_id = get_hathitrust_id_from_commons_page(filename) # try and get it from commons
-            if hathitrust_id: # if it was found on commons...
-                catalog_id = get_hathitrust_catalog_id(hathitrust_id)
-                if catalog_id:
-                    add_property(repo, item, 'P1844', catalog_id, f'HathiTrust ID (retrieved from Commons file page for {filename})', transcription_page_title)
+            # hathitrust_id = get_hathitrust_id_from_commons_page(filename) # try and get it from commons
+            # if hathitrust_id: # if it was found on commons...
+            catalog_id = get_hathitrust_catalog_id(hathitrust_id)
+            if catalog_id:
+                add_property(repo, item, 'P1844', catalog_id, f'HathiTrust ID (retrieved from Commons file page for {filename})', transcription_page_title)
     
     return item_id
 

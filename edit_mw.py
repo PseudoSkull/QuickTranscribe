@@ -120,3 +120,13 @@ def get_author_page_title(author_name):
 
 def has_digits(input_string):
     return any(char.isdigit() for char in input_string)
+
+def is_even(number):
+    return number % 2 == 0
+
+# def count_instances_of_substring(s):
+#     count = 0
+#     for char in s:
+#         if char == '"':
+#             count += 1
+#     return count

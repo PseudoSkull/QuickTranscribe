@@ -19,12 +19,18 @@ from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations
 
 
 
 # GET OCR DIRECTLY FROM TESSERACT, NOT JUST IA!!!!!!!!!
 # modify ia.py and hathi.py logic to use handle_web_downloads
+# WAYLAID:
+## Self>Self-
+## Loose>Loose-
+
+
+
 
 
 
@@ -155,14 +161,6 @@ hanced
 
 
 
-
-# HELD TO ANSWER
-# Parse or Transclusion: Automatically page offset to correct value if image or other pages are in the chapter... OR look specifically for the "marker" value with that page number
-# Parse: GENERATE ILLUSTRATIONS
-# Transclusion: automatically page break between images
-# Transclusion: Transclude advertisements at the end
-# Transclusion: If advertisements page appears at end, automatically add them as a hidden export TOC
-#: Hidden export TOC
 
 
 
@@ -393,6 +391,8 @@ if not at_expected_progress:
     process_break()
     find_repeated_characters(transcription_text)
     process_break()
+    find_uneven_quotations(transcription_text)
+    process_break()
     transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that detected scannos have been fixed...")
@@ -455,6 +455,8 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, variable_name=base_work_conf_variable)
+    print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
+    exit()
     process_break()
 
     transcription_text = transcription_page.text

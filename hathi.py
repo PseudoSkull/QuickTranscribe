@@ -74,19 +74,32 @@ def get_hathitrust_id_from_commons_page(filename):
 Get the HathiTrust catalog id (for example "006729930" as in https://catalog.hathitrust.org/Record/006729930) from the ID retrieved above (for example "uc1.b3834650"). First of all, how could we do that with just that information, and second of all, write Python function that does that.
 """
 
+"""
+HT.params.externalLinks = [{"href":"http://www.amazon.com/exec/obidos/ASIN/B006OKXAWA","type":"pod"}]
+
+      HT.params.download_progress_base = '/cache/progress';
+      HT.params.RecordURL = 'https://catalog.hathitrust.org/Record/000762802';
+    </script>
+"""
+
 def get_hathitrust_catalog_id(hathitrust_id):
+    if type(hathitrust_id) == list:
+        hathitrust_id = "/".join(hathitrust_id)
+    # hathitrust_id = hathitrust_id.replace(":", "%3A")
     url = f"https://babel.hathitrust.org/cgi/pt?id={hathitrust_id}"
     print("Attempting to get the HathiTrust catalog ID from:", url)
     response = requests.get(url)
 
     if response.status_code == 200:
         print_in_green("Response code 200. Parsing the HTML...")
-        soup = BeautifulSoup(response.content, 'html.parser')
-        catalog_link = soup.find('a', {'data-tracking-action': 'PT VuFind Catalog Record'})
+        # soup = BeautifulSoup(response.content, 'html.parser')
+        # print(soup)
+        # exit()
+        # catalog_link = soup.find('a', {'data-tracking-action': 'PT VuFind Catalog Record'})
+        catalog_id = re.findall(r"'https:\//catalog.hathitrust.org\/Record\/([0-9]+?)'", response.text)
         
-        if catalog_link:
-            catalog_url = catalog_link['href']
-            catalog_id = catalog_url.split('/')[-1]
+        if catalog_id:
+            catalog_id = catalog_id[0]
             print_in_green(f"Success. HathiTrust catalog ID: {catalog_id}")
             return catalog_id
         print_in_red("HathiTrust catalog ID not found.")
