@@ -59,7 +59,7 @@ def get_page_data(transcription_text, page_break_string=None):
     read_page = False
     data_item = {}
     transcription_lines = transcription_text.split("\n\n")
-    for line in transcription_lines:
+    for line_num, line in enumerate(transcription_lines):
         page_type = ""
         header = ""
         footer = ""
@@ -111,7 +111,18 @@ def get_page_data(transcription_text, page_break_string=None):
         else:
             # this is content of a page
             content.append(line)
+            print(line)
+
+            # if it's the VERY LAST line and it's part of the content
+            try:
+                next_line = transcription_lines[line_num + 1]
+                # print(f"Next line: '{next_line}'")
+            except IndexError:
+                if page_quality == "3":
+                    content_as_string = "\n\n".join(content)
+                    add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
             continue
+
     print_in_green("Page data retrieved!")
     return page_data
 

@@ -286,16 +286,6 @@ def upload_scan_file(title, year, version_item, scan_source, commons_category, I
 
     return scan_filename
 
-# def get_image_data_in_page(pattern, content):
-#     images_with_pattern = re.findall(pattern, content)
-#     if images_with_pattern:
-#         print(f"Images with pattern {pattern} found!")
-#         try:
-#             image_data = images_with_pattern[0][0]
-#         except IndexError:
-#             image_data = images_with_pattern[0]
-#         return image_data
-
 def get_image_type_from_settings(settings):
     if type(settings) == str:
         settings = [settings,]
@@ -304,7 +294,7 @@ def get_image_type_from_settings(settings):
             image_type = setting[3:]
             return image_type
 
-def determine_image_type(marker, settings):
+def determine_image_type(marker, settings, overall_page_num):
     image_types = {
         "cov": "front cover",
         "fro": "frontispiece",
@@ -321,6 +311,9 @@ def determine_image_type(marker, settings):
         image_type = image_types[marker]
     else:
         image_type = "sequential"
+
+    if image_type == "front cover" and overall_page_num != 0:
+        image_type = "back cover"
     return image_type
         # image_type = image_types[marker]
 
@@ -389,12 +382,14 @@ def generate_image_data(page_data, work_title, year):
     img_num = 0
     vignette_num = 0
     image_files_folder = "projectfiles/processed_files"
-    for page in page_data:
+
+    for overall_page_num, page in enumerate(page_data):
         image_tag = "/img/"
         dii_tag = "/dii/"
         vign_tag = "/vign/"
         content = page["content"]
         marker = page["marker"]
+        # print(f"Generating image data for page {overall_page_num}, {marker}...")
         page_num = page["page_num"]
         if content != "" and (image_tag in content or dii_tag in content or vign_tag in content):
             content_lines = content.split("\n")
@@ -431,7 +426,7 @@ def generate_image_data(page_data, work_title, year):
                             if "," in settings:
                                 settings = settings.split(",")
                         if not image_type == "vignette":
-                            image_type = determine_image_type(marker, settings)
+                            image_type = determine_image_type(marker, settings, overall_page_num)
                         if image_type == "sequential":
                             seq_num += 1
                     img_num += 1
@@ -556,6 +551,8 @@ def generate_image_file_categories(image_type, country_name, main_commons_catego
     country_name = add_country_prefix(country_name)
     if image_type == "front cover":
         categories.append(linkify(f"{category_prefix}Front cover of books"))
+    if image_type == "back cover":
+        categories.append(linkify(f"{category_prefix}Back covers of books"))
     elif image_type == "frontispiece":
         categories.append(linkify(f"{category_prefix}Frontispieces from {country_name}"))
     elif image_type == "drop initial":
