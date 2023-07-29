@@ -215,18 +215,24 @@ def get_actual_page_num(page_num, page_data):
 
 def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False):
     # splits = []
-    if chapter:
-        page_num = chapter["page_num"]
-        actual_page_num = get_actual_page_num(page_num, page_data)
+    if front_matter:
+        chapter_start = 1
+        # first_chapter_page_num = chapters[0]["page_num"]
+        # chapter_end = get_actual_page_num(first_chapter_page_num, page_data)
+        chapter_end = first_content_page - 1
     else:
-        actual_page_num = first_content_page
-    chapter_start = actual_page_num
-    try:
-        chapter_end_page = chapters[overall_chapter_num + 1]["page_num"]
-        chapter_end = get_actual_page_num(chapter_end_page, page_data) - 1
-    # if not chapter_end:
-    except IndexError:
-        chapter_end = get_last_page(page_data, chapter_start)
+        if chapter:
+            page_num = chapter["page_num"]
+            actual_page_num = get_actual_page_num(page_num, page_data)
+        else:
+            actual_page_num = first_content_page
+        chapter_start = actual_page_num
+        try:
+            chapter_end_page = chapters[overall_chapter_num + 1]["page_num"]
+            chapter_end = get_actual_page_num(chapter_end_page, page_data) - 1
+        # if not chapter_end:
+        except IndexError:
+            chapter_end = get_last_page(page_data, chapter_start)
 
     chapter_end = pop_pages_not_needing_proofreading(page_data, chapter_start, chapter_end)
     print(f"Okay so CHAPTER START = {chapter_start} CHAPTER END IS {chapter_end}")
@@ -238,6 +244,7 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
     starting_page_num = chapter_start
     for page_num in range(chapter_start, chapter_end+1):
+        print(f"Page num: {page_num}")
         page = page_data[page_num]
         page_quality = page["page_quality"]
         if chapter_start == chapter_end:
@@ -259,8 +266,25 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
         #     # page_offset += 1
         #     # print(f"GOT HERE. Page offset: {page_offset} Page marker: {page_marker}")
         #     continue
-            
-        if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit():
+        
+        if front_matter:
+            try:
+                next_page_type = next_page["type"]
+                if page_type == "toc" and next_page_type == "toc":
+                    continue
+                    # page_split = page_num
+                    # pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
+                    # chapter_transclusion_tags.append(pages_tag)
+                    # starting_page_num = page_split + 1
+            except IndexError:
+                pass
+            page_split = page_num
+            pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
+            chapter_transclusion_tags.append(pages_tag)
+            starting_page_num = page_split + 1
+            continue
+
+        if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit() or (front_matter and not page_type == "toc"):
             page_split = page_num
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
             chapter_transclusion_tags.append(pages_tag)
@@ -427,37 +451,38 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     # produce all the page tags
     pages_tags = []
     toc_pages = []
-    for page_num in range(1, first_content_page):
-        page_num_zero_indexed = page_num - 1
-        page = page_data[page_num_zero_indexed]
-        page_quality = page["page_quality"]
-        page_type = page["type"]
-        if page_quality != "0":
-            if page_type == "toc":
-                toc_pages.append(page_num)
-                # print(toc_pages)
-                if page_num == first_content_page - 1:
-                    page_tag = generate_toc_page_tag(toc_pages, filename)
-                    toc_pages = []
-                else:
-                    continue
-            else:
+    # for page_num in range(1, first_content_page):
+    #     page_num_zero_indexed = page_num - 1
+    #     page = page_data[page_num_zero_indexed]
+    #     page_quality = page["page_quality"]
+    #     page_type = page["type"]
+    #     if page_quality != "0":
+    #         if page_type == "toc":
+    #             toc_pages.append(page_num)
+    #             # print(toc_pages)
+    #             if page_num == first_content_page - 1:
+    #                 page_tag = generate_toc_page_tag(toc_pages, filename)
+    #                 toc_pages = []
+    #             else:
+    #                 continue
+    #         else:
 
-                if len(toc_pages) > 0:
-                    if len(toc_pages) == 1:
-                        page_num = toc_pages[0]
-                        page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-                        toc_pages = []
-                    else:
-                        page_tag = generate_toc_page_tag(toc_pages, filename)
-                        toc_pages = []
-                else:
-                    page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-                # page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-            pages_tags.append(page_tag)
+    #             if len(toc_pages) > 0:
+    #                 if len(toc_pages) == 1:
+    #                     page_num = toc_pages[0]
+    #                     page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+    #                     toc_pages = []
+    #                 else:
+    #                     page_tag = generate_toc_page_tag(toc_pages, filename)
+    #                     toc_pages = []
+    #             else:
+    #                 page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+    #             # page_tag = f"<pages index=\"{filename}\" include={page_num} />"
+    #         pages_tags.append(page_tag)
+    page_tags = get_transclusion_tags(chapters, page_data, -1, filename, first_content_page=first_content_page, front_matter=True)
 
     page_break = "{{page break|label=}}"
-    page_tags = f"\n{page_break}\n".join(pages_tags)
+    # page_tags = f"\n{page_break}\n".join(pages_tags)
 
     if len(chapters) == 0:
         page_tags += f"\n{page_break}\n" + get_transclusion_tags(chapters, page_data, page_offset, 0, filename, first_content_page=first_content_page)
@@ -514,6 +539,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     front_matter_text = front_matter_header + page_tags + aux_toc + front_matter_footer
 
     print(front_matter_text)
+    exit()
 
     # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
