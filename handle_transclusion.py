@@ -87,14 +87,15 @@ def generate_era_category(original_year):
             return category_name
     
 def get_last_page(page_data, chapter_start):
-    for page_num, page in enumerate(page_data):
-        if page_num < chapter_start:
-            continue
-        else:
-            if page["type"] == "last":
-                return page["page_num"]
+    # for page_num, page in enumerate(page_data):
+    #     if page_num < chapter_start:
+    #         continue
+    #     else:
+    #         if page["type"] == "last":
+    #             return page["page_num"]
             # if page["page_quality"] == "0":
             #     return page["page_num"] - 1
+    return len(page_data) - 1
 
 def generate_toc_page_tag(toc_pages, filename):
     toc_begin = toc_pages[0]
@@ -212,7 +213,7 @@ def get_actual_page_num(page_num, page_data):
         if str(page_num) == str(page_marker):
             return actual_page_num
 
-def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None):
+def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False):
     # splits = []
     if chapter:
         page_num = chapter["page_num"]
@@ -223,6 +224,7 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
     try:
         chapter_end_page = chapters[overall_chapter_num + 1]["page_num"]
         chapter_end = get_actual_page_num(chapter_end_page, page_data) - 1
+    # if not chapter_end:
     except IndexError:
         chapter_end = get_last_page(page_data, chapter_start)
 
@@ -238,6 +240,10 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
     for page_num in range(chapter_start, chapter_end+1):
         page = page_data[page_num]
         page_quality = page["page_quality"]
+        if chapter_start == chapter_end:
+            pages_tag = generate_transclusion_tag(filename, chapter_start, chapter_end)
+            chapter_transclusion_tags.append(pages_tag)
+            break
         if page_quality == "0":
             starting_page_num += 1
             continue
