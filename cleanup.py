@@ -321,17 +321,20 @@ def place_page_numbers(text):
     can_count_number = False
     for line in text_parsed:
         line_suffix = line[1:]
+        page_num_format = ""
         line_prefix = line[:1]
         line_length = len(line)
         if line_length <= 4 and (line_prefix == "-" or line_prefix == "—"):
-            if line_suffix.isdigit() or (line_suffix == "" and line_prefix == "-") or (line_suffix == "p" and line_prefix == "—"):
+            if line_suffix.isdigit() or (line_suffix == "" and line_prefix == "-") or (line_suffix == "p" and line_prefix == "—") or line_suffix.endswith("r") or line_suffix.endswith("n"):
                 can_count_number = True
+                if line_suffix.endswith("r") or line_suffix.endswith("n"):
+                    page_num_format = line_suffix[-1]
             elif (line_prefix == "—" and line_suffix != "p") or not line_suffix.isdigit() or line_suffix != "":
                 can_count_number = False
             # replace line with count                
             if can_count_number:
                 count += 1
-                new_text_to_parse.append(f"{line_prefix}{count}")
+                new_text_to_parse.append(f"{line_prefix}{count}{page_num_format}")
                 continue
         new_text_to_parse.append(line)
     print_in_blue(f"Numbered page count: {count}")
