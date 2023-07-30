@@ -175,15 +175,6 @@ hanced
 
 
 
-# THE STORY OF MARY MACLANE
-# Back cover logic, image data and Commons
-## Category:Back covers of books
-# Parse: /ch/t=(.+?)/ . Do chapter settings, meaning: title=
-# Transclusion: If genre = autobiography, category: Autobiographies
-
-
-
-
 
 
 

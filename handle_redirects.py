@@ -54,9 +54,9 @@ from edit_mw import save_page
 
 defaultsort_prefixes = [
     # English
-    "The ",
-    "A ",
-    "An ",
+    "The",
+    "A",
+    "An",
 
     # # French
     # "Le ",
@@ -134,6 +134,14 @@ one_way_redirects = [
         "'n'",
         "and",
     ],
+    [
+        "o'",
+        "of",
+    ],
+    [
+        "an'",
+        "and",
+    ],
 ]
 
 end_symbol_combos = [
@@ -156,9 +164,24 @@ page_title_to_parse = "O Genteel Lady!"
 redirect_target = page_title_to_parse # later, when dealing with disambig etc., this will be changed
 
 
+def get_defaultsort_prefixes(words):
+    defaultsort_prefix = ""
+
+    for prefix in defaultsort_prefixes:
+        if words[0] == prefix:
+            # title_with_variants.append(words[1:])
+            defaultsort_prefix = prefix
+            words = words[1:]
+            break
+    
+    return defaultsort_prefix, words
 
 def generate_title_with_variants(words):
     title_with_variants = []
+
+    # handle defaultsort prefixes
+    
+
     for word_num, word in enumerate(words):
         variants_of_word = []
         last_word_index = len(words) - 1
@@ -208,7 +231,7 @@ def generate_combinations(title_with_variants):
 
     # return combinations
 
-def generate_combinations(title_with_variants):
+def generate_combinations(title_with_variants, defaultsort_prefix):
     combinations = []
 
     title_with_variants = [p if type(p) == list else [p] for p in title_with_variants]
@@ -217,6 +240,9 @@ def generate_combinations(title_with_variants):
         variant = " ".join(result)
         combinations.append(variant)
     
+    if defaultsort_prefix:
+        combinations += [defaultsort_prefix + " " + combination for combination in combinations]
+
     return combinations
  
 
@@ -243,9 +269,10 @@ def generate_combinations(title_with_variants):
 def generate_variant_titles(page_title_to_parse):
     print(f"Generating variant titles for: {page_title_to_parse}")
     words = page_title_to_parse.split(" ")
+    defaultsort_prefix, words = get_defaultsort_prefixes(words)
     title_with_variants = generate_title_with_variants(words)
-    print(title_with_variants)
-    combinations = generate_combinations(title_with_variants)
+    # print(title_with_variants)
+    combinations = generate_combinations(title_with_variants, defaultsort_prefix)
     combinations.remove(page_title_to_parse)
     combination_length = len(combinations)
     print_in_green(f"Successfully generated {combination_length} variant titles.")
@@ -256,13 +283,19 @@ def create_redirects(page_title_to_parse):
         print("Page title contains parentheses. Skipping redirects...")
         return
     variant_titles = generate_variant_titles(page_title_to_parse)
-    if len(variant_titles) == 0:
+    number_of_variants = len(variant_titles)
+    if number_of_variants == 0:
         print("No variant titles to create redirects for. Skipping redirects...")
     redirect_target = page_title_to_parse # for now; when we get to disambig situations it'll be different
     print(f"Creating redirects to {redirect_target}...")
     site = pywikibot.Site("en", "wikisource")
-    for title in variant_titles:
+    for title_num, title in variant_titles:
+        title_num += 1
         redirect_page = pywikibot.Page(site, title)
         redirect_text = f"#REDIRECT [[{redirect_target}]]"
-        save_page(redirect_page, site, redirect_text, f"Creating redirect to {redirect_target}")
+        print(f"Redirect {title_num} (of {number_of_variants}): {title}")
+        print(redirect_text)
+        save_page(redirect_page, site, redirect_text, f"Creating redirect to {redirect_target} (variant {title_num} of {number_of_variants})")
     print_in_green("All redirect pages successfully created!")
+
+# create_redirects("The Ifs of History")
