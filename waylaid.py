@@ -1192,7 +1192,8 @@ def correct_text(text_file):
     x = x.replace("\" '", "\"")
     x = x.replace("\n\" ", "\n\"")
 
-
+    pattern = "\n\n\"(.+?) \""
+    # x = re.sub(r"\n\n\"(.+) \"", r"\1's", x)
 
 
 
@@ -1308,3 +1309,16 @@ def correct_text(text_file):
 # #     time.sleep(50)
 # #     page.save(f"{lines[random.randint(0, len(lines)-1)]}")
 # #     page_num += 1
+
+def replace_bad_quote_spaces(text):
+    # Example of what this fixes:
+    ## Bad: "Louder, Tommie, louder. "The voice swelled brave and loud.
+    ## Fix: "Louder, Tommie, louder." The voice swelled brave and loud.
+    pattern = r"\n\n\"(.+?)( \")"
+    potential_bad_quote_spaces = re.findall(pattern, text)
+    for match in potential_bad_quote_spaces:
+        text_before_space_quote = match[0]
+        if "\"" not in text_before_space_quote:
+            # text = re.sub(pattern)
+            text = text.replace(f"\n\n\"{text_before_space_quote} \"", f"\n\n\"{text_before_space_quote}\" ")
+        text = text.replace(i[0] + i[1], i[0] + "\"")
