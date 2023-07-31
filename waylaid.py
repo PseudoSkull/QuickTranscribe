@@ -1189,10 +1189,12 @@ def correct_text(text_file):
 
     x = x.replace("Avas ", "was")
     x = x.replace("Avater", "water")
+    x = x.replace(" coining ", " coming ")
     x = x.replace("\" '", "\"")
     x = x.replace("\n\" ", "\n\"")
+    x = replace_bad_quote_spaces(x)
 
-    pattern = "\n\n\"(.+?) \""
+    # pattern = "\n\n\"(.+?) \""
     # x = re.sub(r"\n\n\"(.+) \"", r"\1's", x)
 
 
@@ -1321,4 +1323,5 @@ def replace_bad_quote_spaces(text):
         if "\"" not in text_before_space_quote:
             # text = re.sub(pattern)
             text = text.replace(f"\n\n\"{text_before_space_quote} \"", f"\n\n\"{text_before_space_quote}\" ")
-        text = text.replace(i[0] + i[1], i[0] + "\"")
+        # text = text.replace(i[0] + i[1], i[0] + "\"")
+    return text
