@@ -19,7 +19,7 @@ from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker
 
 
 
@@ -167,9 +167,16 @@ hanced
 
 
 # THE IFS OF HISTORY
-# Prep: IMPORT GUTENBERG TRANSCRIPTION
-# Parse: /auxpref/
-# Parse: /tipg/ for designating title page, for Index
+# Title case: If word.isroman, then all uppercase. Example: CHARLES IV -> Charles IV
+# COMPLETELY REWORK CHAPTER DATA, now it's all kinds of messed up
+## Make a list of valid chapter tags and just make handling them the same for all of them.
+## Fix title case logic, which somehow got itself messed up to where it doesn't do that anymore.
+## KEEP an exit command at the end of chapter data gathering, so that we can ensure that the chapter titles are correct every time
+
+
+# Parse: /pref/aux=y/
+# Parse: /title/ for designating title page, for Index
+## Should work now, but needs to be tested
 
 
 
@@ -386,6 +393,9 @@ if not at_expected_progress:
     process_break()
     find_uneven_quotations(transcription_text)
     process_break()
+    # FIGURE OUT A BETTER SPELLCHECKER SITUATION
+    # use_spellchecker(transcription_text)
+    # process_break()
     transcription_text = transcription_page.text
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that detected scannos have been fixed...")
@@ -534,7 +544,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     # if not filename:
-    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_id, transcription_page_title, filename, GB_id)
+    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id)
 
     add_scan_file_to_version_item(wikidata_site, version_item, filename, transcription_page_title)
 

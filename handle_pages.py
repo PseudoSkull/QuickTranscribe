@@ -111,7 +111,6 @@ def get_page_data(transcription_text, page_break_string=None):
         else:
             # this is content of a page
             content.append(line)
-            print(line)
 
             # if it's the VERY LAST line and it's part of the content
             try:

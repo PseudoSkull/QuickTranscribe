@@ -460,8 +460,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 if match:
                     if chapter_has_name or chapter_has_alternate_title_to_display:
                         title = convert_to_title_case(match)
-                        chapter["title"] = match
-                        chapter["display_title"] = match
+                        chapter["title"] = title
+                        chapter["display_title"] = title
                         if is_chapter_with_settings:
                             chapter["title"] = is_chapter_with_settings[2:]
                     else:
@@ -503,8 +503,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     else:
         print_in_yellow("No chapters found in transcription text. Assuming this is a front-matter-only work...")
 
-    # print(chapters)
-    # exit()
+    print(chapters)
+    exit()
     write_to_json_file(chapters_json_file, chapters)
     return chapters
 

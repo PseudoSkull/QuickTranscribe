@@ -32,6 +32,18 @@ import re
 from edit_mw import save_page, is_even
 from handle_wikidata import handle_file
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+from spellchecker import SpellChecker
+
+def use_spellchecker(text):
+    print("Using spellchecker...")
+    spell_checker = SpellChecker()
+    misspelled = spell_checker.unknown(text.split(" "))
+    if len(misspelled) == 0:
+        print_in_green("No misspelled words found.")
+    else:
+        print_in_yellow("Misspelled words found:")
+        print_in_yellow(misspelled)
+        return misspelled
 
 def initial_text_cleanup(text):
 # do regex replacements on page.text. Make sure it replaces all instances of string pattern.
