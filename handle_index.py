@@ -206,6 +206,17 @@ def create_index_pagelist(text):
 
     # return index_pagelist
 
+def get_title_page(page_data):
+    for page_num, page in enumerate(page_data):
+        page_num += 1 # not zero-indexed
+        page_quality = page["page_quality"]
+        page_marker = page["marker"]
+        page_content = page["content"]
+        if (page_quality != "0" and page_num == 1) or page_marker == "ti" or "/title/" in page_content:
+            return page_num
+    print_in_red("ERROR: No title page found. Please insert /title/ somewhere in the transcription to indicate which page is the title page.")
+    exit()
+
 def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
     summary = "Creating index page..."
     progress = "C"
@@ -217,6 +228,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
         illustrator_display = f"[[Author:{illustrator_WS_name}|]]"
     else:
         illustrator_display = ""
+    title_page = get_title_page(page_data)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
 |Title=''[[{mainspace_work_title}|{title}]]''
@@ -237,7 +249,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |BNF_ARK=
 |ARC=
 |Source={file_extension}
-|Image=1
+|Image={title_page}
 |Progress={progress}
 |Pages={index_pagelist}
 |Volumes=
