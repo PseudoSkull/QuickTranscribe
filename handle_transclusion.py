@@ -215,6 +215,10 @@ def get_actual_page_num(page_num, page_data):
         if str(page_num) == str(page_marker):
             return actual_page_num
 
+def page_is_image_page(page):
+    content = page["content"]
+    return len(content.split("\n\n")) == 1 and "/img/" in content
+
 def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False):
     # splits = []
     if front_matter:
@@ -262,6 +266,8 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
         page_type = page["type"]
         next_page_quality = next_page["page_quality"]
         next_page_marker = next_page["marker"]
+        next_page_content = next_page["content"]
+        content = page["content"]
         page_marker = page["marker"]
             # continue
 
@@ -287,7 +293,7 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
             starting_page_num = page_split + 1
             continue
 
-        if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit() or (front_matter and not page_type == "toc"):
+        if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit() or (front_matter and not page_type == "toc") or page_is_image_page(page) or page_is_image_page(next_page):
             page_split = page_num
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
             chapter_transclusion_tags.append(pages_tag)

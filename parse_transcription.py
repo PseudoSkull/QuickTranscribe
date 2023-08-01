@@ -340,6 +340,20 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     if chapters:
         print_in_green("Chapter data JSON found!")
         return chapters
+
+    chapter_tags = [
+        "bibl",
+        "bk",
+        "ch",
+        "concl",
+        "contch",
+        "fwd",
+        "intr",
+        "pref",
+        "pt",
+        "refch",
+    ]
+    
     parts_exist = determine_if_books_or_parts_exist(text)
 
     chapter_num = 0
@@ -350,6 +364,26 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         part_num = None
 
     chapters = []
+
+    first_chapter_tag_found = ""
+
+    for chapter_tag in chapter_tags:
+        chapter_tag = get_plain_tag(chapter_tag)
+        if chapter_tag in text:
+            print_in_green(f"{chapter_tag} found in transcription text. Getting chapter data...")
+            first_chapter_tag_found = chapter_tag
+            break
+    
+    if not first_chapter_tag_found:
+        print_in_yellow("No chapters found in transcription text. Assuming this is a front matter only work...")
+
+
+    # {"prefix": "Chapter", "chapter_num": 3, "title": "IF KING ETHELRED OF ENGLAND HAD NOT MARRIED THE NORMAN EMMA", "display_title": "IF KING ETHELRED OF ENGLAND HAD NOT MARRIED THE NORMAN EMMA", "page_num": 30, "hidden": false, "refs": false, "part_num": null, "has_sections": false, "splice": false}
+
+    exit()
+    write_to_json_file(chapters_json_file, chapters)
+    return chapters
+
 
     if "/ch/" in text or "/contch/" in text:
         print_in_green("Chapters found in transcription text. Getting chapter data...")
