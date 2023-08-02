@@ -381,6 +381,21 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         "pt",
         "refch",
     ]
+
+    prefixless_chapter_titles = {
+        "bibl": "Bibliography",
+        "concl": "Conclusion",
+        "fwd": "Foreword",
+        "intr": "Introduction",
+        "pref": "Preface",
+        "refch": "References",
+    }
+
+    chapter_prefixes = {
+        "bk": "Book",
+        "ch": "Chapter",
+        "pt": "Part",
+    }
     
     parts_exist = determine_if_books_or_parts_exist(text)
 
@@ -439,8 +454,90 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 if chapter_tag in line:
                     # get_basic_chapter_data(line)
                     chapter_parameters = get_chapter_parameters(line) # because the first will always be '' which is useless
-                    # print(chapter_parameters)
-                    print(chapter_parameters)
+                    
+                    chapter_tag = chapter_parameters["chapter_tag"]
+                    chapter_settings = chapter_parameters["chapter_settings"]
+                    chapter_title = chapter_parameters["chapter_title"]
+                    
+                
+
+
+                    if chapter_tag in prefixless_chapter_titles:
+                        chapter_title = prefixless_chapter_titles[chapter_tag]
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                    
+                    elif chapter_tag == "bk" or chapter_tag == "pt":
+                        part_num += 1
+                        chapter["prefix"] = chapter_prefixes[chapter_tag]
+                        chapter["chapter_num"] = part_num
+                        chapter["title"] = None
+
+                        if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
+                            chapter_num = 0
+                    
+                    elif chapter_tag == "contch":
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                        if not chapter_title:
+                            chapter["title"] = work_title
+                        chapter["display_title"] = work_title
+
+                    else:
+                        chapter_num += 1
+
+                        if chapter_prefix == "n":
+                            chapter["prefix"] = None
+                        elif not chapter_prefix:
+                            chapter["prefix"] = "Chapter"
+                        else:
+                            chapter["prefix"] = chapter_prefix
+                        chapter["chapter_num"] = chapter_num
+
+                        # chapter["title"] = None
+                    
+
+                    # Get chapter page num
+                    if type(page_num) == str and page_num.isdigit():
+                        chapter["page_num"] = int(page_num)
+                    else:
+                        chapter["page_num"] = page_num
+
+                    if chapter_type == "nam":
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                    
+                    if chapter_title:
+                        chapter["title"] = chapter_title
+                        chapter["display_title"] = chapter_title
+
+                    chapter["hidden"] = False
+                    chapter["refs"] = False # for now
+                    chapter["part_num"] = part_num
+                    chapter["has_sections"] = False
+
+                    splice_chapter = False
+                    if chapter_splice_points:
+                        print(f"if chapter splice points. Chapter num: {chapter_num}")
+                        if chapter_num in chapter_splice_points:
+                            print("if chapter num in chapter splice points")
+                            splice_chapter = True
+                    chapter["splice"] = splice_chapter
+
+                    chapters.append(chapter)
+                    previous_chapter = chapter
+                    previous_chapter_index = len(chapters) - 1
+                
+                if section_tag in content:
+                    previous_chapter["has_sections"] = True
+                    chapters[previous_chapter_index] = previous_chapter
+
+                    
+
+
+                    
+
+
 
 
 
