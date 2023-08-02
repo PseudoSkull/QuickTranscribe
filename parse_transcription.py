@@ -333,6 +333,11 @@ def determine_if_books_or_parts_exist(text):
 #     title_pattern = r"t=(.+?)"
 #     if title_pattern:
 
+
+def get_basic_chapter_data(line):
+    chapter_parameters = line.split("/")[1:] # because the first will always be '' which is useless
+    
+
 def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
@@ -379,6 +384,41 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
 
     # {"prefix": "Chapter", "chapter_num": 3, "title": "IF KING ETHELRED OF ENGLAND HAD NOT MARRIED THE NORMAN EMMA", "display_title": "IF KING ETHELRED OF ENGLAND HAD NOT MARRIED THE NORMAN EMMA", "page_num": 30, "hidden": false, "refs": false, "part_num": null, "has_sections": false, "splice": false}
+
+    previous_chapter = None
+    section_tag = get_plain_tag("sec")
+    for page in page_data:
+        page_num = page["marker"]
+
+        if page_num == "ad" or page_num == "adv" and len(chapters) > 0:
+            chapter = {}
+            chapter["prefix"] = None
+            chapter["chapter_num"] = None
+            chapter["title"] = "Advertisements"
+            chapter["display_title"] = "Advertisements"
+            chapter["page_num"] = page_num
+            chapter["hidden"] = True # the important bit
+            chapter["refs"] = False # for now
+            chapter["part_num"] = None
+            chapter["has_sections"] = False
+            chapter["splice"] = False
+            chapters.append(chapter)
+            break
+
+        content = page["content"]
+        content_lines = content.split("\n\n")
+
+        for line in content_lines:
+            for chapter_tag in chapter_tags:
+                chapter_tag = get_plain_tag(chapter_tag)
+                if chapter_tag in line:
+                    # get_basic_chapter_data(line)
+                    chapter_parameters = line.split("/")[1:] # because the first will always be '' which is useless
+                    # print(chapter_parameters)
+
+
+
+
 
     exit()
     write_to_json_file(chapters_json_file, chapters)
