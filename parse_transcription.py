@@ -334,9 +334,32 @@ def determine_if_books_or_parts_exist(text):
 #     if title_pattern:
 
 
-def get_basic_chapter_data(line):
+def get_chapter_parameters(line):
     chapter_parameters = line.split("/")[1:] # because the first will always be '' which is useless
     
+    number_of_parameters = len(chapter_parameters)
+
+    if number_of_parameters == 2:
+        chapter_tag = chapter_parameters[0]
+        chapter_settings = None
+        chapter_title = None
+        # chapter_display_title = None
+    else:
+        chapter_tag = chapter_parameters[0]
+        chapter_settings = chapter_parameters[1]
+        chapter_title = chapter_parameters[2]
+        if chapter_settings == "":
+            chapter_settings = None
+        if chapter_title == "":
+            chapter_title = None
+
+    chapter_parameters = {
+        "chapter_tag": chapter_tag,
+        "chapter_settings": chapter_settings,
+        "chapter_title": chapter_title,
+    }
+
+    return chapter_parameters
 
 def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type):
     print("Getting chapter data...")
@@ -387,6 +410,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     previous_chapter = None
     section_tag = get_plain_tag("sec")
+    chapter_splice_points = get_chapter_splice_points(text)
+
     for page in page_data:
         page_num = page["marker"]
 
@@ -413,8 +438,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 chapter_tag = get_plain_tag(chapter_tag)
                 if chapter_tag in line:
                     # get_basic_chapter_data(line)
-                    chapter_parameters = line.split("/")[1:] # because the first will always be '' which is useless
+                    chapter_parameters = get_chapter_parameters(line) # because the first will always be '' which is useless
                     # print(chapter_parameters)
+                    print(chapter_parameters)
 
 
 
