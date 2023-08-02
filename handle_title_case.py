@@ -6,6 +6,7 @@
 
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+import roman
 
 beginning_punctuations_to_test = [
     '"',
@@ -138,6 +139,14 @@ def handle_punctuation_exceptions(word):
             word = punctuation.join(new_words)
     return word
 
+def handle_roman_numerals(word):
+    word_to_parse = word.upper()
+    try:
+        roman_value = roman.fromRoman(word_to_parse)
+        return word_to_parse
+    except roman.InvalidRomanNumeralError:
+        return word
+
 def convert_to_title_case(text):
     # Define the exceptions
 
@@ -154,6 +163,7 @@ def convert_to_title_case(text):
         word = convert_word_to_title_case(word_num, word)
         word = handle_punctuation_exceptions(word)
         word = handle_apostrophes(word)
+        word = handle_roman_numerals(word)
 
         # Add the reconstructed word to the result list
         result.append(word)

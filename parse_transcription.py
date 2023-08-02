@@ -446,8 +446,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     for page in page_data:
         page_num = page["marker"]
 
+        chapter = {}
+
         if page_num == "ad" or page_num == "adv" and len(chapters) > 0:
-            chapter = {}
             chapter["prefix"] = None
             chapter["chapter_num"] = None
             chapter["title"] = "Advertisements"
@@ -539,6 +540,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["auxiliary"] = True
                         if "title" in chapter_settings:
                             chapter["title"] = chapter_settings["title"]
+                    
+                    chapter["title"] = convert_to_title_case(chapter["title"])
+                    chapter["display_title"] = convert_to_title_case(chapter["display_title"])
 
                     splice_chapter = False
                     if chapter_splice_points:
@@ -565,164 +569,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
 
 
-
-
-    exit()
-    write_to_json_file(chapters_json_file, chapters)
-    return chapters
-
-
-    if "/ch/" in text or "/contch/" in text:
-        print_in_green("Chapters found in transcription text. Getting chapter data...")
-
-        previous_chapter = None
-        section_tag = get_plain_tag("sec")
-
-        for page in page_data:
-            page_num = page["marker"]
-            content = page["content"]
-            chapter_has_name = "/ch//" in content
-            chapter_has_alternate_title_to_display = "/ch/t=" in content
-
-            if page_num == "ad" or page_num == "adv":
-                chapter = {}
-                chapter["prefix"] = None
-                chapter["chapter_num"] = None
-                chapter["title"] = "Advertisements"
-                chapter["display_title"] = "Advertisements"
-                chapter["page_num"] = page_num
-                chapter["hidden"] = True # the important bit
-                chapter["refs"] = False # for now
-                chapter["part_num"] = None
-                chapter["has_sections"] = False
-                chapter["splice"] = False
-                chapters.append(chapter)
-                break
-
-            # if toc_is_auxiliary:
-            if chapter_has_name:
-                chapter_pattern = r"\/ch\/\/(.+?)\n\n"
-            elif chapter_has_alternate_title_to_display:
-                chapter_pattern = r"\/ch\/(.+?)\/(.+?)\n\n"
-            else:
-                chapter_pattern = r"(\/ch\/)\n"
-
-            book_pattern = r"(\/bk\/)"
-            part_pattern = r"(\/pt\/)"
-            preface_pattern = r"(\/pref\/)"
-            content_chapter_pattern = r"(\/contch\/)"
-
-            all_chapter_types_pattern = rf"{book_pattern}|{part_pattern}|{preface_pattern}|{content_chapter_pattern}|{chapter_pattern}"
-
-            # page_number_pattern = r"\n\n-([0-9]+)\n\n"
-            # chapter_and_page_pattern = rf"{page_number_pattern}{chapter_pattern}"
-            chapter_matches = re.findall(all_chapter_types_pattern, content)
-            chapter_splice_points = get_chapter_splice_points(text)
-
-            for match in chapter_matches:
-                print(match)
-                is_chapter_with_settings = ""
-                is_chapter = match[-1]
-                if len(match) > str(all_chapter_types_pattern).count("|"):
-                    is_chapter = match[-1]
-                    is_chapter_with_settings = match[-2]
-                is_book = match[0]
-                is_part = match[1]
-                is_preface = match[2]
-                is_content_chapter = match[3]
-                # print(match)
-                chapter = {}
-
-                if is_book or is_part:
-                    part_num += 1
-                    if is_book:
-                        chapter["prefix"] = "Book"
-                        match = is_book
-                    elif is_part:
-                        chapter["prefix"] = "Part"
-                        match = is_part
-                    chapter["chapter_num"] = part_num
-                    # chapter["subchapters"] = []
-
-                    if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
-                        chapter_num = 0
-
-                elif is_preface:
-                    chapter["prefix"] = None
-                    chapter["chapter_num"] = None
-                    chapter_title = "Preface"
-                    chapter["title"] = chapter_title
-                    chapter["display_title"] = chapter_title
-                    match = False
-                
-                elif is_content_chapter:
-                    chapter["prefix"] = None
-                    # chapter_has_name = False
-                    chapter["chapter_num"] = None
-                    chapter["title"] = work_title
-                    chapter["display_title"] = work_title
-                    match = False
-                
-                else:
-                    chapter_num += 1
-                    if chapter_prefix == "n":
-                        chapter["prefix"] = None
-                    elif not chapter_prefix:
-                        chapter["prefix"] = "Chapter"
-                    else:
-                        chapter["prefix"] = chapter_prefix
-                    chapter["chapter_num"] = chapter_num
-                    match = is_chapter
-                    # chapter_has_name = False
-
-                chapter["title"] = None
-                chapter["display_title"] = None
-
-                if match:
-                    if chapter_has_name or chapter_has_alternate_title_to_display:
-                        title = convert_to_title_case(match)
-                        chapter["title"] = title
-                        chapter["display_title"] = title
-                        if is_chapter_with_settings:
-                            chapter["title"] = is_chapter_with_settings[2:]
-                    else:
-                        chapter["title"] = None
-                
-                if type(page_num) == str and page_num.isdigit():
-                    chapter["page_num"] = int(page_num)
-                else:
-                    chapter["page_num"] = page_num
-                
-                if chapter_type == "nam":
-                    chapter["prefix"] = None
-                    chapter["chapter_num"] = None
-                    # chapter["display_title"] = chapter["title"]
-                
-                chapter["hidden"] = False
-                chapter["refs"] = False # for now
-                chapter["part_num"] = part_num
-                chapter["has_sections"] = False
-
-                splice_chapter = False
-                if chapter_splice_points:
-                    print(f"if chapter splice points. Chapter num: {chapter_num}")
-                    if chapter_num in chapter_splice_points:
-                        print("if chapter num in chapter splice points")
-                        splice_chapter = True
-                chapter["splice"] = splice_chapter
-
-                chapters.append(chapter)
-
-        # START PREVIOUS CHAPTER LOGIC, to find sections within next pages
-                previous_chapter = chapter
-                previous_chapter_index = len(chapters) - 1
-            
-            if section_tag in content:
-                previous_chapter["has_sections"] = True
-                chapters[previous_chapter_index] = previous_chapter
-        # END PREVIOUS CHAPTER LOGIC
-    else:
-        print_in_yellow("No chapters found in transcription text. Assuming this is a front-matter-only work...")
 
     print(chapters)
     exit()
