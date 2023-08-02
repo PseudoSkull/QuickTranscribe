@@ -347,6 +347,7 @@ def get_chapter_parameters(line):
     else:
         chapter_tag = chapter_parameters[0]
         chapter_settings = chapter_parameters[1]
+        chapter_settings = chapter_settings.split(",")
         chapter_title = chapter_parameters[2]
         if chapter_settings == "":
             chapter_settings = None
@@ -360,6 +361,21 @@ def get_chapter_parameters(line):
     }
 
     return chapter_parameters
+
+def parse_chapter_settings(chapter_settings):
+    if not chapter_settings:
+        return None
+
+    chapter_settings_data = {}
+
+    # chapter_settings = chapter_settings.split(",")
+    for setting in chapter_settings:
+        if setting == "aux=y" or setting == "aux":
+            chapter_settings_data["auxiliary"] = True
+        if "t=" in setting:
+            chapter_settings_data["title"] = setting.split("=")[1]
+
+    return chapter_settings_data
 
 def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type):
     print("Getting chapter data...")
@@ -457,6 +473,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     
                     chapter_tag = chapter_parameters["chapter_tag"]
                     chapter_settings = chapter_parameters["chapter_settings"]
+                    chapter_settings = parse_chapter_settings(chapter_settings)
+
                     chapter_title = chapter_parameters["chapter_title"]
                     
                 
@@ -481,7 +499,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["chapter_num"] = None
                         if not chapter_title:
                             chapter["title"] = work_title
-                        chapter["display_title"] = work_title
 
                     else:
                         chapter_num += 1
@@ -509,12 +526,19 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     
                     if chapter_title:
                         chapter["title"] = chapter_title
-                        chapter["display_title"] = chapter_title
 
                     chapter["hidden"] = False
+                    chapter["auxiliary"] = False
                     chapter["refs"] = False # for now
                     chapter["part_num"] = part_num
                     chapter["has_sections"] = False
+                    chapter["display_title"] = chapter["title"]
+
+                    if chapter_settings:
+                        if "auxiliary" in chapter_settings:
+                            chapter["auxiliary"] = True
+                        if "title" in chapter_settings:
+                            chapter["title"] = chapter_settings["title"]
 
                     splice_chapter = False
                     if chapter_splice_points:
