@@ -184,21 +184,21 @@ def create_index_pagelist(text, page_data):
     stored_marker_pages = []
 
     # MAKE THIS GO THRU PAGE DATA, NOT TEXT
-    for marker_num, marker in enumerate(page_markers):
+    for marker_num, page in enumerate(page_data):
         
+        marker = page["marker"]
         marker_num += 1 # not zero-indexed
 
-        marker_suffix = marker[1:]
-        if marker_suffix in marker_definitions:
-            marker_suffix = marker_definitions[marker_suffix]
+        if marker in marker_definitions:
+            marker = marker_definitions[marker]
 
-        if not stored_marker and marker_suffix.isdigit():
+        if not stored_marker and marker.isdigit():
             continue
         
-        if not marker_suffix:
-            marker_suffix = "—"
+        if not marker:
+            marker = "—"
 
-        if marker_suffix != stored_marker and len(stored_marker_pages) > 0:
+        if marker != stored_marker and len(stored_marker_pages) > 0:
             first_stored_marker_page = stored_marker_pages[0]
             last_stored_marker_page = stored_marker_pages[-1]
             if len(stored_marker_pages) == 1:
@@ -206,14 +206,14 @@ def create_index_pagelist(text, page_data):
             else:
                 pagelist += f"{first_stored_marker_page}to{last_stored_marker_page}={stored_marker}\n"
             stored_marker_pages = []
-            if marker_suffix.isdigit():
-                pagelist += f"{marker_num}={marker_suffix}\n"
+            if marker.isdigit():
+                pagelist += f"{marker_num}={marker}\n"
                 stored_marker = None
             # continue
 
 
-        if not marker_suffix.isdigit():
-            stored_marker = marker_suffix
+        if not marker.isdigit():
+            stored_marker = marker
             stored_marker_pages.append(marker_num)
 
     roman_pagelist_line = get_roman_page_numbers(page_data)
