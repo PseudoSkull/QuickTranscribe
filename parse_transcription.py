@@ -70,13 +70,18 @@ empty_chapter_pattern = r"\/ch\/\n\n"
 chapter_pattern = rf"({named_chapter_pattern}|{named_chapter_pattern_with_settings}|{empty_chapter_pattern})"
 
 
-qt_markup = {
-    "ch": "",
-    "po": "",
-    "al": "",
-    "half": "",
-    "toc": "",
-}
+chapter_tags = [
+    "bibl",
+    "bk",
+    "ch",
+    "concl",
+    "contch",
+    "fwd",
+    "intr",
+    "pref",
+    "pt",
+    "refch",
+]
 
 
 
@@ -102,6 +107,14 @@ def string_not_in_content(content, string, action):
             # return True
     return True
 
+def strings_not_in_content(content, list, message):
+    for tag in list:
+        tag = get_plain_tag(tag)
+        if string_not_in_content(content, tag, f"{message} {tag}"):
+            continue
+        else:
+            return False
+    return True
 
 def get_bare_title(mainspace_work_title):
     return mainspace_work_title.split(" (")[0]
@@ -385,19 +398,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         print_in_green("Chapter data JSON found!")
         return chapters
 
-    chapter_tags = [
-        "bibl",
-        "bk",
-        "ch",
-        "concl",
-        "contch",
-        "fwd",
-        "intr",
-        "pref",
-        "pt",
-        "refch",
-    ]
-
     prefixless_chapter_titles = {
         "bibl": "Bibliography",
         "concl": "Conclusion",
@@ -570,10 +570,11 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
 
 
-    print(chapters)
-    exit()
+    # print(chapters)
+    # exit()
     write_to_json_file(chapters_json_file, chapters)
-    return chapters
+    print_in_green("Chapter data retrieved! Go and make sure it's all correct.")
+    exit()
 
 def get_chapter_from_page_num(chapters, page_num):
     try:
@@ -765,10 +766,13 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
         page_num = chapter["page_num"]
         chapter_title = chapter["title"]
         splice = chapter["splice"]
-        chapter_num = chapter_num + 1 # 1-indexed rather than 0
-        if chapter_num == 28:
-            print(splice)
-        chapter_num_as_roman = roman.toRoman(chapter_num)
+        chapter_is_auxiliary = chapter["auxiliary"]
+        # chapter_num = chapter_num + 1 # 1-indexed rather than 0
+        chapter_num = chapter["chapter_num"]
+        if chapter_num:
+            chapter_num_as_roman = roman.toRoman(chapter_num)
+        else:
+            chapter_num_as_roman = ""
         toc_link = f"[[{mainspace_work_title}/Chapter {chapter_num}|{chapter_title}]]"
 
         if toc_format:
@@ -782,10 +786,15 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
             
             toc_row = format_form_tag(toc_row, replacements)
 
-            toc_beginning += toc_row + "\n"
-
         else:
-            toc_beginning += f"{{{{TOC row 1-1-1|{chapter_num_as_roman}|{toc_link}|{page_num}}}}}\n"
+            toc_row = f"{{{{TOC row 1-1-1|{chapter_num_as_roman}|{toc_link}|{page_num}}}}}"
+
+        if chapter_is_auxiliary:
+            toc_row = toc_row.replace("|", "|class=wst-toc-aux|", 1)
+
+        toc_row = toc_row.replace("|.|", "||")
+        
+        toc_beginning += toc_row + "\n"
         
         if splice:
             splice_tag = get_plain_tag("spl")
@@ -919,6 +928,7 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
 
     content = page["content"]
 
+    # CHANGE LATER TO INCLUDE ALL KINDS OF CHAPTERS
     if string_not_in_content(content, "/ch/", "Formatting chapter beginning to drop initial"):
         return page
     
@@ -1019,8 +1029,12 @@ def add_toc_to_transcription(page, toc, block_continuations):
     
     if spl_tag in toc:
         toc_split = toc.split("\n" + spl_tag + "\n")
-        start_template = "<div class=\"toc-block\">"
-        end_template = "</div>"
+        if "toc-block" in toc:
+            start_template = "<div class=\"toc-block\">"
+            end_template = "</div>"
+        else:
+            start_template = "{{TOC begin}}"
+            end_template = "{{TOC end}}"
 
         block_continuations, page = handle_block_continuations(page, toc_tag, block_continuations, start_template, end_template, split_list=toc_split)
 
@@ -1046,10 +1060,11 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
     pref_tag = get_plain_tag("pref")
     contch_tag = get_plain_tag("contch")
 
-    if string_not_in_content(content, ch_tag, "Converting chapter headings") and string_not_in_content(content, bk_tag, "Converting book headings") and string_not_in_content(content, pt_tag, "Converting part headings") and string_not_in_content(content, pref_tag, "Converting preface headings") and string_not_in_content(content, contch_tag, "Converting content chapter headings"):
+    if strings_not_in_content(content, chapter_tags, "Converting chapter headings with"):
         return overall_chapter_num, page
 
 
+    # Make this more dynamic, to deal with more scenarios
     chapters_in_page = get_string_from_lines(content, ch_tag)
     books_in_page = get_string_from_lines(content, bk_tag)
     parts_in_page = get_string_from_lines(content, pt_tag)

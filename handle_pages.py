@@ -16,7 +16,7 @@ from edit_mw import save_page
 
 # get the content and data of pages in the transcription
 
-def add_data_item(page_data, page_num, header, footer, content, page_quality, marker, page_type):
+def add_data_item(page_data, page_num, header, footer, content, page_quality, marker, page_type, page_format):
     data_item = {}
     data_item["page_num"] = page_num
     data_item["header"] = header
@@ -25,6 +25,7 @@ def add_data_item(page_data, page_num, header, footer, content, page_quality, ma
     data_item["page_quality"] = page_quality
     data_item["marker"] = marker
     data_item["type"] = page_type
+    data_item["format"] = page_format
     page_data.append(data_item)
     return data_item
 
@@ -50,6 +51,16 @@ def get_header_and_footer(content):
 
     return header, footer, content
 
+def get_page_format(marker, page_format):
+    if not marker.isdigit() and marker[:-1].isdigit():
+        if marker.endswith("r"):
+            page_format = "roman"
+        elif marker.endswith("n"):
+            page_format = "numeric"
+        marker = marker[:-1]
+    
+    return marker, page_format
+
 def get_page_data(transcription_text, page_break_string=None):
     print("Retrieving page data...")
     page_data = []
@@ -58,6 +69,8 @@ def get_page_data(transcription_text, page_break_string=None):
     page_num = 0
     read_page = False
     data_item = {}
+    page_format = "numeric"
+    marker = ""
     transcription_lines = transcription_text.split("\n\n")
     for line_num, line in enumerate(transcription_lines):
         page_type = ""
@@ -69,6 +82,7 @@ def get_page_data(transcription_text, page_break_string=None):
         if line_length <= 4 and (line.startswith("-") or line.startswith("—")):
             # read_page = False
             # print(marker)
+            
             if read_page: # i.e. if it's not the first page we're talking about
                 content_as_string = "\n\n".join(content)
                 if content_as_string == "/ign/":
@@ -82,11 +96,14 @@ def get_page_data(transcription_text, page_break_string=None):
                     page_type = "begin"
                 elif "/last/" in content_as_string:
                     page_type = "last"
+
+                marker, page_format = get_page_format(marker, page_format)
+
                 header, footer, content_as_string = get_header_and_footer(content_as_string)
 
                 # if len(content) < 100:
                 #     print(f"Marker is {marker} and page_num is {page_num} and content is {content}")
-                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
+                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type, page_format)
                 page_type = "" # temporary solution, because it happens again above, dunno why this helps
                 data_item = {}
                 read_page = False
@@ -94,10 +111,11 @@ def get_page_data(transcription_text, page_break_string=None):
             if line_prefix == "—":
                 # page does not need to be proofread
                 marker = line_suffix
+                marker, page_format = get_page_format(marker, page_format)
                 read_page = False
                 page_quality = "0"
                 content_as_string = ""
-                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
+                add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type, page_format)
                 data_item = {}
                 continue
             elif line_prefix == "-":
