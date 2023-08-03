@@ -672,7 +672,7 @@ if not at_expected_progress:
 # Get page data again, since it's been updated
 page_data = get_page_data(transcription_text, page_break_string)
 
-index_pagelist = create_index_pagelist(transcription_text, page_data)
+index_pagelist = create_index_pagelist(page_data)
 
 # print(index_pagelist)
 

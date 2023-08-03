@@ -175,15 +175,12 @@ def get_roman_page_numbers(page_data):
     else:
         return None
 
-def create_index_pagelist(text, page_data):
+def create_index_pagelist(page_data):
     print("Generating index pagelist...")
-    page_markers = get_page_markers(text)
-    page_markers.append("-end") # for the sake of parsing, doesn't actually do anything else
     pagelist = "<pagelist\n"
     stored_marker = None
     stored_marker_pages = []
 
-    # MAKE THIS GO THRU PAGE DATA, NOT TEXT
     for marker_num, page in enumerate(page_data):
         
         marker = page["marker"]
@@ -215,6 +212,11 @@ def create_index_pagelist(text, page_data):
         if not marker.isdigit():
             stored_marker = marker
             stored_marker_pages.append(marker_num)
+        
+        # if back cover
+        if marker_num == len(page_data) and len(stored_marker_pages) == 1:
+            first_stored_marker_page = stored_marker_pages[0]
+            pagelist += f"{first_stored_marker_page}={stored_marker}\n"
 
     roman_pagelist_line = get_roman_page_numbers(page_data)
     if roman_pagelist_line:
