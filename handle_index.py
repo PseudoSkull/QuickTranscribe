@@ -158,7 +158,24 @@ def generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mains
 
         return toc_templates
 
-def create_index_pagelist(text):
+def get_roman_page_numbers(page_data):
+    print("Getting roman page numbers...")
+    roman_page_numbers = []
+    for page in page_data:
+        page_format = page["format"]
+        page_num = page["page_num"]
+        if page_format == "roman":
+            roman_page_numbers.append(page_num)
+    
+    if roman_page_numbers:
+        first_roman_page_num = roman_page_numbers[0]
+        last_roman_page_num = roman_page_numbers[-1]
+        roman_pagelist_line = f"{first_roman_page_num}to{last_roman_page_num}=roman"
+        return roman_pagelist_line
+    else:
+        return None
+
+def create_index_pagelist(text, page_data):
     print("Generating index pagelist...")
     page_markers = get_page_markers(text)
     page_markers.append("-end") # for the sake of parsing, doesn't actually do anything else
@@ -166,6 +183,7 @@ def create_index_pagelist(text):
     stored_marker = None
     stored_marker_pages = []
 
+    # MAKE THIS GO THRU PAGE DATA, NOT TEXT
     for marker_num, marker in enumerate(page_markers):
         
         marker_num += 1 # not zero-indexed
@@ -197,6 +215,10 @@ def create_index_pagelist(text):
         if not marker_suffix.isdigit():
             stored_marker = marker_suffix
             stored_marker_pages.append(marker_num)
+
+    roman_pagelist_line = get_roman_page_numbers(page_data)
+    if roman_pagelist_line:
+        pagelist = pagelist.replace("=1\n", f"=1\n{roman_pagelist_line}\n", 1)
 
     pagelist += "/>"
 

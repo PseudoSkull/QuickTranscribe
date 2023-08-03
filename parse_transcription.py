@@ -728,9 +728,18 @@ def get_aux_toc_items(chapters, mainspace_work_title):
 
         aux_toc_items.append(aux_toc_entry)
     
-    return aux_toc_items    
+    return aux_toc_items
 
-def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, smallcaps=True, header=False):
+def convert_page_num_to_roman_if_roman(page_num, page_data):
+    for page in page_data:
+        page_marker = page["marker"]
+        if page_marker == str(page_num):
+            page_format = page["format"]
+            if page_format == "roman":
+                page_num = roman.toRoman(page_num).lower()
+            return page_num
+
+def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, smallcaps=True, header=False):
     print("Generating TOC...")
 
     if toc_is_auxiliary:
@@ -764,7 +773,9 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
 
     for chapter_num, chapter in enumerate(chapters):
         page_num = chapter["page_num"]
+        page_num = convert_page_num_to_roman_if_roman(page_num, page_data)
         chapter_title = chapter["title"]
+        chapter_prefix = chapter["prefix"]
         splice = chapter["splice"]
         chapter_is_auxiliary = chapter["auxiliary"]
         # chapter_num = chapter_num + 1 # 1-indexed rather than 0
@@ -773,7 +784,11 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, s
             chapter_num_as_roman = roman.toRoman(chapter_num)
         else:
             chapter_num_as_roman = ""
-        toc_link = f"[[{mainspace_work_title}/Chapter {chapter_num}|{chapter_title}]]"
+
+        if not chapter_num and not chapter_prefix:
+            toc_link = f"[[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
+        else:
+            toc_link = f"[[{mainspace_work_title}/{chapter_prefix} {chapter_num}|{chapter_title}]]"
 
         if toc_format:
             toc_row = toc_format
@@ -1834,7 +1849,7 @@ def generate_header_footer_text(header, footer):
 
     return header_text, footer_text
 
-def generate_marker_text(marker, quality):
+def generate_marker_text(marker, quality, page_format, previous_page_format):
     if quality == "0":
         marker_text = "—"
     else:
@@ -1843,6 +1858,12 @@ def generate_marker_text(marker, quality):
     if marker:
         marker_text += marker
     
+    if page_format != previous_page_format:
+        if previous_page_format == "roman":
+            marker_text += "n"
+        elif previous_page_format == "numeric":
+            marker_text += "r"
+
     if quality != "0":
         marker_text += "\n\n"
 
@@ -1854,14 +1875,17 @@ def insert_parsed_pages(page_data, transcription_text):
 
     transcription_text_pages = []
 
-    for page in page_data:
+    for page_num, page in enumerate(page_data):
         content = page["content"]
         header = page["header"]
         footer = page["footer"]
         marker = page["marker"]
         quality = page["page_quality"]
+        previous_page = page_data[page_num - 1]
+        previous_page_format = previous_page["format"]
+        page_format = page["format"]
 
-        marker_text = generate_marker_text(marker, quality)
+        marker_text = generate_marker_text(marker, quality, page_format, previous_page_format)
 
         if quality == "0":
             page_text = marker_text
