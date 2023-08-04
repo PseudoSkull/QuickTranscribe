@@ -19,7 +19,7 @@ from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos
 
 
 
@@ -393,6 +393,10 @@ if not at_expected_progress:
     find_repeated_characters(transcription_text)
     process_break()
     find_uneven_quotations(transcription_text)
+    process_break()
+    find_long_substrings(text)
+    process_break()
+    find_consonant_combos(text)
     process_break()
     # FIGURE OUT A BETTER SPELLCHECKER SITUATION
     # use_spellchecker(transcription_text)

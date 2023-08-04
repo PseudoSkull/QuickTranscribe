@@ -34,6 +34,15 @@ from handle_wikidata import handle_file
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from spellchecker import SpellChecker
 
+consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 't', 'v', 'w', 'x', 'z']
+
+consonants_that_should_never_combine = [
+    'j',
+    'k',
+    'q',
+    'z',
+]
+
 def use_spellchecker(text):
     print("Using spellchecker...")
     spell_checker = SpellChecker()
@@ -477,6 +486,54 @@ def find_uneven_quotations(text):
             print_in_yellow(f"{paragraph_num}: {paragraph}")
     
     return lines_with_odd_double_quotes
+
+
+
+def find_long_substrings(text):
+    long_substrings = []
+    current_substring = ""
+
+    for char in text:
+        if char.isalpha() or char == "'":
+            current_substring += char
+        else:
+            if len(current_substring) >= 10:
+                long_substrings.append(current_substring)
+            current_substring = ""
+
+    # if len(current_substring) > 10:
+    #     long_substrings.append(current_substring)
+
+    long_substrings.sort(key=len, reverse=True)
+
+    if len(long_substrings) == 0:
+        print_in_green("No long words of 10 or more letters found.")
+    else:
+        print_in_yellow("Long words of 10 or more letters found:")
+        print_in_yellow(long_substrings)
+
+    return long_substrings
+
+def find_consonant_combos(text):
+    consonant_combos = []
+    current_substring = ""
+
+    for char in text:
+        if char in consonants:
+            current_substring += char
+        else:
+            if len(current_substring) >= 3:
+                consonant_combos.append(current_substring)
+            current_substring = ""
+    
+    consonant_combos.sort(key=len, reverse=True)
+
+    if len(consonant_combos) == 0:
+        print_in_green("No likely problematic consonant combos found.")
+    else:
+        print_in_yellow("Likely problematic consonant combos found:")
+        print_in_yellow(consonant_combos)
+
 
 
 # checking total pages against the Commons scan file

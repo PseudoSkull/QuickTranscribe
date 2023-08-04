@@ -211,8 +211,6 @@ def generate_title_with_variants(words):
 
     return title_with_variants
 
-def generate_combinations(title_with_variants):
-    return
     # if isinstance(lst, str):
     #     return [lst]
 
@@ -289,7 +287,7 @@ def create_redirects(page_title_to_parse):
     redirect_target = page_title_to_parse # for now; when we get to disambig situations it'll be different
     print(f"Creating redirects to {redirect_target}...")
     site = pywikibot.Site("en", "wikisource")
-    for title_num, title in variant_titles:
+    for title_num, title in enumerate(variant_titles):
         title_num += 1
         redirect_page = pywikibot.Page(site, title)
         redirect_text = f"#REDIRECT [[{redirect_target}]]"
