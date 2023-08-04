@@ -504,6 +504,8 @@ def find_long_substrings(text):
     # if len(current_substring) > 10:
     #     long_substrings.append(current_substring)
 
+    long_substrings = list(set(long_substrings))
+
     long_substrings.sort(key=len, reverse=True)
 
     if len(long_substrings) == 0:
@@ -522,10 +524,11 @@ def find_consonant_combos(text):
         if char in consonants:
             current_substring += char
         else:
-            if len(current_substring) >= 3:
+            if len(current_substring) >= 4:
                 consonant_combos.append(current_substring)
             current_substring = ""
     
+    consonant_combos = list(set(consonant_combos))
     consonant_combos.sort(key=len, reverse=True)
 
     if len(consonant_combos) == 0:

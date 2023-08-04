@@ -219,7 +219,8 @@ def get_actual_page_num(page_num, page_data):
 
 def page_is_image_page(page):
     content = page["content"]
-    return len(content.split("\n\n")) == 1 and "/img/" in content
+    page_is_image_page_condition = len(content.split("\n\n")) == 1 and ("{{FreedImg" in content or "[[File:" in content)
+    return page_is_image_page_condition
 
 def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False):
     # splits = []
@@ -391,6 +392,14 @@ def get_first_content_page(page_data): # if there's no chapters in the book
         if page["type"] == "begin":
             return page_num
 
+def check_if_advertising_transcluded(page_data):
+    for page in page_data:
+        page_quality = page["page_quality"]
+        page_marker = page["marker"]
+        if page_quality == "i" and (page_marker == "ad" or page_marker == "adv"):
+            return True
+    return False
+
 def generate_copyright_template(year, author_death_year):
     if year < 1928:
         template_name = f"PD-US|{author_death_year}"
@@ -496,7 +505,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     # page_tags = f"\n{page_break}\n".join(pages_tags)
 
     if len(chapters) == 0:
-        page_tags += f"\n{page_break}\n" + get_transclusion_tags(chapters, page_data, page_offset, 0, filename, first_content_page=first_content_page)
+        page_tags += f"\n{page_break}\n" + get_transclusion_tags(chapters, page_data, 0, filename, first_content_page=first_content_page)
 
     aux_toc = ""
 

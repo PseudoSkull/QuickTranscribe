@@ -373,9 +373,12 @@ def generate_image_data(page_data, work_title, year):
     print("Checking for an existing image data json file...")
     image_data_json_file = "image_data.json"
     image_data = get_json_data(image_data_json_file)
-    if image_data or len(image_data) == 0:
-        print("Image data JSON found!")
-        return image_data
+    try:
+        if len(image_data) >= 0:
+            print("Image data JSON found!")
+            return image_data
+    except TypeError:
+        pass
     print("Generating image data from page data...")
     image_data = []
     seq_num = 0

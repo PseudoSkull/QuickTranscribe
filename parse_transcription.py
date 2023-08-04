@@ -394,9 +394,12 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
-    if chapters:
-        print_in_green("Chapter data JSON found!")
-        return chapters
+    try:
+        if len(chapters) >= 0:
+            print("Chapter data JSON found!")
+            return chapters
+    except TypeError:
+        pass
 
     prefixless_chapter_titles = {
         "bibl": "Bibliography",
@@ -880,9 +883,10 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
             page_number_to_parse = "i"
         else:
             continue
-        chapter = get_chapter_from_page_num(chapters, illustration_page_number)
-        illustration_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
-        illustrations_beginning += f"{{{{TOC row 2-1|[[{illustration_link}|{image_caption}]]|{page_number_parameter}}}}}\n"
+        if chapters:
+            chapter = get_chapter_from_page_num(chapters, illustration_page_number)
+            illustration_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
+            illustrations_beginning += f"{{{{TOC row 2-1|[[{illustration_link}|{image_caption}]]|{page_number_parameter}}}}}\n"
 
     illustrations_end = "{{TOC end}}"
     illustrations = illustrations_beginning + illustrations_end
@@ -1664,7 +1668,15 @@ def convert_images(page, image_data, img_num):
 
 
 
+def is_image_page(page):
+    content = page["content"]
+    img_tag = get_plain_tag("img")
+    content_lines = content.split("\n\n")
 
+    if len(content_lines) == 1 and img_tag in content:
+        return True
+
+    return False
 
 def get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_page):
 
@@ -1673,7 +1685,7 @@ def get_hyphenated_word_data(next_page_num, page_data, word_start, word_start_pa
         content = page["content"]
         page_quality = page["page_quality"]
         marker = page["marker"]
-        if marker.isdigit() and page_quality != "0":
+        if marker.isdigit() and page_quality != "0" and not is_image_page(page):
             content = content.split(" ")
             word_end = content[0]
             marker = page["marker"]
@@ -1714,7 +1726,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
             next_page = page_data[next_page_num]
             next_page_quality = next_page["page_quality"]
             next_page_marker = next_page["marker"]
-            if not next_page_marker.isdigit() or next_page_quality == "0": # or next_page_content.startswith(/img/)
+            if not next_page_marker.isdigit() or next_page_quality == "0" or is_image_page(next_page):
                 print("Word found that's hyphenated between images. Handling hyphenation continuations...")
                 word_start = content.pop()
                 word_start = word_start[:-1]

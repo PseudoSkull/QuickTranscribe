@@ -13,7 +13,7 @@ from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
-from handle_transclusion import transclude_pages
+from handle_transclusion import transclude_pages, check_if_advertising_transcluded
 from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file
 from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
@@ -394,9 +394,9 @@ if not at_expected_progress:
     process_break()
     find_uneven_quotations(transcription_text)
     process_break()
-    find_long_substrings(text)
+    find_long_substrings(transcription_text)
     process_break()
-    find_consonant_combos(text)
+    find_consonant_combos(transcription_text)
     process_break()
     # FIGURE OUT A BETTER SPELLCHECKER SITUATION
     # use_spellchecker(transcription_text)
@@ -581,6 +581,8 @@ if not at_expected_progress:
 
 
 page_data = get_page_data(transcription_text)
+
+is_advertising_transcluded = check_if_advertising_transcluded(page_data)
 
 image_data = generate_image_data(page_data, title, year)
 
