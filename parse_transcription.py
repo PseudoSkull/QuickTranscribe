@@ -30,12 +30,13 @@ from handle_transclusion import get_last_page
 
 basic_elements = {
     "b2": "bar|2",
+    "brp": "£",
+    "bt": "***|char=·",
     "d": "dhr",
     "end": "dhr|2}}\n{{c|{{asc|The end}}",
     "n": "nop",
     "peh": "peh",
     "st": "***",
-    "bt": "***|char=·",
     "-": "<spl>", # for handling split between tags
 }
 
@@ -572,21 +573,39 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     previous_chapter["has_sections"] = True
                     chapters[previous_chapter_index] = previous_chapter
 
-                    
+    chapters = get_chapters_with_refs(chapters, page_data)
 
-
-                    
-
-
-
-
-
-
-    # print(chapters)
-    # exit()
     write_to_json_file(chapters_json_file, chapters)
     print_in_green("Chapter data retrieved! Go and make sure it's all correct.")
     exit()
+
+def get_chapters_with_refs(chapters, page_data):
+    chapters_with_refs = []
+
+    for chapter_num, chapter in enumerate(chapters):
+        chapter_page_num = chapter["page_num"]
+        try:
+            next_chapter = chapters[chapter_num + 1]
+            next_chapter_page_num = next_chapter["page_num"]
+            last_page = get_actual_page_num(next_chapter_page_num, page_data)
+        except IndexError:
+            # next_chapter_page_num = chapter_page_num + 1000
+            last_page = len(page_data) - 1
+
+        
+        first_page = get_actual_page_num(chapter_page_num, page_data)
+
+        for page_num in range(first_page, last_page + 1):
+            page = page_data[page_num]
+            content = page["content"]
+            if "/r/" in content:
+                chapter["refs"] = True
+                # chapters_with_refs.append(chapter)
+                break
+        
+        chapters_with_refs.append(chapter)
+    
+    return chapters_with_refs
 
 def get_chapter_from_page_num(chapters, page_num):
     try:
@@ -607,7 +626,7 @@ def get_chapter_from_page_num(chapters, page_num):
         try:
             next_chapter = chapters[chapter_num + 1]
             next_chapter_page_num = next_chapter["page_num"]
-            if type(next_chapter_page_num) == int:
+            if type(next_chapter_page_num) == int: # if advertisements
                 next_chapter_page_num = chapter_page_num + 1000
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
@@ -621,6 +640,15 @@ def get_chapter_from_page_num(chapters, page_num):
         # print(f"Type of chapter page num: {type(chapter_page_num)}. Type of page num: {type(page_num)} Type of next chapter page num: {type(next_chapter_page_num)}")
         if chapter_page_num < page_num and next_chapter_page_num > page_num:
             return chapter
+
+def get_actual_page_num(chapter_page_num, page_data):
+    # if type(chapter_page_num) == int:
+    #     return chapter_page_num
+    # else:
+    for actual_page_num, page in enumerate(page_data):
+        page_marker = page["marker"]
+        if page_marker == str(chapter_page_num):
+            return actual_page_num
 
 def add_section(sections, section_num, chapter_num, part_num, page_num, overall_page_num, section_name=None, section_prefix=None):
     section = {}
@@ -1136,14 +1164,17 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             chapter_has_sections = chapter["has_sections"]
 
             if chapter_format:
-                if len(chapters_in_page) == 1:
-                    replacements = {
-                        "cnam": chapter_title,
-                        "cnum": roman_chapter_num,
-                        "cpre": chapter_prefix,
-                    }
+                # if len(chapters_in_page) == 1:
+                replacements = {
+                    "cnam": chapter_title,
+                    "cnum": roman_chapter_num,
+                    "cpre": chapter_prefix,
+                }
 
-                    chapter_text = format_form_tag(chapter_format, replacements)
+                chapter_text = format_form_tag(chapter_format, replacements)
+
+                if chapter_text == chapter_format:
+                    chapter_text = f"{{{{ph|class=chapter|{chapter_title}.}}}}"
                 # else: handle section tags
             else:
                 if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
@@ -1168,6 +1199,8 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             content = replace_line(content, chapter_text, line_num)
 
             # chapter_num += 1
+
+    content = content.replace("  ", " ")
 
     page["content"] = content
     return overall_chapter_num, page
@@ -1380,6 +1413,25 @@ def convert_smallcaps(page):
         return page
 
     content = re.sub(r"\/sc\//(.+?)\//sc\/", r"{{sc|\1}}", content)
+
+    page["content"] = content
+
+    return page
+
+def convert_degrees(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/deg/", "Formatting /deg/ to degrees in transcription"):
+        return page
+
+    degrees_to_format = re.findall(r"\/deg\//(.+?)\//deg\/", content)
+
+    for degree in degrees_to_format:
+        coordinate = degree.replace("d", "°")
+        coordinate = degree.replace("'", "′")
+        coordinate = degree.replace("\"", "″")
+
+        content = content.replace(f"/deg//{degree}//deg/", coordinate)
 
     page["content"] = content
 
@@ -1791,6 +1843,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         block_continuations, page = convert_poems(page, block_continuations, convert_fqms) # done
         page = convert_italics(page)
         page = convert_smallcaps(page)
+        page = convert_degrees(page)
         page = convert_right(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
         page = convert_author_links(page)

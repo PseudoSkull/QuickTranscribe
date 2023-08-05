@@ -62,12 +62,9 @@ hanced
 
 # ARISTOPIA
 # Handle subtitles
-# Handle Librivox downloads, transclusion
 # Chapters: Introduction logic for chapter data, chapter headings, auxTOC. /concl/, /pref/.
 # REFERENCE LOGIC, smallrefs=yes in chapters, transclusion, and page data, namespace
-# Parse: Handle tiform
 # Parse: Format /deg/ template: 39d 40' -> 39° 40′
-# /nf/ tag: no fqm
 
 
 
@@ -166,23 +163,8 @@ hanced
 
 
 
-# THE IFS OF HISTORY
-# Title case: If word.isroman, then all uppercase. Example: CHARLES IV -> Charles IV
-# COMPLETELY REWORK CHAPTER DATA, now it's all kinds of messed up
-## Make a list of valid chapter tags and just make handling them the same for all of them.
-## Fix title case logic, which somehow got itself messed up to where it doesn't do that anymore.
-## KEEP an exit command at the end of chapter data gathering, so that we can ensure that the chapter titles are correct every time
 
 
-# Parse: /pref/aux=y/
-# Parse: /title/ for designating title page, for Index
-## Should work now, but needs to be tested
-
-
-
-
-# LITTLE ELEPHANT'S CHRISTMAS
-# Parse: hws hwe if image page follows
 
 
 
