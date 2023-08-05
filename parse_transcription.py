@@ -4,6 +4,7 @@ import pywikibot
 import re
 import roman
 
+from cleanup import remove_triple_newlines
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
 from handle_title_case import convert_to_title_case
@@ -754,6 +755,9 @@ def get_aux_toc_items(chapters, mainspace_work_title):
         chapter_numbered_name = f"{chapter_prefix}{chapter_num}"
 
         chapter_title = chapter["title"]
+
+        if chapter_title == "Advertisements":
+            continue
         
         if chapter_title and chapter_num:
             # aux_toc_entry = f"* [[{mainspace_work_title}/|{chapter_title}]]"
@@ -790,6 +794,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title)
         aux_toc_items = "\n".join(aux_toc_items)
         aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
+        print(aux_toc)
         return aux_toc
 
     if smallcaps:
@@ -1273,17 +1278,21 @@ def handle_references(page):
         return page
     
     if "/rt/" in content:
-        references = re.findall(r"\/rt\//(.+?)", content)
+        if "//rt/" not in content:
+            references = re.findall(r"\/rt\//(.+)", content)
 
         for reference in references:
             reference_text = f"<ref>{reference}</ref>"
             content = content.replace("/r/", reference_text, 1)
             content = content.replace(f"/rt//{reference}", "")
     
-    footer += "\n{{smallrefs}}"
+    if footer:
+        footer += "\n{{smallrefs}}"
+    else:
+        footer = "{{smallrefs}}"
 
     page["content"] = content
-    page["footer"] = content
+    page["footer"] = footer
 
     return page
 
@@ -1446,9 +1455,10 @@ def convert_degrees(page):
     degrees_to_format = re.findall(r"\/deg\//(.+?)\//deg\/", content)
 
     for degree in degrees_to_format:
-        coordinate = degree.replace("d", "°")
-        coordinate = degree.replace("'", "′")
-        coordinate = degree.replace("\"", "″")
+        coordinate = degree
+        coordinate = coordinate.replace("d", "°")
+        coordinate = coordinate.replace("'", "′")
+        coordinate = coordinate.replace("\"", "″")
 
         content = content.replace(f"/deg//{degree}//deg/", coordinate)
 
@@ -1980,6 +1990,8 @@ def insert_parsed_pages(page_data, transcription_text):
     
     transcription_text_pages = "\n\n".join(transcription_text_pages)
     transcription_text_pages = transcription_header + "\n\n" + transcription_text_pages
+
+    transcription_text_pages = remove_triple_newlines(transcription_text_pages)
 
     print_in_green("Transcription text page generated from parsed pages.")
 

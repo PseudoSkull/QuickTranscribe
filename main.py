@@ -169,7 +169,7 @@ hanced
 
 
 
-
+# "The Flora" -> fix in formatting chapter beginnings to sc
 # Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
 # Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
 # Cleanup: Find periods with lowercase letters after them, or on next page.

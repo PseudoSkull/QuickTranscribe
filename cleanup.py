@@ -54,15 +54,19 @@ def use_spellchecker(text):
         print_in_yellow(misspelled)
         return misspelled
 
-def initial_text_cleanup(text):
-# do regex replacements on page.text. Make sure it replaces all instances of string pattern.
-    # text = page.text
-    print("Doing some initial text cleanup...")
+def remove_triple_newlines(text):
     while 1:
         if "\n\n\n" in text:
             text = re.sub(r"\n\n\n", r"\n\n", text)
         else:
             break
+    return text
+
+def initial_text_cleanup(text):
+# do regex replacements on page.text. Make sure it replaces all instances of string pattern.
+    # text = page.text
+    print("Doing some initial text cleanup...")
+    text = remove_triple_newlines(text)
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
     text = text.replace("<br>", "<br />")
