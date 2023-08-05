@@ -143,6 +143,8 @@ def get_end_tag(abbreviation):
 def get_string_from_lines(content, string):
     content_split_lines = content.split("\n")
 
+    string = get_plain_tag(string)
+
     matches = {}
 
     for line_num, line in enumerate(content_split_lines):
@@ -160,7 +162,11 @@ def replace_line(content, replacement, line_num):
 def format_form_tag(row, replacements):
     for tag, replacement in replacements.items():
         tag = get_plain_tag(tag)
-        row = row.replace(tag, replacement)
+        print(f"Tag: {tag} Replacement: {replacement} Row: {row}")
+        if replacement:
+            row = row.replace(tag, replacement)
+    
+    row = row.replace("| ", "|")
     return row
 
 
@@ -528,14 +534,16 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                     
-                    if chapter_title:
-                        chapter["title"] = chapter_title
+                    # if chapter_title:
+                    chapter["title"] = chapter_title
 
                     chapter["hidden"] = False
                     chapter["auxiliary"] = False
                     chapter["refs"] = False # for now
                     chapter["part_num"] = part_num
                     chapter["has_sections"] = False
+                    # print(chapter)
+                    # chapter["title"] = chapter_title
                     chapter["display_title"] = chapter["title"]
 
                     if chapter_settings:
@@ -544,8 +552,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if "title" in chapter_settings:
                             chapter["title"] = chapter_settings["title"]
                     
-                    chapter["title"] = convert_to_title_case(chapter["title"])
-                    chapter["display_title"] = convert_to_title_case(chapter["display_title"])
+                    if chapter_title:
+                        chapter["title"] = convert_to_title_case(chapter["title"])
+                        chapter["display_title"] = convert_to_title_case(chapter["display_title"])
 
                     splice_chapter = False
                     if chapter_splice_points:
@@ -1073,104 +1082,92 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
-    ch_tag = get_plain_tag("ch")
-    bk_tag = get_plain_tag("bk")
-    pt_tag = get_plain_tag("pt")
-    pref_tag = get_plain_tag("pref")
-    contch_tag = get_plain_tag("contch")
-
     if strings_not_in_content(content, chapter_tags, "Converting chapter headings with"):
         return overall_chapter_num, page
 
 
+    chapters_in_page = []
+
     # Make this more dynamic, to deal with more scenarios
-    chapters_in_page = get_string_from_lines(content, ch_tag)
-    books_in_page = get_string_from_lines(content, bk_tag)
-    parts_in_page = get_string_from_lines(content, pt_tag)
-    prefaces_in_page = get_string_from_lines(content, pref_tag)
-    if len(chapters_in_page) == 0 and len(prefaces_in_page) > 0:
-        chapters_in_page = prefaces_in_page
-    content_chapters_in_page = get_string_from_lines(content, contch_tag)
-    if len(chapters_in_page) == 0 and len(content_chapters_in_page) > 0:
-        chapters_in_page = content_chapters_in_page
+    for chapter_tag in chapter_tags:
+        chapters_in_page_of_tag = get_string_from_lines(content, chapter_tag)
+        # print(chapters_in_page_of_tag)
+        if chapters_in_page_of_tag:
+            chapters_in_page.append(chapters_in_page_of_tag)
+    
+    print(chapters_in_page)
+    # chapters_in_page = get_string_from_lines(content, ch_tag)
+    # books_in_page = get_string_from_lines(content, bk_tag)
+    # parts_in_page = get_string_from_lines(content, pt_tag)
+    # prefaces_in_page = get_string_from_lines(content, pref_tag)
+    # if len(chapters_in_page) == 0 and len(prefaces_in_page) > 0:
+    #     chapters_in_page = prefaces_in_page
+    # content_chapters_in_page = get_string_from_lines(content, contch_tag)
+    # if len(chapters_in_page) == 0 and len(content_chapters_in_page) > 0:
+    #     chapters_in_page = content_chapters_in_page
 
+    for chapter in chapters_in_page:
+        for line_num, ch_tag in chapter.items():
+            # part_num_zero_indexed = part_num - 1
+            # chapter = chapters[chapter_num]
+            overall_chapter_num += 1
 
-    if books_in_page:
-        parts_in_page = books_in_page # they're the same, so make it the same standard
+            overall_chapter_num_zero_indexed = overall_chapter_num - 1
+            chapter = chapters[overall_chapter_num_zero_indexed]
 
-    for line_num, pt_tag in parts_in_page.items():
-
-        overall_chapter_num += 1
-        # part_num += 1
-
-        overall_chapter_num_zero_indexed = overall_chapter_num - 1
-        part = chapters[overall_chapter_num_zero_indexed]
-
-        
-        # chapter_num = 0 # resetting chapter_num to 0, because we're starting a new part. It won't actually display as 0 necessarily, because for displaying the chapter, the chapter_num in the data is used instead of the incremented value.
-        part_num = part["chapter_num"]
-        roman_part_num = roman.toRoman(part_num)
-        part_prefix = part["prefix"]
-        part_text = f"{{{{ph|class=part-header|{part_prefix} {roman_part_num}}}}}"
-
-        content = replace_line(content, part_text, line_num)
-
-    for line_num, ch_tag in chapters_in_page.items():
-        # part_num_zero_indexed = part_num - 1
-        # chapter = chapters[chapter_num]
-        overall_chapter_num += 1
-
-        overall_chapter_num_zero_indexed = overall_chapter_num - 1
-        chapter = chapters[overall_chapter_num_zero_indexed]
-
-        roman_chapter_num = ""
-        real_chapter_num = chapter["chapter_num"]
-        if real_chapter_num:
-            roman_chapter_num = roman.toRoman(real_chapter_num)
-            if chapter_type == "num":
-                displayed_section_num = real_chapter_num
+            roman_chapter_num = ""
+            real_chapter_num = chapter["chapter_num"]
+            if real_chapter_num:
+                roman_chapter_num = roman.toRoman(real_chapter_num)
+                if chapter_type == "num":
+                    displayed_section_num = real_chapter_num
+                else:
+                    displayed_section_num = roman_chapter_num
             else:
-                displayed_section_num = roman_chapter_num
-        else:
-            displayed_section_num = None
+                displayed_section_num = None
 
-        chapter_prefix = chapter["prefix"]
+            chapter_prefix = chapter["prefix"]
 
-        if chapter_prefix:
-            chapter_prefix += " "
-        else:
-            chapter_prefix = ""
-        chapter_title = chapter["display_title"]
-        chapter_has_sections = chapter["has_sections"]
-
-        if chapter_format:
-            if len(chapters_in_page) == 1:
-                replacements = {
-                    "cnam": chapter_title,
-                    "cnum": roman_chapter_num,
-                    "cpre": chapter_prefix,
-                }
-
-                chapter_text = format_form_tag(chapter_format, replacements)
-            # else: handle section tags
-        else:
-            if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
-                chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
-            elif ch_tag == "/contch/":
-                chapter_text = f"{{{{ph|class=title|{chapter_title}}}}}"
-            elif not chapter_prefix and not displayed_section_num:
-                chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
+            if chapter_prefix:
+                chapter_prefix += " "
             else:
-                # print(type(chapter_title))
-                # print(chapter_title)
-                chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
-        
-        if chapter_has_sections:
-            chapter_text += "\n/sec/"
+                chapter_prefix = ""
+            chapter_title = chapter["display_title"]
+            chapter_has_sections = chapter["has_sections"]
 
-        content = replace_line(content, chapter_text, line_num)
+            if chapter_format:
+                if len(chapters_in_page) == 1:
+                    replacements = {
+                        "cnam": chapter_title,
+                        "cnum": roman_chapter_num,
+                        "cpre": chapter_prefix,
+                    }
 
-        # chapter_num += 1
+                    chapter_text = format_form_tag(chapter_format, replacements)
+                # else: handle section tags
+            else:
+                if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
+                    chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
+                elif ch_tag == "/contch/":
+                    chapter_text = f"{{{{ph|class=title|{chapter_title}}}}}"
+                elif not chapter_prefix and not displayed_section_num:
+                    chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
+                else:
+                    # print(type(chapter_title))
+                    # print(chapter_title)
+                    chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+            
+            if ch_tag == "pt" or ch_tag == "bk":
+                part_num = chapter["part_num"]
+                roman_part_num = roman.toRoman(part_num)
+                chapter_text = f"{{{{ph|class=part-header|{chapter_prefix} {roman_part_num}}}}}"
+            
+            if chapter_has_sections:
+                chapter_text += "\n/sec/"
+
+            content = replace_line(content, chapter_text, line_num)
+
+            # chapter_num += 1
 
     page["content"] = content
     return overall_chapter_num, page
