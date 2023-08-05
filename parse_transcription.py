@@ -1262,11 +1262,30 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
             #     pass # for now
 
 
-########################## formatting ##########################
+########################## references ##########################
 
 
+def handle_references(page):
+    content = page["content"]
+    footer = page["footer"]
 
+    if string_not_in_content(content, "/r/", "Handling references"):
+        return page
+    
+    if "/rt/" in content:
+        references = re.findall(r"\/rt\//(.+?)", content)
 
+        for reference in references:
+            reference_text = f"<ref>{reference}</ref>"
+            content = content.replace("/r/", reference_text, 1)
+            content = content.replace(f"/rt//{reference}", "")
+    
+    footer += "\n{{smallrefs}}"
+
+    page["content"] = content
+    page["footer"] = content
+
+    return page
 
 
 
@@ -1852,6 +1871,8 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         img_num, page = convert_images(page, image_data, img_num)
         page = convert_page_links(page, chapters, mainspace_work_title)
 
+
+        page = handle_references(page)
 
         page = handle_forced_page_breaks(page, page_break_string)
 
