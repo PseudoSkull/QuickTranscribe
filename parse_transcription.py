@@ -127,6 +127,8 @@ def get_bare_title(mainspace_work_title):
 def get_plain_tag(abbreviation):
     if "/" not in abbreviation:
         return f"/{abbreviation}/"
+    else:
+        return abbreviation
 
 def get_noparams_start_tag(abbreviation):
     if abbreviation.startswith("/") and abbreviation.endswith("/"):
@@ -143,17 +145,26 @@ def get_end_tag(abbreviation):
 
 ## PARSE ##
 
-def get_string_from_lines(content, string):
+def get_string_from_lines(content, strings):
     content_split_lines = content.split("\n")
+    
+    if type(strings) == str:
+        strings = [strings,]
 
-    string = get_plain_tag(string)
+    list_of_tags = []
+
+    for string in strings:
+        string = get_plain_tag(string)
+        list_of_tags.append(string)
 
     matches = {}
 
-    for line_num, line in enumerate(content_split_lines):
-        if string in line:
-            matches[line_num] = line
+    for tag in list_of_tags:
+        for line_num, line in enumerate(content_split_lines):
+            if tag in line:
+                matches[line_num] = line
     
+    print(matches)
     return matches
 
 def replace_line(content, replacement, line_num):
@@ -1705,17 +1716,25 @@ def convert_images(page, image_data, img_num):
     content = page["content"]
 
     img_tag = get_plain_tag("img")
+    vign_tag = get_plain_tag("vign")
 
-    if string_not_in_content(content, img_tag, "Converting images"):
+    if string_not_in_content(content, img_tag, "Converting images") and string_not_in_content(content, vign_tag, "Converting vignette images"):
         return img_num, page
     
+    image_tags = [
+        "img",
+        "vign",
+        "plt",
+        "fig",
+    ]
+    
 
-    images_in_page = get_string_from_lines(content, img_tag)
+    images_in_page = get_string_from_lines(content, image_tags)
 
     # pattern = r"\/img\/([0-9]+)\/"
     # images = re.findall(pattern, content)
     for line_num, image_tag in images_in_page.items():
-        image_number_pattern = r"\/img\/n=([0-9]+)\/"
+        image_number_pattern = r"\/n=([0-9]+)\/"
         image_number = re.search(image_number_pattern, image_tag)
         if image_number:
             image_number = image_number.group(1)
