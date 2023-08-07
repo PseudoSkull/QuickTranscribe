@@ -330,7 +330,7 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
     return chapter_transclusion_tags
 
-def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename):
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded):
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
@@ -339,6 +339,12 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
         chapter_prefix = chapter["prefix"]
+        chapter_has_references = chapter["refs"]
+
+        smallrefs = ""
+        if chapter_has_references:
+            smallrefs = "\n\n{{smallrefs}}"
+
         if not chapter_prefix and chapter_num:
             chapter_prefix = "Chapter"
         chapter_internal_name = f"{chapter_prefix} {chapter_num}"
@@ -361,13 +367,16 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
  | notes      = 
 }}}}{defaultsort}
 
-{chapter_transclusion_tags}"""
+{chapter_transclusion_tags}{smallrefs}"""
         # print(chapter_text)
 
         if chapter_name == chapter_internal_name:
             edit_summary = f"Transcluding {chapter_name}..."
         elif chapter_name == title:
             edit_summary = f"Transcluding {chapter_name} (main content chapter)..."
+        elif chapter_name == "Advertisements" and not advertising_is_transcluded:
+            print_in_yellow("Advertising not proofread. Skipping advertisement chapter transclusion...")
+            continue
         else:
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
         print(chapter_text)
@@ -397,17 +406,27 @@ def check_if_advertising_transcluded(page_data):
         page_quality = page["page_quality"]
         page_marker = page["marker"]
         if page_quality == "i" and (page_marker == "ad" or page_marker == "adv"):
-            return True
-    return False
+            return False
+    return True
 
-def generate_copyright_template(year, author_death_year):
+
+# def is_PD_old(death_year, current_year):
+
+def generate_copyright_template(year, author_death_year, current_year):
     if year < 1928:
-        template_name = f"PD-US|{author_death_year}"
+        if (current_year - author_death_year) >= 101:
+            template_name = "PD-old"
+        else:
+            template_name = f"PD-US|{author_death_year}"
     elif year < 1964:
         template_name = f"PD-US-not-renewed|pubyear={year}|{author_death_year}"
+    elif year < 1978:
+        template_name = f"PD-US-no-notice|{author_death_year}"
+    elif year < 1989:
+        template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -468,37 +487,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 }}}}{defaultsort}
 
 """
-    # produce all the page tags
-    pages_tags = []
-    toc_pages = []
-    # for page_num in range(1, first_content_page):
-    #     page_num_zero_indexed = page_num - 1
-    #     page = page_data[page_num_zero_indexed]
-    #     page_quality = page["page_quality"]
-    #     page_type = page["type"]
-    #     if page_quality != "0":
-    #         if page_type == "toc":
-    #             toc_pages.append(page_num)
-    #             # print(toc_pages)
-    #             if page_num == first_content_page - 1:
-    #                 page_tag = generate_toc_page_tag(toc_pages, filename)
-    #                 toc_pages = []
-    #             else:
-    #                 continue
-    #         else:
 
-    #             if len(toc_pages) > 0:
-    #                 if len(toc_pages) == 1:
-    #                     page_num = toc_pages[0]
-    #                     page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-    #                     toc_pages = []
-    #                 else:
-    #                     page_tag = generate_toc_page_tag(toc_pages, filename)
-    #                     toc_pages = []
-    #             else:
-    #                 page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-    #             # page_tag = f"<pages index=\"{filename}\" include={page_num} />"
-    #         pages_tags.append(page_tag)
     page_tags = get_transclusion_tags(chapters, page_data, -1, filename, first_content_page=first_content_page, front_matter=True)
 
     page_break = "{{page break|label=}}"
@@ -515,14 +504,14 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     hidden_export_toc = ""
 
     if chapters:
-        if chapters[-1]["title"] == "Advertisements":
+        if chapters[-1]["title"] == "Advertisements" and advertising_is_transcluded:
             hidden_export_toc = """
 {{hidden export TOC|
 * [[/Advertisements/]]
 }}"""
 
 
-    copyright_template = generate_copyright_template(year, author_death_year) # for now, some logic later
+    copyright_template = generate_copyright_template(year, author_death_year, current_year) # for now, some logic later
     # additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
 
     # categories = ["Ready for export"] # for now, some logic later
@@ -572,4 +561,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
-        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename)
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded)

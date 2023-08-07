@@ -306,7 +306,7 @@ def get_author_death_year(author_item):
 
     if author_death_date:
         # Extract the year from the specific part of the date string. Example: +00000001961-07-12T00:00:00Z
-        author_death_year = author_death_date[8:][:4]
+        author_death_year = int(author_death_date[8:][:4])
         print_in_green(f"Death year retrieved for {author_item}: {author_death_year}.")
     else:
         print_in_yellow(f"Death year not found for {author_item}.")

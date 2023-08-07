@@ -125,7 +125,8 @@ def get_bare_title(mainspace_work_title):
 ## TAGS ##
 
 def get_plain_tag(abbreviation):
-    return f"/{abbreviation}/"
+    if "/" not in abbreviation:
+        return f"/{abbreviation}/"
 
 def get_noparams_start_tag(abbreviation):
     if abbreviation.startswith("/") and abbreviation.endswith("/"):
@@ -1010,10 +1011,10 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
     ]
 
     if first_letter in drop_initial_quotes:
-        if drop_initials_float_quotes == "y":
-            replacement = r"\1{{di|\3|fl=\2}}"
-        else:
-            replacement = r"\1{{di|\2\3}}"
+        # if drop_initials_float_quotes == "y":
+        replacement = r"\1{{di|\3|fl=\2}}"
+        # else:
+            # replacement = r"\1{{di|\2\3}}"
 
         content = re.sub(chapter_beginning_pattern, replacement, content)
     elif first_letter.isalpha():

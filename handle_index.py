@@ -347,9 +347,13 @@ def change_proofread_progress(index_page_title):
     index_page_text = re.sub(r"Progress=C", f"Progress={progress}", index_page_text)
     save_page(index_page, site, index_page_text, "Changing index progress to Proofread...")
 
-def change_transclusion_progress(index_page_title):
+def change_transclusion_progress(index_page_title, advertising_is_transcluded):
     site = pywikibot.Site('en', 'wikisource')
     index_page = pywikibot.Page(site, index_page_title)
     index_page_text = index_page.text
-    index_page_text = re.sub("Transclusion=no", "Transclusion=yes", index_page_text)
+    if advertising_is_transcluded:
+        transclusion_progress = "yes"
+    else:
+        transclusion_progress = "notadv"
+    index_page_text = re.sub("Transclusion=no", f"Transclusion={transclusion_progress}", index_page_text)
     save_page(index_page, site, index_page_text, "Changing transclusion progress to \"fully transcluded\"...")

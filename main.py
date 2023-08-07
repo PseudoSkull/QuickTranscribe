@@ -20,7 +20,7 @@ from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos
-
+import datetime
 
 
 # GET OCR DIRECTLY FROM TESSERACT, NOT JUST IA!!!!!!!!!
@@ -59,12 +59,6 @@ en-
 hanced
 """
 
-
-# ARISTOPIA
-# Handle subtitles
-# Chapters: Introduction logic for chapter data, chapter headings, auxTOC. /concl/, /pref/.
-# REFERENCE LOGIC, smallrefs=yes in chapters, transclusion, and page data, namespace
-# Parse: Format /deg/ template: 39d 40' -> 39° 40′
 
 
 
@@ -143,13 +137,11 @@ hanced
 
 
 # THE HISTORY OF LITTLE HENRY AND HIS BEARER
-# Parse: /lgi/ -> arbitrary lgi
-# Parse: /li/ -> link hyphenated words
 # /r/, /rt//, /r//, /ua//
+# Parse: /li/ -> link hyphenated words
 # Pages: Do not add adv pages
 # Index: Advertising not transcluded
 # Transclusion: Does it know that the original was 1814, and to use category based on OY?
-# Transclusion: PD-old
 # Transclusion: /Advertisements. If at this time you want to go through the torment that will entail rather than adding the redlink manually
 # 
 # ...
@@ -295,6 +287,7 @@ site = pywikibot.Site('en', 'wikisource')
 commons_site = pywikibot.Site('commons', 'commons')
 wikidata_site = pywikibot.Site('wikidata', 'wikidata')
 transcription_page = pywikibot.Page(site, transcription_page_title)
+current_year = int(datetime.datetime.now().year)
 title = get_bare_title(mainspace_work_title)
 # title = get_title(mainspace_work_title)
 
@@ -564,7 +557,7 @@ if not at_expected_progress:
 
 page_data = get_page_data(transcription_text)
 
-is_advertising_transcluded = check_if_advertising_transcluded(page_data)
+advertising_is_transcluded = check_if_advertising_transcluded(page_data)
 
 image_data = generate_image_data(page_data, title, year)
 
@@ -705,13 +698,13 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year)
 
     create_redirects(mainspace_work_title)
 
     process_break()
 
-    change_transclusion_progress(index_page_title)
+    change_transclusion_progress(index_page_title, advertising_is_transcluded)
 
     add_wikisource_page_to_item(version_item, mainspace_work_title)
 
