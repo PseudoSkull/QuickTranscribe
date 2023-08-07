@@ -159,12 +159,11 @@ def get_string_from_lines(content, strings):
 
     matches = {}
 
-    for tag in list_of_tags:
-        for line_num, line in enumerate(content_split_lines):
+    for line_num, line in enumerate(content_split_lines):
+        for tag in list_of_tags:
             if tag in line:
                 matches[line_num] = line
     
-    print(matches)
     return matches
 
 def replace_line(content, replacement, line_num):
@@ -1733,7 +1732,7 @@ def convert_images(page, image_data, img_num):
 
     # pattern = r"\/img\/([0-9]+)\/"
     # images = re.findall(pattern, content)
-    for line_num, image_tag in images_in_page.items():
+    for line_num, image_tag in reversed(images_in_page.items()):
         image_number_pattern = r"\/n=([0-9]+)\/"
         image_number = re.search(image_number_pattern, image_tag)
         if image_number:
