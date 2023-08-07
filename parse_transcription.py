@@ -610,7 +610,7 @@ def get_chapters_with_refs(chapters, page_data):
         for page_num in range(first_page, last_page + 1):
             page = page_data[page_num]
             content = page["content"]
-            if "/r/" in content:
+            if "/r/" in content or "/rc/" in content or "/rcs/" in content or "/rce/" in content or "/ua/" in content:
                 chapter["refs"] = True
                 # chapters_with_refs.append(chapter)
                 break
@@ -1281,11 +1281,31 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
 ########################## references ##########################
 
 
+def handle_reference_continuations(page, reference_continuations):
+    content = page["content"]
+    footer = page["footer"]
+
+    if string_not_in_content(content, "/rc/", "Handling reference continuations"):
+        return page
+    
+    if "/rc/" in content:
+        if "//rc/" not in content:
+            reference_continuations = re.findall(r"\/rc\//(.+)", content)
+
+        for reference_continuation in reference_continuations:
+            reference_continuation_text = f"<ref>{reference_continuation}</ref>"
+            content = content.replace("/rc/", reference_continuation_text, 1)
+            content = content.replace(f"/rc//{reference_continuation}", "")
+    
+    page["content"] = content
+    return page
+    
+
 def handle_references(page):
     content = page["content"]
     footer = page["footer"]
 
-    if string_not_in_content(content, "/r/", "Handling references"):
+    if string_not_in_content(content, "/r/", "Handling references") and string_not_in_content(content, "/rc/", "Handling reference continuations") and string_not_in_content(content, "/ua/", "Handling Wikisource contributor notes"):
         return page
     
     if "/rt/" in content:
@@ -1296,6 +1316,22 @@ def handle_references(page):
             reference_text = f"<ref>{reference}</ref>"
             content = content.replace("/r/", reference_text, 1)
             content = content.replace(f"/rt//{reference}", "")
+    
+    if "/r//" in content:
+        references = re.findall(r"\/r\//(.+?)\//r\/", content)
+
+        for reference in references:
+            reference_text = f"<ref>{reference}</ref>"
+            content = content.replace(f"/r//{reference}//r/", reference_text)
+
+    if "/ua//" in content:
+        references = re.findall(r"\/ua\//(.+)\//ua\/", content)
+
+        for reference in references:
+            reference_text = f"<ref>{{{{ua|{reference}}}}}</ref>"
+            content = content.replace(f"/ua//{reference}//ua/", reference_text)
+
+
     
     if footer:
         footer += "\n{{smallrefs}}"

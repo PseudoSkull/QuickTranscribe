@@ -137,7 +137,7 @@ hanced
 
 
 # THE HISTORY OF LITTLE HENRY AND HIS BEARER
-# /r/, /rt//, /r//, /ua//
+# /r//, /ua//, /rc//,
 # Parse: /li/ -> link hyphenated words
 # Pages: Do not add adv pages
 # Index: Advertising not transcluded
