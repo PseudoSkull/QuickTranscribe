@@ -1290,12 +1290,12 @@ def handle_reference_continuations(page, content, reference_continuations):
     #     return page
     
     if "/rcs//" in content:
-        continued_reference = re.findall(r"\/rcs\//(.+?)\//rc\/", content)
+        continued_reference = re.findall(r"\/rcs\//(.+?)\//rc\/", content)[0]
         ref_id = f"P{marker}"
         reference_continuations.append(ref_id)
 
     if "/rc//" in content:
-        continued_reference = re.findall(r"\/rc\//(.+?)\//rc", content)
+        continued_reference = re.findall(r"\/rc\//(.+?)\//rc", content)[0]
         ref_id = reference_continuations[0]
     
     if "//rce/" in content:
@@ -1310,12 +1310,12 @@ def handle_reference_continuations(page, content, reference_continuations):
     return content, reference_continuations
     
 
-def handle_references(page):
+def handle_references(page, reference_continuations):
     content = page["content"]
     footer = page["footer"]
 
     if string_not_in_content(content, "/r/", "Handling references") and string_not_in_content(content, "/rc/", "Handling reference continuations") and string_not_in_content(content, "/ua/", "Handling Wikisource contributor notes"):
-        return page
+        return page, reference_continuations
     
     if "/rt/" in content:
         if "//rt/" not in content:
