@@ -1281,24 +1281,33 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
 ########################## references ##########################
 
 
-def handle_reference_continuations(page, reference_continuations):
-    content = page["content"]
-    footer = page["footer"]
+def handle_reference_continuations(page, content, reference_continuations):
+    # content = page["content"]
+    marker = page["marker"]
+    # footer = page["footer"]
 
-    if string_not_in_content(content, "/rc/", "Handling reference continuations"):
-        return page
+    # if string_not_in_content(content, "/rc/", "Handling reference continuations"):
+    #     return page
     
-    if "/rc/" in content:
-        if "//rc/" not in content:
-            reference_continuations = re.findall(r"\/rc\//(.+)", content)
+    if "/rcs//" in content:
+        continued_reference = re.findall(r"\/rcs\//(.+?)\//rc\/", content)
+        ref_id = f"P{marker}"
+        reference_continuations.append(ref_id)
 
-        for reference_continuation in reference_continuations:
-            reference_continuation_text = f"<ref>{reference_continuation}</ref>"
-            content = content.replace("/rc/", reference_continuation_text, 1)
-            content = content.replace(f"/rc//{reference_continuation}", "")
+    if "/rc//" in content:
+        continued_reference = re.findall(r"\/rc\//(.+?)\//rc", content)
+        ref_id = reference_continuations[0]
     
-    page["content"] = content
-    return page
+    if "//rce/" in content:
+        reference_continuations = []
+
+    content = content.replace(f"/rcs//{continued_reference}//rc", f"<ref name=\"{ref_id}\">{continued_reference}//rc")
+    content = content.replace(f"/rc//{continued_reference}//rc", f"<ref follow=\"{ref_id}\">{continued_reference}//rc")
+
+    content = content.replace("//rc/", "</ref>")
+    content = content.replace("//rce/", "</ref>")
+
+    return content, reference_continuations
     
 
 def handle_references(page):
@@ -1325,12 +1334,14 @@ def handle_references(page):
             content = content.replace(f"/r//{reference}//r/", reference_text)
 
     if "/ua//" in content:
-        references = re.findall(r"\/ua\//(.+)\//ua\/", content)
+        references = re.findall(r"\/ua\//(.+?)\//ua\/", content)
 
         for reference in references:
             reference_text = f"<ref>{{{{ua|{reference}}}}}</ref>"
             content = content.replace(f"/ua//{reference}//ua/", reference_text)
 
+    if "/rc/" in content:
+        content, reference_continuations = handle_reference_continuations(page, content, reference_continuations)
 
     
     if footer:
@@ -1341,7 +1352,7 @@ def handle_references(page):
     page["content"] = content
     page["footer"] = footer
 
-    return page
+    return page, reference_continuations
 
 
 
@@ -1904,6 +1915,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     overall_section_num = 0
     block_continuations = {} # dictionary because of TOC needing split indices, CHANGE THIS LATER NOT SEMANTICALLY CORRECT
     inline_continuations = []
+    reference_continuations = []
     hyphenated_word_continuations = []
     for page in page_data:
         page_num = page["page_num"]
@@ -1937,7 +1949,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_page_links(page, chapters, mainspace_work_title)
 
 
-        page = handle_references(page)
+        page, reference_continuations = handle_references(page, reference_continuations)
 
         page = handle_forced_page_breaks(page, page_break_string)
 
