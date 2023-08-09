@@ -426,7 +426,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, transcription_text):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -554,7 +554,12 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 {{{{authority control}}}}
 {{{{{copyright_template}}}}}{categories_text}"""
 
-    front_matter_text = front_matter_header + page_tags + aux_toc + hidden_export_toc + front_matter_footer
+    smallrefs = ""
+    
+    if len(chapters) == 0 and "</ref>" in transcription_text:
+        smallrefs = "\n\n{{smallrefs}}"
+
+    front_matter_text = front_matter_header + page_tags + aux_toc + hidden_export_toc + smallrefs + front_matter_footer
 
     print(front_matter_text)
 

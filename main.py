@@ -136,15 +136,6 @@ hanced
 
 
 
-# THE HISTORY OF LITTLE HENRY AND HIS BEARER
-# /r//, /ua//, /rc//,
-# Parse: /li/ -> link hyphenated words
-# Pages: Do not add adv pages
-# Index: Advertising not transcluded
-# Transclusion: Does it know that the original was 1814, and to use category based on OY?
-# Transclusion: /Advertisements. If at this time you want to go through the torment that will entail rather than adding the redlink manually
-# 
-# ...
 
 
 
@@ -152,15 +143,8 @@ hanced
 
 
 
-
-
-
-
-
-
-
-
-
+# Transclusion: Do not add pages if page_quality == "i"
+# Parse: /li/ -> link hyphenated words {{lps|hws=Ala|hwe=ddin}}
 # "The Flora" -> fix in formatting chapter beginnings to sc
 # Cleanup: Might there be a package for finding likely typos in the same manner as an autocorrect tool? What do they use? Can this be implemented in Python?
 # Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
@@ -698,7 +682,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, transcription_text)
 
     create_redirects(mainspace_work_title)
 
