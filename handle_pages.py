@@ -159,6 +159,8 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
         content = content.replace(f"/last/", "") # remove page break comment from content, since it's not needed anymore
         content = content.replace(f"\n/title/", "") # remove page break comment from content, since it's not needed anymore
         content = content.replace(f"/title/", "") # remove page break comment from content, since it's not needed anymore
+        content = content.replace(f"\n/dedic/", "") # remove page break comment from content, since it's not needed anymore
+        content = content.replace(f"/dedic/", "") # remove page break comment from content, since it's not needed anymore
     
 
         site = pywikibot.Site("en", "wikisource")

@@ -559,3 +559,5 @@ def add_main_image_to_wikidata_items(base_work, version_item, image_data, transc
     else:
         print_in_green(f"Adding image to version item: {main_image_filename}")
         add_property(site, version_item, image_property, handle_file(main_image_filename), 'version main image', transcription_page_title)
+
+
