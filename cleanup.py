@@ -43,6 +43,12 @@ consonants_that_should_never_combine = [
     'z',
 ]
 
+named_chapter_pattern = r"\/ch\/.+?\n\n"
+named_chapter_pattern_with_settings = r"\/ch\/.+?\/.+?\n\n"
+empty_chapter_pattern = r"\/ch\/\n\n"
+
+chapter_pattern = rf"({named_chapter_pattern}|{named_chapter_pattern_with_settings}|{empty_chapter_pattern})"
+
 def use_spellchecker(text):
     print("Using spellchecker...")
     spell_checker = SpellChecker()
@@ -540,6 +546,74 @@ def find_consonant_combos(text):
     else:
         print_in_yellow("Likely problematic consonant combos found:")
         print_in_yellow(consonant_combos)
+
+
+
+
+## DROP INITIALS ##
+
+def get_drop_initial_letter(content):
+    quote_pattern = r"\"?\'?"
+
+    chapter_beginning_pattern = rf"{chapter_pattern}(.)(.)"
+
+    chapter_beginning = re.search(chapter_beginning_pattern, content)
+
+    chapter_heading = chapter_beginning.group(1)
+    first_letter = chapter_beginning.group(2)
+    second_letter = chapter_beginning.group(3)
+
+    return first_letter
+
+def modify_drop_initial_data(drop_initials, marker, drop_initial_letter):
+    new_drop_initials = []
+    drop_initial_exists = False
+    for drop_initial in drop_initials:
+        if drop_initial["letter"] == drop_initial_letter:
+            drop_initial["pages"].append(marker)
+            drop_initial_exists = True
+        new_drop_initials.append(drop_initial)
+    
+    if not drop_initial_exists:
+        drop_initial = {
+            "pages": [marker],
+            "letter": drop_initial_letter,
+        }
+        new_drop_initials.append(drop_initial)
+    
+    drop_initials = new_drop_initials
+
+    return drop_initials
+
+def find_drop_initial_letters(page_data, chapter_type):
+    if chapter_type == "dii":
+        print_in_green("No drop initial images in page.")
+        return
+    drop_initials = []
+    for page in page_data:
+        content = page["content"]
+        marker = page["marker"]
+        if "/ch/" not in content:
+            continue
+        drop_initial_letter = get_drop_initial_letter(content)
+        
+        drop_initials = modify_drop_initial_data(drop_initials, marker, drop_initial_letter)
+    
+    drop_initials = sorted(drop_initials, key=lambda x: x["letter"])
+
+    print(drop_initials)
+    return drop_initials
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -335,6 +335,9 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that hyphenation inconsistencies have been fixed...")
 
 
+page_data = get_page_data(transcription_text)
+chapter_type = get_work_data(work_data, "chapter type")
+section_type = get_work_data(work_data, "section type")
 
 transcription_text = transcription_page.text
 expected_progress = "detected_scannos_fixed"
@@ -539,7 +542,6 @@ if not at_expected_progress:
 
 
 
-page_data = get_page_data(transcription_text)
 
 advertising_is_transcluded = check_if_advertising_transcluded(page_data)
 
@@ -599,9 +601,6 @@ chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 
 
-
-chapter_type = get_work_data(work_data, "chapter type")
-section_type = get_work_data(work_data, "section type")
 
 chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type)
 sections = get_section_data(chapters, page_data, transcription_text)

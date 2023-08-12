@@ -996,6 +996,7 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
 
     return img_num, page
 
+
 def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
 
     content = page["content"]
@@ -1004,9 +1005,6 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
     if string_not_in_content(content, "/ch/", "Formatting chapter beginning to drop initial"):
         return page
     
-    quote_pattern = r"\"?\'?"
-    # chapter_beginning_pattern = rf"{chapter_pattern}([A-Za-z])"
-
     chapter_beginning_pattern = rf"{chapter_pattern}(.)(.)"
 
     chapter_beginning = re.search(chapter_beginning_pattern, content)
@@ -1021,12 +1019,10 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
     ]
 
     if first_letter in drop_initial_quotes:
-        # if drop_initials_float_quotes == "y":
         replacement = r"\1{{di|\3|fl=\2}}"
-        # else:
-            # replacement = r"\1{{di|\2\3}}"
 
         content = re.sub(chapter_beginning_pattern, replacement, content)
+    
     elif first_letter.isalpha():
         replacement = r"\1{{di|\2}}\3"
         content = re.sub(chapter_beginning_pattern, replacement, content)
