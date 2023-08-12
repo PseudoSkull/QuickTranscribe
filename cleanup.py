@@ -562,7 +562,10 @@ def get_drop_initial_letter(content):
     chapter_heading = chapter_beginning.group(1)
     first_letter = chapter_beginning.group(2)
     second_letter = chapter_beginning.group(3)
-
+    
+    if first_letter == "\"" or first_letter == "'":
+        return second_letter
+    
     return first_letter
 
 def modify_drop_initial_data(drop_initials, marker, drop_initial_letter):
@@ -601,7 +604,14 @@ def find_drop_initial_letters(page_data, chapter_type):
     
     drop_initials = sorted(drop_initials, key=lambda x: x["letter"])
 
-    print(drop_initials)
+    print_in_green("Drop initial images start each chapter. Initials found:")
+    
+    for drop_initial in drop_initials:
+        letter = drop_initial["letter"]
+        pages = drop_initial["pages"]
+        pages = ", ".join(pages)
+        print_in_green(f"{letter}: {pages}")
+
     process_break()
     return drop_initials
 

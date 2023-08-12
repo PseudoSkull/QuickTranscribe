@@ -339,9 +339,9 @@ if not at_expected_progress:
 page_data = get_page_data(transcription_text)
 chapter_type = get_work_data(work_data, "chapter type")
 section_type = get_work_data(work_data, "section type")
-dedications = get_dedications(page_data)
+# dedications = get_dedications(page_data)
 
-exit()
+# exit()
 
 transcription_text = transcription_page.text
 expected_progress = "detected_scannos_fixed"
