@@ -19,6 +19,11 @@ def get_dedications(page_data):
     content = dedication_page["content"]
     content = content.lower()
 
+    content = content.replace("\n\n", " ")
+    content = content.replace("\n", " ")
+    content = content.replace("<br>", " ")
+    content = content.replace("<br />", " ")
+
     dedication_mapping = {
         "my mother": [
             "mother",
@@ -69,4 +74,11 @@ def get_dedications(page_data):
 
     dedications_in_english = []
 
-    if "my mother" in content:
+    for dedication in dedication_mapping:
+        if dedication in content:
+            # dedications_in_english.append(dedication)
+            for name in dedication_mapping[dedication]:
+                # if name in content:
+                dedications_in_english.append(name)
+    print(dedications_in_english)
+    return dedications_in_english
