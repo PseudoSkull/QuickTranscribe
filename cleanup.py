@@ -605,7 +605,7 @@ def find_drop_initial_letters(page_data, chapter_type):
     drop_initials = sorted(drop_initials, key=lambda x: x["letter"])
 
     print_in_green("Drop initial images start each chapter. Initials found:")
-    
+
     for drop_initial in drop_initials:
         letter = drop_initial["letter"]
         pages = drop_initial["pages"]

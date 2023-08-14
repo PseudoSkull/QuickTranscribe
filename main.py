@@ -100,8 +100,7 @@ hanced
 
 # ALADDIN O'BRIEN
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
-# Parse: dii -> di images
-#: should handle floating quotes too
+# Parse/Commons: drop initial image logic
 # Somewhere: Find all the di images with their locations
 # Parse: make sure that fqms in all lines of a poem are converted
 # Parse: Poem continuations, nop assumed
