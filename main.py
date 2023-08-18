@@ -338,6 +338,7 @@ if not at_expected_progress:
 page_data = get_page_data(transcription_text)
 chapter_type = get_work_data(work_data, "chapter type")
 section_type = get_work_data(work_data, "section type")
+drop_initial_letter_data = find_drop_initial_letters(page_data, chapter_type)
 
 # exit()
 
@@ -346,7 +347,7 @@ expected_progress = "detected_scannos_fixed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    find_drop_initial_letters(page_data, chapter_type)
+    print(drop_initial_letter_data)
     find_probable_scannos(transcription_text)
     process_break()
     find_paragraphs_without_ending_punctuation(transcription_text)
@@ -551,7 +552,7 @@ if not at_expected_progress:
 
 advertising_is_transcluded = check_if_advertising_transcluded(page_data)
 
-image_data = generate_image_data(page_data, title, year)
+image_data = generate_image_data(page_data, title, year, drop_initial_letter_data)
 
 transcription_text = transcription_page.text
 expected_progress = "image_counts_compared"

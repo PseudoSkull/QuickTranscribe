@@ -369,7 +369,7 @@ def get_letter_from_initial_image(line):
     "extension": "jpg",
 }
 
-def generate_image_data(page_data, work_title, year):
+def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
     print("Checking for an existing image data json file...")
     image_data_json_file = "image_data.json"
     image_data = get_json_data(image_data_json_file)
@@ -454,9 +454,38 @@ def generate_image_data(page_data, work_title, year):
                     image["letter"] = letter
 
                     image_data.append(image)
+    if drop_initial_letter_data:
+        for drop_initial in drop_initial_letter_data:
+            image = {}
+            caption = ""
+            settings = ""
+            image_type = ""
+            seq_num = 0
+            letter = drop_initial["letter"]
+            page_num = int(drop_initial["pages"][0])
+            image_type = "drop initial"
+
+            image_title = generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num)
+            image_path, extension = get_file_path_and_extension(image_files_folder, letter)
+            image_size = 75
+
+            image["seq_num"] = seq_num
+            image["page_num"] = page_num
+            image["type"] = image_type
+            image["title"] = image_title
+            image["caption"] = caption
+            image["settings"] = settings
+            image["extension"] = extension
+            image["path"] = image_path
+            image["size"] = image_size
+            image["alignment"] = ""
+            image["letter"] = letter
+            image_data.append(image)
+    
     print_in_green("Image data generated!")
-    write_to_json_file(image_data_json_file, image_data)
+    print(image_data)
     process_break()
+    write_to_json_file(image_data_json_file, image_data)
     return image_data
 
 

@@ -612,7 +612,7 @@ def find_drop_initial_letters(page_data, chapter_type):
         pages = ", ".join(pages)
         print_in_green(f"{letter}: {pages}")
 
-    process_break()
+    # process_break()
     return drop_initials
 
 
