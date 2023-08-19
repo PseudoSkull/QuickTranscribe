@@ -1620,16 +1620,30 @@ def convert_wikilinks(page, inline_continuations, page_data):
 
 ########################## block elements ##########################
 
-def convert_block_element(page, abbreviation, template_name):
-    content = page["content"]
+def convert_block_element(page, abbreviation, template_name, block_continuations):
     block_tag = get_plain_tag(abbreviation)
+    content = page["content"]
 
     if string_not_in_content(content, block_tag, f"Converting {block_tag} to {template_name} in transcription"):
         return page
     
     block_start_tag = get_noparams_start_tag(abbreviation)
     block_end_tag = get_end_tag(abbreviation)
+
+    number_of_start_tags = content.count(block_start_tag)
+    number_of_end_tags = content.count(block_end_tag)
+
+    if number_of_start_tags != number_of_end_tags:
+        start_template = f"{{{{{template_name}/s}}}}"
+        end_template = f"{{{{{template_name}/e}}}}"
+
+        block_continuations, page = handle_block_continuations(page, abbreviation, block_continuations, start_template, end_template)
+        # page, block_continuations = handle_block_continuations(page, block_continuations, block_start_tag, block_end_tag)
+        # print_in_red(f"Number of {block_start_tag} tags does not match number of {block_end_tag} tags in transcription")
+        # exit()
     
+    content = page["content"]
+
     content = content.replace(block_start_tag, f"{{{{{template_name}|")
     content = content.replace(block_end_tag, "}}")
 
@@ -1677,13 +1691,13 @@ def add_toc_to_transcription(page, toc, block_continuations):
 
 def convert_block_elements(page, block_continuations):
     for abbreviation, template_name in block_elements.items():
-        page = convert_block_element(page, abbreviation, template_name)
-        abbreviation_start_tag = get_noparams_start_tag(abbreviation)
-        # if abbreviation_start_tag in 
-        start_template = f"{{{{{template_name}/s}}}}"
-        end_template = f"{{{{{template_name}/e}}}}"
+        page = convert_block_element(page, abbreviation, template_name, block_continuations)
+        # abbreviation_start_tag = get_noparams_start_tag(abbreviation)
+        # if abbreviation_start_tag in page["content"]:
+            # start_template = f"{{{{{template_name}/s}}}}"
+            # end_template = f"{{{{{template_name}/e}}}}"
 
-        block_continuations, page = handle_block_continuations(page, abbreviation, block_continuations, start_template, end_template)
+            # block_continuations, page = handle_block_continuations(page, abbreviation, block_continuations, start_template, end_template)
     return block_continuations, page
 
 def convert_simple_markup(content, abbreviation, template):
