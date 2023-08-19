@@ -99,15 +99,11 @@ hanced
 
 
 # ALADDIN O'BRIEN
-# Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Parse/Commons: drop initial image logic
-# Somewhere: Find all the di images with their locations
-# Parse: make sure that fqms in all lines of a poem are converted
+# Parse: poem continuation logic
 # Parse: Poem continuations, nop assumed
-# Parse: /oe/ -> oe symbol
-# Handle Commons, upload di images
+# Parse: make sure that fqms in all lines of a poem are converted
 # Transclusion: All book/part pages automatically get page breaks
-
 
 
 
@@ -143,6 +139,7 @@ hanced
 
 
 
+# Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Transclusion: Do not add pages if page_quality == "i"
 # Parse: /li/ -> link hyphenated words {{lps|hws=Ala|hwe=ddin}}
 # "The Flora" -> fix in formatting chapter beginnings to sc

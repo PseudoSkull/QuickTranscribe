@@ -1044,7 +1044,6 @@ def correct_text(text_file):
     x = x.replace("-him", "—him")
     x = x.replace("-me?", "—me?")
     x = x.replace("-me!", "—me!")
-    x = x.replace("-mine", "—mine")
     x = x.replace("-his ", "—his ")
     x = x.replace("-we ", "—we ")
     x = x.replace("-was ", "—was ")
