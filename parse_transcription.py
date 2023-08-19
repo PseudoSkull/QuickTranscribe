@@ -1729,7 +1729,7 @@ def handle_fqm(text):
 
     return text
 
-def handle_poem_continuations(poem_continuations):
+def handle_poem_continuations(poem_continuations): # unused for now, until poem continuation logic gets lengthy
     poem_continuations.append("follow")
     return poem_continuations
 
@@ -1741,14 +1741,24 @@ def convert_poems(page, poem_continuations, convert_fqms):
         if string_not_in_content(content, "/po/", "Converting poems"):
             return poem_continuations, page
 
+    # if there's an existing poem continuation, handle that before parsing other poems
+    if len(poem_continuations) > 0:
+        continuation = poem_continuations[0]
+        content = content.replace(content, f"{{{{ppoem|class=poem|start={continuation}|\n{content}")
+        if "//po/" in content:
+            poem_continuations = []
+            content = content.replace("//po/", "}}", 1)
+    
+    # parse poems that are not continued
     pattern = r"\/po\//([\s\S]+?)\//po\/"
     replacement = r"{{ppoem|class=poem|\1}}"
     content = re.sub(pattern, replacement, content)
-
-    if "/po//" in content: # if /po// tag still in content after conversions, then it implicitly means there's a continuation
-        content = content.replace("/po//", "{{ppoem|class=poem|start=follow|")
-        poem_continuations = handle_poem_continuations(poem_continuations)
-        # poem_continuation = 
+    
+    # if /po// tag still in content after conversions, then start the continuation process
+    if "/po//" in content:
+        content = content.replace("/po//", "{{ppoem|class=poem|end=follow|")
+        poem_continuations.append("follow")
+        content += "\n}}"
 
     if convert_fqms != "n":
         content = handle_fqm(content)
@@ -1943,7 +1953,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_basic_elements(page)
         page = convert_title_headers(page, title)
         block_continuations, page = convert_block_elements(page, block_continuations)
-        poem_continuations, page = convert_poems(page, block_continuations, convert_fqms) # done
+        poem_continuations, page = convert_poems(page, poem_continuations, convert_fqms) # done
         page = convert_italics(page)
         page = convert_smallcaps(page)
         page = convert_degrees(page)
