@@ -1637,9 +1637,53 @@ def convert_block_element(page, abbreviation, template_name):
 
     return page
 
+"""
+def add_toc_to_transcription(page, toc, block_continuations):
+
+    content = page["content"]
+    # header = page["header"]
+    # footer = page["footer"]
+
+    toc_tag = get_plain_tag("toc")
+    spl_tag = get_plain_tag("spl")
+
+    if string_not_in_content(content, toc_tag, "Adding TOC to transcription"):
+        # Your mind is in the right place. But still, how are we going to know which TOC split it is if there's no iterator outside this function?
+        return block_continuations, page
+    
+    if spl_tag in toc:
+        toc_split = toc.split("\n" + spl_tag + "\n")
+        if "toc-block" in toc:
+            start_template = "<div class=\"toc-block\">"
+            end_template = "</div>"
+        else:
+            start_template = "{{TOC begin}}"
+            end_template = "{{TOC end}}"
+
+        block_continuations, page = handle_block_continuations(page, toc_tag, block_continuations, start_template, end_template, split_list=toc_split)
+
+        content = page["content"] # make sure to update content after handling formatting continuations
+
+    else:
+        content = convert_simple_markup(content, "toc", toc)
+
+
+    page["content"] = content
+    # page["header"] = header
+    # page["footer"] = footer
+
+    return block_continuations, page
+"""
+
 def convert_block_elements(page, block_continuations):
     for abbreviation, template_name in block_elements.items():
         page = convert_block_element(page, abbreviation, template_name)
+        abbreviation_start_tag = get_noparams_start_tag(abbreviation)
+        # if abbreviation_start_tag in 
+        start_template = f"{{{{{template_name}/s}}}}"
+        end_template = f"{{{{{template_name}/e}}}}"
+
+        block_continuations, page = handle_block_continuations(page, abbreviation, block_continuations, start_template, end_template)
     return block_continuations, page
 
 def convert_simple_markup(content, abbreviation, template):
