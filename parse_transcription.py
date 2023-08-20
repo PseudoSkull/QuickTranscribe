@@ -1001,8 +1001,28 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
 
     return img_num, page
 
+def find_image_with_letter(image_data, first_letter):
+    for image in image_data:
+        image_letter = image["letter"]
+        if image_letter == first_letter:
+            return image
 
-def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
+def format_drop_initial_as_image(content, image_data, first_letter):
+    print("Formatting drop initial as image...")
+
+    image = find_image_with_letter(image_data, first_letter)
+
+    image_title = image["title"]
+    image_extension = image["extension"]
+    image_filename = image_title + "." + image_extension
+    image_size = image["size"]
+
+    content = content.replace(f"{{{{di|{first_letter}", f"{{{{di|{first_letter}|image={image_filename}|imgsize={image_size}px")
+
+    return content
+
+
+def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, chapter_beginning_formatting, image_data):
 
     content = page["content"]
 
@@ -1025,12 +1045,16 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes):
 
     if first_letter in drop_initial_quotes:
         replacement = r"\1{{di|\3|fl=\2}}"
-
+        first_letter = second_letter
         content = re.sub(chapter_beginning_pattern, replacement, content)
     
     elif first_letter.isalpha():
         replacement = r"\1{{di|\2}}\3"
         content = re.sub(chapter_beginning_pattern, replacement, content)
+
+
+    if chapter_beginning_formatting == "dii":
+        content = format_drop_initial_as_image(content, image_data, first_letter)
 
     page["content"] = content
 
@@ -1205,7 +1229,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                     # print(chapter_title)
                     chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
             
-            if ch_tag == "pt" or ch_tag == "bk":
+            if ch_tag == "/pt/" or ch_tag == "/bk/":
                 part_num = chapter["part_num"]
                 roman_part_num = roman.toRoman(part_num)
                 chapter_text = f"{{{{ph|class=part-header|{chapter_prefix} {roman_part_num}}}}}"
@@ -2012,8 +2036,8 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = add_space_to_apostrophe_quotes(page)
         if chapter_beginning_formatting == "sc" or not chapter_beginning_formatting:
             page = format_chapter_beginning_to_smallcaps(page)
-        elif chapter_beginning_formatting == "di":
-            page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes)
+        elif chapter_beginning_formatting == "di" or chapter_beginning_formatting == "dii":
+            page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, chapter_beginning_formatting, image_data)
         else:
             # page = format_chapter_beginning_to_large_initial(page)
             pass

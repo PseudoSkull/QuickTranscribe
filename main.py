@@ -100,8 +100,6 @@ hanced
 
 # ALADDIN O'BRIEN
 # Parse/Commons: drop initial image logic
-# Parse: Fine block continuations
-# Parse: make sure that fqms in all lines of a poem are converted
 # Transclusion: All book/part pages automatically get page breaks
 
 
