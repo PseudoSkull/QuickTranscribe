@@ -24,6 +24,10 @@ from handle_dedications import get_dedications
 import datetime
 
 
+# HUGE BUG TO FIX IMMEDIATELY:
+## Fqms are put all over the page instead of just on the poem now...
+## Transclusion has trouble parsing the first and last pages for some reason... Look into that
+
 # GET OCR DIRECTLY FROM TESSERACT, NOT JUST IA!!!!!!!!!
 # modify ia.py and hathi.py logic to use handle_web_downloads
 # WAYLAID:
@@ -98,9 +102,7 @@ hanced
 
 
 
-# ALADDIN O'BRIEN
-# Parse/Commons: drop initial image logic
-# Transclusion: All book/part pages automatically get page breaks
+
 
 
 
