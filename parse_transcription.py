@@ -211,6 +211,7 @@ def handle_block_continuations(page, tag, block_continuations, start_template, e
     content = page["content"]
     header = page["header"]
     footer = page["footer"]
+    start_tag = get_noparams_start_tag(tag)
     end_tag = get_end_tag(tag)
     while 1:
         if tag in block_continuations:
@@ -221,6 +222,8 @@ def handle_block_continuations(page, tag, block_continuations, start_template, e
 
             if continuation_index == 0:
                 footer = add_to_footer(end_template, footer)
+                if tag != "toc":
+                    content = content.replace(start_tag, start_template)
                 block_continuations[tag] += 1
             else:
                 header = add_to_header(start_template, header)
@@ -229,6 +232,8 @@ def handle_block_continuations(page, tag, block_continuations, start_template, e
                     block_continuations[tag] += 1
                 else:
                     print(f"Formatting continuation of {tag} complete.")
+                    if tag != "toc":
+                        content = content.replace(end_tag, end_template, 1)
                     del block_continuations[tag]
 
             # handle content
@@ -1624,8 +1629,15 @@ def convert_block_element(page, abbreviation, template_name, block_continuations
     block_tag = get_plain_tag(abbreviation)
     content = page["content"]
 
-    if string_not_in_content(content, block_tag, f"Converting {block_tag} to {template_name} in transcription"):
-        return page
+    if len(block_continuations.items()) == 0:
+        if string_not_in_content(content, block_tag, f"Converting {block_tag} to {template_name} in transcription"):
+            return page
+    
+    if abbreviation in block_continuations:
+        start_template = f"{{{{{template_name}/s}}}}"
+        end_template = f"{{{{{template_name}/e}}}}"
+
+        block_continuations, page = handle_block_continuations(page, abbreviation, block_continuations, start_template, end_template)
     
     block_start_tag = get_noparams_start_tag(abbreviation)
     block_end_tag = get_end_tag(abbreviation)
@@ -1633,7 +1645,7 @@ def convert_block_element(page, abbreviation, template_name, block_continuations
     number_of_start_tags = content.count(block_start_tag)
     number_of_end_tags = content.count(block_end_tag)
 
-    if number_of_start_tags != number_of_end_tags:
+    if number_of_start_tags > number_of_end_tags:
         start_template = f"{{{{{template_name}/s}}}}"
         end_template = f"{{{{{template_name}/e}}}}"
 
