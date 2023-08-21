@@ -1,6 +1,6 @@
 # WS_collection
 
 username = "PseudoSkull"
-mainspace_work_title = "Aladdin O'Brien"
+mainspace_work_title = "My Friend Annabel Lee"
 transcription_prefix = f"User:{username}/P/"
 transcription_page_title = transcription_prefix + mainspace_work_title

@@ -24,7 +24,7 @@ from handle_dedications import get_dedications
 import datetime
 
 
-# HUGE BUG TO FIX IMMEDIATELY:
+# HUGE BUGS TO FIX IMMEDIATELY:
 ## Fqms are put all over the page instead of just on the poem now...
 ## Transclusion has trouble parsing the first and last pages for some reason... Look into that
 
@@ -99,7 +99,9 @@ hanced
 
 
 
-
+# MY FRIEND ANNABEL LEE
+# Poem nop for stanza
+# Poem continuations across multiple pages
 
 
 
