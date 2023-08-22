@@ -849,6 +849,8 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         if not chapter_num and not chapter_prefix:
             toc_link = f"[[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
         else:
+            if not chapter_prefix:
+                chapter_prefix = "Chapter"
             toc_link = f"[[{mainspace_work_title}/{chapter_prefix} {chapter_num}|{chapter_title}]]"
 
         if toc_format:
@@ -1850,11 +1852,33 @@ def convert_poems(page, poem_continuations, convert_fqms):
 
     # if there's an existing poem continuation, handle that before parsing other poems
     if len(poem_continuations) > 0:
-        continuation = poem_continuations[0]
-        content = content.replace(content, f"{{{{ppoem|class=poem|start={continuation}|\n{content}")
+        start_continuation = poem_continuations[0]
+        poem_continuations = []
         if "//po/" in content:
-            poem_continuations = []
+            end_continuation = None
             content = content.replace("//po/", "}}", 1)
+        else:
+            content += "\n}}"
+            if "{{nop}}" in content or "/n/" in content:
+                content = content.replace("\n{{nop}}", "")
+                content = content.replace("\n/n/", "")
+                end_continuation = "stanza"
+            elif "/f/" in content:
+                content = content.replace("\n/f/", "")
+                end_continuation = "same-line"
+            else:
+                end_continuation = "follow"
+            
+            poem_continuations.append(end_continuation)
+        
+        if end_continuation:
+            end_continuation_display = f"end={end_continuation}|"
+        else:
+            end_continuation_display = ""
+
+        
+        content = f"{{{{ppoem|class=poem|start={start_continuation}|{end_continuation_display}\n" + content
+
     
     # parse poems that are not continued
     pattern = r"\/po\//([\s\S]+?)\//po\/"
