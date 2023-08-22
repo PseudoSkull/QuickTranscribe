@@ -1745,9 +1745,13 @@ def convert_simple_markup(content, abbreviation, template):
 
     if abbreviation == "/-/":
         template = "/" + template + "/"
+    elif abbreviation == "/toc/":
+        template = template
     else:
         template = "{{" + template + "}}"
+    
     content = content.replace(abbreviation, template)
+    content = content.replace("{{bar|2}}-", "{{bar|2}}")
 
     return content
 
@@ -1788,10 +1792,13 @@ def convert_fqms(pattern, text):
     ]
 
     patterns = [
+        pattern,
         ":",
         "\n",
+        r"$",
     ]
 
+    # print(text)
     # text = text.replace(f"{pattern}\"", f"{pattern}{{{{fqm}}}}")
     for symbol in quotation_symbols:
         for pattern in patterns:
@@ -1799,21 +1806,25 @@ def convert_fqms(pattern, text):
                 fqm = "{{fqm}}"
             else:
                 fqm = f"{{{{fqm|{symbol}}}}}"
-            text = text.replace(f"{pattern}{symbol}", f"{pattern}{fqm}")
+            text = re.sub(rf"{pattern}{symbol}", rf"{pattern}{fqm}", text)
+    # print("Text after conversion:")
+    # print(text)
     return text
 
 def handle_fqm(text):
-    text = convert_fqms("{{ppoem|class=poem|\n", text)
+    print("Beginning")
+    # text = convert_fqms("{{ppoem|class=poem|\n", text)
     # print(text)
     # text = text.replace("{{ppoem|class=poem|\n\"", "{{ppoem|class=poem|\n{{fqm}}")
     # text = text.replace("{{ppoem|class=poem|\n\'", "{{ppoem|class=poem|\n{{fqm|'}}")
-    poem_pattern = r'\{\{ppoem\|class=poem\|\n([.\s\S]*?)\n\}\}'
+    poem_pattern = r'\{\{ppoem\|class=poem\|([.\s\S]*?)\n\}\}'
     poems = re.findall(poem_pattern, text)
 
     # remove poems from text so that they can be parsed
 
     # fix fqm in beginning of stanzas
     for poem in poems:
+        print("For poem in poems")
         fixed_poem = convert_fqms("\n\n", poem)
         text = text.replace(poem, fixed_poem)
     # print("Text after beginning fqm:" + text)
@@ -1821,6 +1832,8 @@ def handle_fqm(text):
     # correct when italics are mistakenly converted to fqm
     text = text.replace("{{fqm|'}}'", "''")
 
+    print("Text after conversion:")
+    print(text)
     return text
 
 def handle_poem_continuations(poem_continuations): # unused for now, until poem continuation logic gets lengthy
