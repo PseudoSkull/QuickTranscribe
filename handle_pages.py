@@ -137,7 +137,7 @@ def get_page_data(transcription_text, page_break_string=None):
             except IndexError:
                 if page_quality == "3":
                     content_as_string = "\n\n".join(content)
-                    add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type)
+                    add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type, page_format)
             continue
 
     print_in_green("Page data retrieved!")
