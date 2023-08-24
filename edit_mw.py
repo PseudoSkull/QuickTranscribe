@@ -1,6 +1,7 @@
 # WS_collection
 
 import pywikibot
+from pywikibot import pagegenerators
 import mwparserfromhell
 from debug import print_in_red, print_in_green, print_in_yellow
 
@@ -123,6 +124,26 @@ def has_digits(input_string):
 
 def is_even(number):
     return number % 2 == 0
+
+
+
+
+def get_category_items(site, category_name):
+    category = pywikibot.Category(site, f'Category:{category_name}')
+
+    # Get the page generator for all items in the category
+    item_generator = pagegenerators.CategorizedPageGenerator(category)
+    
+    # Iterate through the generator and print item titles
+
+    category_items = []
+
+    for item in item_generator:
+        category_items.append(item.title())
+
+    return category_items
+
+
 
 # def count_instances_of_substring(s):
 #     count = 0

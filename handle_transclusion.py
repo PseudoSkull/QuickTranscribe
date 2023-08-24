@@ -36,6 +36,8 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Alternate history"
         if genre == "autobiography":
             category = "Autobiographies"
+        if genre == "biography":
+            category = "Biographies"
         if genre == "children's" or genre == "children":
             category = "Children's books"
         elif genre == "historical":
@@ -331,6 +333,7 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
     return chapter_transclusion_tags
 
 def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded):
+    number_of_chapters = len(chapters)
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
@@ -372,7 +375,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 
         if chapter_name == chapter_internal_name:
             edit_summary = f"Transcluding {chapter_name}..."
-        elif chapter_name == title:
+        elif chapter_name == title and number_of_chapters < 4:
             edit_summary = f"Transcluding {chapter_name} (main content chapter)..."
         elif chapter_name == "Advertisements" and not advertising_is_transcluded:
             print_in_yellow("Advertising not proofread. Skipping advertisement chapter transclusion...")

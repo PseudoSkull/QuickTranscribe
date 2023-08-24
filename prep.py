@@ -7,8 +7,11 @@ from edit_mw import save_page
 from hathi import get_hathitrust_full_text_id, get_hathitrust_images
 from handle_projectfiles import rename_and_copy_text_file, create_projectfiles_folders, assemble_pdf
 from handle_wikisource_conf import get_conf_values, check_QT_progress, update_QT_progress, update_conf_value, create_boilerplate, get_work_data
-from ia import get_IA_files, unzip_jp2_folder
+from ia import get_IA_files, unzip_jp2_folder, get_google_books_id_from_ia
 from waylaid import correct_text
+
+
+## TO DO LATER: if IA work ends in "goog", take the first page out of the PDF and DJVU
 
 prep_progresses = [
 ]
@@ -48,6 +51,7 @@ work_data = get_conf_values(transcription_page_title)
 IA_id = get_work_data(work_data, "Internet Archive ID")
 hathitrust_catalog_id = get_work_data(work_data, "HathiTrust catalog ID")
 hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
+GB_id = get_work_data(work_data, "Google Books ID")
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
 
 transcription_text = transcription_page.text
@@ -59,6 +63,10 @@ if not at_expected_progress:
     unzip_jp2_folder(IA_files)
     rename_and_copy_text_file()
 
+    if not GB_id:
+        GB_id = get_google_books_id_from_ia(IA_id)
+        transcription_text = update_conf_value(transcription_text, "gb", GB_id)
+    
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that IA files have been downloaded...")
 

@@ -165,4 +165,21 @@ def get_ia_id_from_url(url):
     
     return internet_archive_id
 
+def get_google_books_id_from_ia(IA_id):
+    IA_url = f"https://archive.org/details/{IA_id}"
+
+    response = requests.get(IA_url)
+
+    if response.status_code == 200:
+        print_in_green("Response code 200. Parsing the HTML...")
+        # soup = BeautifulSoup(response.content, 'html.parser')
+        IA_content = str(response.content)
+
+        if "books.google.com" in IA_content:
+            google_books_id = re.search(r"books\.google\.com\/books\?id=(.+?)\"", IA_content).group(1)[:12]
+
+            return google_books_id
+        else:
+            print("No Google Books ID found. Skipping step...")
+
 # get_IA_files("masterfrisky00hawk")
