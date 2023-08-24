@@ -130,7 +130,8 @@ hanced
 
 
 
-
+# JOHN BROWN (CHAMBERLIN)
+# Dedications: Get author link for dedications
 
 
 

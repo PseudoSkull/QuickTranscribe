@@ -74,6 +74,9 @@ style_defaults = {
     margin-right: auto;
     """,
 
+    "wst-block-center":
+    """	max-width: 25em;""",
+
     "wst-fine-block":
     """	margin-bottom: 2em;
 	margin-top: 2em;""",
