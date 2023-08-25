@@ -1192,6 +1192,7 @@ def correct_text(text_file):
     x = x.replace("\" '", "\"")
     x = x.replace("\n\" ", "\n\"")
     x = replace_bad_quote_spaces(x)
+    x = x.replace(" @ ", " a ")
 
     # pattern = "\n\n\"(.+?) \""
     # x = re.sub(r"\n\n\"(.+) \"", r"\1's", x)
