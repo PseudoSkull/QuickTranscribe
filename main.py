@@ -132,7 +132,9 @@ hanced
 
 # JOHN BROWN (CHAMBERLIN)
 # Dedications: Get author link for dedications
-
+# rel=main subject on Wikidata (P921)
+# Transclusion: related_author
+# Transclusion: related_work?
 
 
 
