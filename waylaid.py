@@ -1193,6 +1193,27 @@ def correct_text(text_file):
     x = x.replace("\n\" ", "\n\"")
     x = replace_bad_quote_spaces(x)
     x = x.replace(" @ ", " a ")
+    x = x.replace("Korth", "North")
+    x = x.replace("Eiv", "Riv") # River
+    x = x.replace("Biv", "Riv") # River
+    x = x.replace("Buth", "Ruth") # River
+    x = x.replace("Eic", "Ric") # Richard
+    x = x.replace("Bep", "Rep") # Republican, Representative
+    x = x.replace(" abont", " about")
+    x = x.replace(" nse", " use")
+    x = x.replace("I)", "p")
+    x = x.replace("Osbom", "Osborn")
+    x = x.replace("Eob", "Rob") #Robinson
+    x = x.replace("Yirgin", "Virgin") #Virginia
+    x = x.replace(" tbe ", " the ")
+    x = x.replace(" lie said", " he said")
+    x = x.replace(" aud ", " and ")
+
+    x = re.sub(r"Q([a-t])", r"G\1", x)
+
+
+    # Q followed by any word that's not u > G.
+
 
     # pattern = "\n\n\"(.+?) \""
     # x = re.sub(r"\n\n\"(.+) \"", r"\1's", x)

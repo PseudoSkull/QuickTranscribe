@@ -131,10 +131,14 @@ hanced
 
 
 # JOHN BROWN (CHAMBERLIN)
-# Dedications: Get author link for dedications
+# Dedications: Get /dedic/ link for dedications
 # rel=main subject on Wikidata (P921)
+# Wikidata, transclusion: part of the series
+# Commons category, if name == string with no spaces, then Commons Category has the same name.
+# Parse: /chrn/ tag
 # Transclusion: related_author
-# Transclusion: related_work?
+# Transclusion: editor
+# Transclusion: portal for series
 
 
 
@@ -151,7 +155,6 @@ hanced
 # Cleanup: Find words/phrases italicized more than once, but not italicized some other times.
 # Cleanup: Find periods with lowercase letters after them, or on next page.
 # Transclusion: If biography: Category:Biographies of people from the United States
-# DESIGNATE COVER PAGE FOR INDEX, (something like 7 if cover is blank)
 # DETERMINE ITALICIZATION BASED ON WORK TYPE
 # PREP: GET IA/HT ID FROM COMMONS FILE MENTIONED
 # PREP: MAKE HATHI IMAGES IN PDF ALL SAME SIZE
