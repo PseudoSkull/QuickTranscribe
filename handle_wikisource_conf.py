@@ -44,6 +44,9 @@ variables_with_descriptions = {
         "gut": "Gutenberg ID",
         "rel": "related author",
         "ill": "illustrator",
+        "ed": "editor",
+        "rel": "related author",
+        "ser": "series",
         "progress": "QT progress flag",
     }
 

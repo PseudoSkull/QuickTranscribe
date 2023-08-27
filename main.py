@@ -387,6 +387,12 @@ author_page_title = get_author_page_title(author)
 illustrator = get_work_data(work_data, "illustrator")
 illustrator_page_title = get_author_page_title(illustrator)
 
+editor = get_work_data(work_data, "editor")
+editor_page_title = get_author_page_title(editor)
+
+related_author = get_work_data(work_data, "related author")
+
+series = get_work_data(work_data, "series")
 
 location = get_work_data(work_data, "location of publication", common_locations)
 country = get_value_from_property(location, "P17")
