@@ -137,6 +137,7 @@ def generate_aux_toc_template(toc, site, mainspace_work_title, transcription_pag
 <includeonly>
 [[Category:Auxiliary table of contents templates]]
 </includeonly>"""
+    print(toc)
     save_page(template_page, site, template_page_text, "Creating auxiliary TOC template...", transcription_page_title)
     save_page(template_documentation_page, site, template_documentation_page_text, "Creating auxiliary TOC template documentation...", transcription_page_title)
     return "{{" + template_page_name + "}}"
@@ -173,7 +174,19 @@ def get_roman_page_numbers(page_data):
     if roman_page_numbers:
         first_roman_page_num = roman_page_numbers[0]
         last_roman_page_num = roman_page_numbers[-1]
-        roman_pagelist_line = f"{first_roman_page_num}to{last_roman_page_num}=roman"
+
+        # if after roman pages end, arabic page nums restart
+        next_page_num = int(last_roman_page_num) + 1
+        next_page_num_zero_indexed = int(last_roman_page_num)
+        next_page = page_data[next_page_num_zero_indexed]
+        next_page_marker = next_page["marker"]
+
+        if next_page_marker == "1":
+            next_page_display = f"\n{next_page_num}=1"
+        else:
+            next_page_display = ""
+
+        roman_pagelist_line = f"{first_roman_page_num}to{last_roman_page_num}=roman{next_page_display}"
         return roman_pagelist_line
     else:
         return None
@@ -188,6 +201,11 @@ def create_index_pagelist(page_data):
         
         marker = page["marker"]
         marker_num += 1 # not zero-indexed
+
+        # if marker == "1":
+        #     # print("Marker was 1")
+        #     pagelist += f"{marker_num}=1\n"
+        #     continue
 
         if marker in marker_definitions:
             marker = marker_definitions[marker]
@@ -229,6 +247,8 @@ def create_index_pagelist(page_data):
 
     print_in_green("Index pagelist generated.")
 
+    print(pagelist)
+
     return pagelist
 
     # return index_pagelist
@@ -244,17 +264,26 @@ def get_title_page(page_data):
     print_in_red("ERROR: No title page found. Please insert /title/ somewhere in the transcription to indicate which page is the title page.")
     exit()
 
-def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
+def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, editor_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
+    print(f"In function: editor WS name: {editor_WS_name}, publisher name: {publisher_name}")
+    # exit()
     summary = "Creating index page..."
     progress = "C"
     site = pywikibot.Site('en', 'wikisource')
     index_page = pywikibot.Page(site, index_page_title)
     location_name = parse_list_with_commas(location_name)
     toc_section = generate_toc_section(page_data, filename, toc_is_auxiliary, toc, site, mainspace_work_title, transcription_page_title)
+
     if illustrator_WS_name:
         illustrator_display = f"[[Author:{illustrator_WS_name}|]]"
     else:
         illustrator_display = ""
+    
+    if editor_WS_name:
+        editor_display = f"[[Author:{editor_WS_name}|]]"
+    else:
+        editor_display = ""
+
     title_page = get_title_page(page_data)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
@@ -263,7 +292,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Volume=
 |Author=[[Author:{author_WS_name}|]]
 |Translator=
-|Editor=
+|Editor={editor_display}
 |Illustrator={illustrator_display}
 |School=
 |Publisher=[[Portal:{publisher_name}|{publisher_name}]]
@@ -287,7 +316,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Footer=
 |Transclusion=no
 }}}}"""
-    # print(index_page_text)
+    print(index_page_text)
     save_page(index_page, site, index_page_text, summary, transcription_page_title)
     add_index_page_to_version_item(version_item, index_page_title)
     create_index_styles(transcription_text, index_page_title, transcription_page_title)

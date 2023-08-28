@@ -127,10 +127,8 @@ hanced
 
 
 # JOHN BROWN (CHAMBERLIN)
-# rel=main subject on Wikidata (P921)
-# Wikidata, transclusion: part of the series (P179)
-# Commons category, if name == string with no spaces, then Commons Category has the same name.
-# Parse: /chrn/ tag
+# Index: Editor parameter
+# Index: 18=1 if after roman starts back at 1
 # Transclusion: related_author
 # Transclusion: editor
 # Transclusion: portal for series
@@ -389,6 +387,7 @@ related_author = get_work_data(work_data, "related author")
 related_author_page_title = get_author_page_title(related_author)
 
 series = get_work_data(work_data, "series")
+series_name = get_wikisource_page_from_wikidata(series)
 
 location = get_work_data(work_data, "location of publication", common_locations)
 country = get_value_from_property(location, "P17")
@@ -662,9 +661,10 @@ first_page = get_first_page(index_pagelist)
 transcription_text = transcription_page.text
 expected_progress = "index_page_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+print(f"Outside function: editor WS name: {editor}, publisher name: {publisher_name}")
 
 if not at_expected_progress:
-    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, illustrator, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
+    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, illustrator, editor, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
 
     process_break()
 
@@ -696,7 +696,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, transcription_text)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, transcription_text)
 
     create_redirects(mainspace_work_title)
 

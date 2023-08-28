@@ -429,7 +429,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, transcription_text):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, transcription_text):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -467,7 +467,10 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         author_header_display = author_WS_name # for now. There will be logic here later.
     defaultsort = generate_defaultsort_tag(mainspace_work_title) # for now. There will be logic here later.
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
-    disambiguation_pointer = "" # for now. There will be logic here later.
+    if "(" in mainspace_work_title:
+        disambiguation_pointer = f"{{{{similar|{title}}}}}"
+    else:
+        disambiguation_pointer = "" # for now. There will be logic here later.
     # Hierarchy: disambig > work > version
     # IDEA: Go to version_item, then check base_work for a versions page on WS. If it doesn't have one, then check for disambig.
 
@@ -477,6 +480,29 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     else:
         cover_display = ""
 
+    """
+ | year        = 1915
+ | portal      = Biographical film/Films with historical settings/Silent film
+ | related_author = Abraham Lincoln
+ """
+
+    if related_author:
+        related_author_display = f"""
+ | related_author = {related_author}"""
+    else:
+        related_author_display = ""
+
+    if series_name:
+        if "Portal:" in series_name:
+            series_name = series_name.replace("Portal:", "")
+        portal_display = f"""
+ | portal      = {series_name}"""
+    else:
+        portal_display = ""
+
+    related_author_display = ""
+    portal_display = ""
+
 
 
     front_matter_header = f"""{disambiguation_pointer}{{{{header
@@ -485,7 +511,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
  | section    = 
  | previous   = 
  | next       = {first_chapter_display}
- | year       = {year}{cover_display}
+ | year       = {year}{cover_display}{portal_display}{related_author_display}
  | notes      = 
 }}}}{defaultsort}
 

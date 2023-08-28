@@ -482,6 +482,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["chapter_num"] = None
             chapter["title"] = "Advertisements"
             chapter["display_title"] = "Advertisements"
+            chapter["auxiliary"] = False
             chapter["page_num"] = page_num
             chapter["hidden"] = True # the important bit
             chapter["refs"] = False # for now
