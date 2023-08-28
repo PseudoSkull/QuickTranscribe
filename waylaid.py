@@ -1208,6 +1208,7 @@ def correct_text(text_file):
     x = x.replace(" tbe ", " the ")
     x = x.replace(" lie said", " he said")
     x = x.replace(" aud ", " and ")
+    x = x.replace(" bom;", " born;")
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
 

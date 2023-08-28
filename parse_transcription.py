@@ -474,6 +474,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     for page in page_data:
         page_num = page["marker"]
+        page_format = page["format"]
 
         chapter = {}
 
@@ -489,6 +490,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["part_num"] = None
             chapter["has_sections"] = False
             chapter["splice"] = False
+            chapter["format"] = page_format
+            
             chapters.append(chapter)
             break
 
@@ -584,6 +587,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             print("if chapter num in chapter splice points")
                             splice_chapter = True
                     chapter["splice"] = splice_chapter
+                    chapter["format"] = page_format
 
                     chapters.append(chapter)
                     previous_chapter = chapter

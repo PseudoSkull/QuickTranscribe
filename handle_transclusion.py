@@ -212,19 +212,35 @@ def generate_transclusion_tag(filename, start_page, end_page):
         transclusion_tag = f"<pages index=\"{filename}\" include={start_page} />"
     return transclusion_tag
 
-def get_actual_page_num(page_num, page_data):
+def get_actual_page_num(page_num, page_data, chapter_format=None):
     for actual_page_num, page in enumerate(page_data):
         actual_page_num += 1 # not zero-indexed
         page_marker = page["marker"]
+        page_format = page["format"]
         if str(page_num) == str(page_marker):
-            return actual_page_num
+            if chapter_format:
+                if page_format == chapter_format:
+                    return actual_page_num
+            else:
+                return actual_page_num
 
 def page_is_image_page(page):
     content = page["content"]
     page_is_image_page_condition = len(content.split("\n\n")) == 1 and ("{{FreedImg" in content or "[[File:" in content)
     return page_is_image_page_condition
 
-def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False):
+def get_last_roman_page_num(page_data):
+    iterating_roman_pages = False
+    for page_num, page in enumerate(page_data):
+        page_num += 1
+        page_format = page["format"]
+        if page_format == "roman":
+            iterating_roman_pages = True
+
+        if iterating_roman_pages and page_format != "roman":
+            return page_num - 1
+
+def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False, chapter_format=None):
     # splits = []
     if front_matter:
         chapter_start = 1
@@ -233,14 +249,22 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
         chapter_end = first_content_page - 1
     else:
         if chapter:
+            print_in_yellow("if chapter:")
             page_num = chapter["page_num"]
-            actual_page_num = get_actual_page_num(page_num, page_data)
+            actual_page_num = get_actual_page_num(page_num, page_data, chapter_format=chapter_format)
         else:
+            print_in_yellow("if chapter: else >")
             actual_page_num = first_content_page
         chapter_start = actual_page_num
         try:
-            chapter_end_page = chapters[overall_chapter_num + 1]["page_num"]
-            chapter_end = get_actual_page_num(chapter_end_page, page_data) - 1
+            next_chapter = chapters[overall_chapter_num + 1]
+            next_chapter_format = next_chapter["format"]
+            if chapter_format:
+                if chapter_format != next_chapter_format:
+                    chapter_end = get_last_roman_page_num(page_data)
+                else:
+                    chapter_end_page = next_chapter["page_num"]
+                    chapter_end = get_actual_page_num(chapter_end_page, page_data, chapter_format=chapter_format) - 1
         # if not chapter_end:
         except IndexError:
             chapter_end = get_last_page(page_data, chapter_start)
@@ -303,6 +327,8 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
             chapter_transclusion_tags.append(pages_tag)
             starting_page_num = page_split + 1
+            if next_page_marker == "ad" and not page_marker == "ad":
+                break
             # chapter_transclusion_tags.append(f"<pages index=\"{filename}\" include={page_num} />")
         # elif page["page_quality"] == "0":
         #     if page_num == chapter_end:
@@ -332,12 +358,13 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
     return chapter_transclusion_tags
 
-def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded):
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display):
     number_of_chapters = len(chapters)
     for overall_chapter_num, chapter in enumerate(chapters):
         title_display = f"[[../|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters)
-        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter)
+        chapter_format = chapter["format"]
+        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter, chapter_format=chapter_format)
 
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
@@ -366,7 +393,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
  | author     = {author_header_display}
  | section    = {chapter_name}
  | previous   = {previous_chapter_display}
- | next       = {next_chapter_display}
+ | next       = {next_chapter_display}{editor_display}
  | notes      = 
 }}}}{defaultsort}
 
@@ -429,7 +456,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, transcription_text):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, transcription_text):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -438,11 +465,12 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     # chapter_names = list(chapters.keys())
     # chapter_page_nums = list(chapters.values())
+    first_content_page = get_first_content_page(page_data)
     if len(chapters) > 0:
         first_chapter = chapters[0]
         first_chapter_name = first_chapter["title"]
         first_chapter_page_num = first_chapter["page_num"]
-        first_content_page = first_chapter_page_num + page_offset
+        # first_content_page = first_chapter_page_num + page_offset
         first_chapter_prefix = first_chapter["prefix"]
         if not first_chapter_prefix:
             first_chapter_prefix = "Chapter"
@@ -455,7 +483,6 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         else:
             first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
     else:
-        first_content_page = get_first_content_page(page_data)
         first_chapter_display = ""
     print("First content page:", first_content_page)
 
@@ -468,7 +495,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     defaultsort = generate_defaultsort_tag(mainspace_work_title) # for now. There will be logic here later.
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
     if "(" in mainspace_work_title:
-        disambiguation_pointer = f"{{{{similar|{title}}}}}"
+        disambiguation_pointer = f"{{{{similar|{title}}}}}\n"
     else:
         disambiguation_pointer = "" # for now. There will be logic here later.
     # Hierarchy: disambig > work > version
@@ -496,12 +523,15 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if "Portal:" in series_name:
             series_name = series_name.replace("Portal:", "")
         portal_display = f"""
- | portal      = {series_name}"""
+ | portal     = {series_name}"""
     else:
         portal_display = ""
-
-    related_author_display = ""
-    portal_display = ""
+    
+    if editor:
+        editor_display = f"""
+ | editor     = {editor}"""
+    else:
+        editor_display = ""
 
 
 
@@ -511,7 +541,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
  | section    = 
  | previous   = 
  | next       = {first_chapter_display}
- | year       = {year}{cover_display}{portal_display}{related_author_display}
+ | year       = {year}{cover_display}{portal_display}{related_author_display}{editor_display}
  | notes      = 
 }}}}{defaultsort}
 
@@ -595,4 +625,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
-        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded)
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display)

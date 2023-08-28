@@ -340,6 +340,8 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
         classes_used.append("wst-fine-block")
     if "{{smaller block" in transcription_text:
         classes_used.append("wst-smaller-block")
+    if "{{bc|" in transcription_text or "{{block center" in transcription_text:
+        classes_used.append("wst-smaller-block")
     if "{{TOC begin}}" in transcription_text:
         classes_used.append("wst-toc-table")
     
