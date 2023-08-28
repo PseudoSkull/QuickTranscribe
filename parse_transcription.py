@@ -76,6 +76,7 @@ chapter_tags = [
     "bibl",
     "bk",
     "ch",
+    "chrn",
     "concl",
     "contch",
     "fwd",
@@ -427,6 +428,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     prefixless_chapter_titles = {
         "bibl": "Bibliography",
+        "chrn": "Chronology",
         "concl": "Conclusion",
         "fwd": "Foreword",
         "intr": "Introduction",

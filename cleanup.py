@@ -352,6 +352,8 @@ def place_page_numbers(text):
     can_count_number = False
     for line in text_parsed:
         line_suffix = line[1:]
+        if line_suffix == "1n":
+            count = 0
         page_num_format = ""
         line_prefix = line[:1]
         line_length = len(line)

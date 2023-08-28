@@ -184,7 +184,7 @@ def create_author_category(author_item, author_WD_alias):
 
     return author_category_page_title
 
-def create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias):
+def create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias, series_item):
     print("Generating subcategories...")
     country_name = add_country_prefix(country_name)
 
@@ -194,11 +194,12 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
     author_category = linkify(author_category)
     type_category = generate_type_category(category_namespace_prefix, work_type_name, country_name)
     year_category = generate_year_category(category_namespace_prefix, original_year, country_name)
+    series_category = linkify(get_commons_category_from_wikidata(series_item))
 
     if type_category:
-        categories = [author_category, type_category, year_category]
+        categories = [author_category, type_category, year_category, series_category]
     else:
-        categories = [author_category, year_category]
+        categories = [author_category, year_category, series_category]
 
     categories.sort()
     commons_site = pywikibot.Site("commons", "commons")
@@ -209,14 +210,23 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
 
     return categories
 
+def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title):
+    if title != mainspace_work_title:
+        category_title = mainspace_work_title
+    
+    category_title_no_prefix = category_title
 
-def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias):
-    category_page_title = category_namespace_prefix + title
-    category_title_no_prefix = title
+    category_title = category_namespace_prefix + category_title
+
+    return category_title, category_title_no_prefix
+
+
+def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title):
+    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title)
     print(f"Generating Commons category {category_page_title}...")
 
     # create subcategories
-    categories = create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias)
+    categories = create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias, series_item)
 
     commons_category_text = f"{{{{Wikidata Infobox}}}}\n\n{categories}"
 

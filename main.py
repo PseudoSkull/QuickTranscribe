@@ -125,15 +125,10 @@ hanced
 
 
 
-# MY FRIEND, ANABELLE LEE
-# Do this by 8/16
-
-
 
 # JOHN BROWN (CHAMBERLIN)
-# Dedications: Get /dedic/ link for dedications
 # rel=main subject on Wikidata (P921)
-# Wikidata, transclusion: part of the series
+# Wikidata, transclusion: part of the series (P179)
 # Commons category, if name == string with no spaces, then Commons Category has the same name.
 # Parse: /chrn/ tag
 # Transclusion: related_author
@@ -146,7 +141,7 @@ hanced
 
 
 
-
+# /dedic/i=Q121811188/
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Transclusion: Do not add pages if page_quality == "i"
 # Parse: /li/ -> link hyphenated words {{lps|hws=Ala|hwe=ddin}}
@@ -391,6 +386,7 @@ editor = get_work_data(work_data, "editor")
 editor_page_title = get_author_page_title(editor)
 
 related_author = get_work_data(work_data, "related author")
+related_author_page_title = get_author_page_title(related_author)
 
 series = get_work_data(work_data, "series")
 
@@ -427,6 +423,8 @@ else:
     author_item = get_wikidata_item_from_wikisource(author_page_title)
 
 illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
+editor_item = get_wikidata_item_from_wikisource(editor_page_title)
+related_author_item = get_wikidata_item_from_wikisource(related_author_page_title)
 
 author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
@@ -441,7 +439,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -481,7 +479,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, dedications, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     print_in_yellow("Add progress 'version_item_created' manually. Restart to mitigate ver= problem (temporary).")
@@ -502,7 +500,7 @@ expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias)
+    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title)
 
     commons_category_page = pywikibot.Page(commons_site, commons_category)
     save_page(commons_category_page, commons_site, commons_category_text, f"Creating Commons category for book {title} that will be filled shortly...", transcription_page_title)
