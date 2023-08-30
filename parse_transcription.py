@@ -760,16 +760,17 @@ def get_section_data(chapters, page_data, transcription_text):
     else:
         print_in_yellow("No sections found in transcription text.")
 
-    print(sections)
-    exit()
+    # print(sections)
+    # exit()
     write_to_json_file(sections_json_file, sections)
     return sections
     
 
-def get_aux_toc_items(chapters, mainspace_work_title):
+def get_aux_toc_items(chapters, mainspace_work_title, chapters_are_subpages_of_parts):
     aux_toc_items = []
     spacing = ""
     is_subchapter = False
+    part_prefix = ""
     for chapter in chapters:
         # if parts_exist:
         chapter_prefix = chapter["prefix"]
@@ -784,27 +785,41 @@ def get_aux_toc_items(chapters, mainspace_work_title):
         else:
             spacing = ""
             is_subchapter = True
+            part_prefix = chapter_prefix
             # subchapters = chapter["subchapters"]
             # aux_subchapters = get_aux_toc_items(subchapters, mainspace_work_title, ":")
             # spacing = ":"
             # aux_subchapters = "\n".join(aux_subchapters)
+        part_num = chapter["part_num"]
+        
         chapter_numbered_name = f"{chapter_prefix}{chapter_num}"
+        chapter_numbered_display_name = chapter_numbered_name
+
+        if is_subchapter and chapters_are_subpages_of_parts and chapter_prefix == "Chapter ":
+            chapter_numbered_name = f"{part_prefix}{part_num}/{chapter_numbered_name}"
+
 
         chapter_title = chapter["title"]
 
         if chapter_title == "Advertisements":
             continue
         
+        internal_chapter_name = f"{mainspace_work_title}/"
+
         if chapter_title and chapter_num:
             # aux_toc_entry = f"* [[{mainspace_work_title}/|{chapter_title}]]"
-            aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}: {chapter_title}]]"
+            internal_chapter_name += chapter_numbered_name
+            chapter_display = f"{chapter_numbered_display_name}: {chapter_title}"
         elif chapter_title and not chapter_num:
+            internal_chapter_name += chapter_title
+            chapter_display = chapter_title
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
         else:
+            internal_chapter_name += chapter_numbered_name
+            chapter_display = chapter_numbered_display_name
             aux_toc_entry = f"{spacing}* [[{mainspace_work_title}/{chapter_numbered_name}|{chapter_numbered_name}]]"
 
-        # if aux_subchapters:
-        #     aux_toc_entry += "\n" + aux_subchapters
+        aux_toc_entry = f"{spacing}* [[{internal_chapter_name}|{chapter_display}]]"
 
         aux_toc_items.append(aux_toc_entry)
     
@@ -819,7 +834,7 @@ def convert_page_num_to_roman_if_roman(page_num, page_data):
                 page_num = roman.toRoman(page_num).lower()
             return page_num
 
-def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, smallcaps=True, header=False):
+def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, chapters_are_subpages_of_parts, smallcaps=True, header=False):
     print("Generating TOC...")
 
     if toc_is_auxiliary:
@@ -827,7 +842,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         aux_toc_beginning = "{{AuxTOC|\n"
         aux_toc_ending = "\n}}"
         # aux_toc_items = []
-        aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title)
+        aux_toc_items = get_aux_toc_items(chapters, mainspace_work_title, chapters_are_subpages_of_parts)
         aux_toc_items = "\n".join(aux_toc_items)
         aux_toc = aux_toc_beginning + aux_toc_items + aux_toc_ending
         print(aux_toc)

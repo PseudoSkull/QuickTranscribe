@@ -597,6 +597,8 @@ convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
 chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
+if chapters_are_subpages_of_parts == None:
+    chapters_are_subpages_of_parts = True
 
 
 
@@ -607,7 +609,7 @@ toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")
 section_format = find_form_section(transcription_text, "sec")
 
-toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data)
+toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, chapters_are_subpages_of_parts)
 
 illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title)
 
