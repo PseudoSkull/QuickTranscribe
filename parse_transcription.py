@@ -657,7 +657,7 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         try:
             next_chapter = chapters[chapter_num + 1]
             next_chapter_page_num = next_chapter["page_num"]
-            if type(next_chapter_page_num) == int: # if advertisements
+            if type(next_chapter_page_num) != int: # if advertisements
                 next_chapter_page_num = chapter_page_num + 1000
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
