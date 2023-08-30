@@ -631,7 +631,7 @@ def get_chapters_with_refs(chapters, page_data):
     
     return chapters_with_refs
 
-def get_chapter_from_page_num(chapters, page_num):
+def get_chapter_from_page_num(chapters, page_num, for_sections=False):
     try:
         page_num = int(page_num)
         first_chapter = chapters[0]
@@ -642,12 +642,18 @@ def get_chapter_from_page_num(chapters, page_num):
     except TypeError:
         if page_num == "fro":
             return "Front matter"
-        print_in_red(f"Page number {page_num} is not an integer.")
-        exit()
+        if for_sections:
+            pass
+        else:
+            print_in_red(f"Page number {page_num} is not an integer.")
+            exit()
     for chapter_num, chapter in enumerate(chapters):
         # print(f"Chapter {chapter}")
         # print(f"Page {page_num}")
         chapter_page_num = chapter["page_num"]
+        chapter_prefix = chapter["prefix"]
+        if for_sections and chapter_prefix == "Book" or chapter_prefix == "Part":
+            continue
         try:
             next_chapter = chapters[chapter_num + 1]
             next_chapter_page_num = next_chapter["page_num"]
@@ -655,7 +661,8 @@ def get_chapter_from_page_num(chapters, page_num):
                 next_chapter_page_num = chapter_page_num + 1000
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
-            
+        print(chapter)
+        print(f"Page num: {page_num} Chapter page num: {chapter_page_num} Next chapter page num: {next_chapter_page_num}")
         
         # if previous_chapter_page_num == 0 and chapter_page_num > overall_page_num:
         #     front_matter = {}
@@ -718,12 +725,15 @@ def get_section_data(chapters, page_data, transcription_text):
             section_matches = re.findall(section_pattern, content)
 
             for match in section_matches:
-                chapter = get_chapter_from_page_num(chapters, page_num)
+                chapter = get_chapter_from_page_num(chapters, page_num, for_sections=True)
                 # chapter = {}
                 previous_chapter_num = chapter_num
                 chapter_num = chapter["chapter_num"]
                 chapter_start_page_num = chapter["page_num"]
                 part_num = chapter["part_num"]
+                chapter_prefix = chapter["prefix"]
+                if chapter_prefix == "Book":
+                    continue
                 
                 # print(sections)
 
@@ -750,6 +760,8 @@ def get_section_data(chapters, page_data, transcription_text):
     else:
         print_in_yellow("No sections found in transcription text.")
 
+    print(sections)
+    exit()
     write_to_json_file(sections_json_file, sections)
     return sections
     
