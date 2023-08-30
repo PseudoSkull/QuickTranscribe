@@ -372,6 +372,8 @@ related_author_page_title = get_author_page_title(related_author)
 series = get_work_data(work_data, "series")
 if series:
     series_name = get_wikisource_page_from_wikidata(series)
+else:
+    series_name = None
 
 location = get_work_data(work_data, "location of publication", common_locations)
 country = get_value_from_property(location, "P17")
@@ -682,7 +684,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, transcription_text)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, transcription_text, chapters_are_subpages_of_parts)
 
     create_redirects(mainspace_work_title)
 
