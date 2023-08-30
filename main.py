@@ -25,8 +25,8 @@ import datetime
 
 
 # HUGE BUGS TO FIX IMMEDIATELY:
-## Fqms are put all over the page instead of just on the poem now...
 ## Transclusion has trouble parsing the first and last pages for some reason... Look into that
+## https://en.wikisource.org/w/index.php?title=Page:John_Brown_(1899).pdf/22&action=history - Always blank header and footer in a 0 page PLEASE
 
 # GET OCR DIRECTLY FROM TESSERACT, NOT JUST IA!!!!!!!!!
 # modify ia.py and hathi.py logic to use handle_web_downloads
@@ -99,12 +99,6 @@ hanced
 
 
 
-# MY FRIEND ANNABEL LEE
-# Poem nop for stanza
-# Poem continuations across multiple pages
-
-
-
 
 
 
@@ -126,19 +120,8 @@ hanced
 
 
 
-# JOHN BROWN (CHAMBERLIN)
-# Index: Editor parameter
-# Index: 18=1 if after roman starts back at 1
-# Transclusion: related_author
-# Transclusion: editor
-# Transclusion: portal for series
 
-
-
-
-
-
-
+# AUTOMATICALLY ADD OCLC WORK ID to WORK DATA from Hathi catalog data, P5331, from for example https://www.worldcat.org/oclc/2928145
 # /dedic/i=Q121811188/
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Transclusion: Do not add pages if page_quality == "i"
@@ -387,7 +370,8 @@ related_author = get_work_data(work_data, "related author")
 related_author_page_title = get_author_page_title(related_author)
 
 series = get_work_data(work_data, "series")
-series_name = get_wikisource_page_from_wikidata(series)
+if series:
+    series_name = get_wikisource_page_from_wikidata(series)
 
 location = get_work_data(work_data, "location of publication", common_locations)
 country = get_value_from_property(location, "P17")

@@ -12,6 +12,7 @@ import re
 
 marker_definitions = {
     "ad": "adv",
+    "bk": "book",
     "col": "coloph",
     "cov": "cover",
     "ded": "dedic",

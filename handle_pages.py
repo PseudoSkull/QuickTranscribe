@@ -115,6 +115,8 @@ def get_page_data(transcription_text, page_break_string=None):
                 read_page = False
                 page_quality = "0"
                 content_as_string = ""
+                header = ""
+                footer = ""
                 add_data_item(page_data, page_num, header, footer, content_as_string, page_quality, marker, page_type, page_format)
                 data_item = {}
                 continue

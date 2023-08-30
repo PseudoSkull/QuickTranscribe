@@ -5,6 +5,7 @@ from config import username, mainspace_work_title, transcription_page_title
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
 from hathi import get_hathitrust_full_text_id, get_hathitrust_images
+from handle_ocr import generate_ocr
 from handle_projectfiles import rename_and_copy_text_file, create_projectfiles_folders, assemble_pdf
 from handle_wikisource_conf import get_conf_values, check_QT_progress, update_QT_progress, update_conf_value, create_boilerplate, get_work_data
 from ia import get_IA_files, unzip_jp2_folder, get_google_books_id_from_ia
@@ -93,11 +94,13 @@ if not at_expected_progress:
 
 # exit()
 
-ocr_file_path = "projectfiles/text_changeable.txt"
+ocr_file_path = "projectfiles/original_ocr.txt"
+
+generate_ocr(ocr_file_path)
 
 ocr_file = open(ocr_file_path, "r")
 
-corrected_ocr = correct_text("projectfiles/text_changeable.txt")
+corrected_ocr = correct_text(ocr_file_path)
 
 # print(corrected_ocr)
 

@@ -636,9 +636,10 @@ def get_chapter_from_page_num(chapters, page_num):
         page_num = int(page_num)
         first_chapter = chapters[0]
         first_chapter_start_page = first_chapter["page_num"]
+        # if type(page_num) == int and type(first_chapter_start_page) == int:
         if page_num < first_chapter_start_page:
             return "Front matter"
-    except ValueError:
+    except TypeError:
         if page_num == "fro":
             return "Front matter"
         print_in_red(f"Page number {page_num} is not an integer.")
@@ -717,7 +718,7 @@ def get_section_data(chapters, page_data, transcription_text):
             section_matches = re.findall(section_pattern, content)
 
             for match in section_matches:
-                chapter = get_chapter_from_page_num(chapters, page_data, page_num, overall_page_num)
+                chapter = get_chapter_from_page_num(chapters, page_num)
                 # chapter = {}
                 previous_chapter_num = chapter_num
                 chapter_num = chapter["chapter_num"]
