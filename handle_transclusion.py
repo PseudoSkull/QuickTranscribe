@@ -371,8 +371,12 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
 def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts):
     number_of_chapters = len(chapters)
+    part_prefix = None
     for overall_chapter_num, chapter in enumerate(chapters):
         chapter_prefix = chapter["prefix"]
+        part_num = chapter["part_num"]
+        if chapter_prefix == "Book" or chapter_prefix == "Part":
+            part_prefix = chapter_prefix
         dots_to_front_matter = "../"
         if chapter_prefix == "Chapter" and chapters_are_subpages_of_parts:
             dots_to_front_matter = "../../"
@@ -396,6 +400,9 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         if chapter_name == None:
             chapter_name = chapter_internal_name
 
+        if chapter_prefix == "Chapter" and chapters_are_subpages_of_parts:
+            chapter_internal_name = f"{part_prefix} {part_num}/Chapter {chapter_num}"
+            # chapter_name = f"Chapter {chapter_num}"
         # if chapter_name == title:
         #     chapter_internal_name = "main content chapter"
 
@@ -422,6 +429,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             continue
         else:
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
+        print(chapter_page_title)
         print(chapter_text)
         # save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
