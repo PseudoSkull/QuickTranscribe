@@ -4,7 +4,7 @@ import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from handle_wikidata import get_value_from_property
-from edit_mw import save_page, get_english_plural, has_digits
+from edit_mw import save_page, get_english_plural, has_digits, linkify
 import json
 
 # FIND A WAY TO CLEAN THE TRANSCLUDE PAGES LOGIC UP. IT'S A BIT OF A MESS.
@@ -109,22 +109,29 @@ def generate_toc_page_tag(toc_pages, filename):
     page_tag = f"<pages index=\"{filename}\" from={toc_begin} to={toc_end} />"
     return page_tag
 
-def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpages_of_parts):
+def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpages_of_parts, overarching_chapter):
     chapter = chapters[chapter_num_zero_indexed]
     chapter_num = chapter["chapter_num"]
     chapter_name = chapter["title"]
     chapter_prefix = chapter["prefix"]
+    part_num = chapter["part_num"]
     if not chapter_prefix:
         chapter_prefix = "Chapter"
     chapter_internal_name = f"{chapter_prefix} {chapter_num}"
 
     dots_to_chapter = "../"
+    overarching_chapter_prefix = overarching_chapter["prefix"]
     if (chapter_prefix == "Book" or chapter_prefix == "Part") and chapters_are_subpages_of_parts:
         dots_to_chapter = "../../"
-    if chapter_internal_name == "Chapter 1":
-        dots_to_chapter = "/"
+    if (overarching_chapter_prefix == "Book" or overarching_chapter_prefix == "Part") and chapters_are_subpages_of_parts:
+        if chapter_num == 1:
+            dots_to_chapter = "/"
+        else:
+            dots_to_chapter = f"../{overarching_chapter_prefix} {part_num}/{chapter_internal_name}|{chapter_internal_name}"
 
-    if chapter_num == None:
+    if len(dots_to_chapter) > 10: # lazy solution
+        chapter_link = linkify(dots_to_chapter)
+    elif chapter_num == None:
         chapter_link = f"[[{dots_to_chapter}{chapter_name}/]]"
     elif chapter_name == None:
         chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}/]]"
@@ -143,6 +150,7 @@ def generate_chapter_links(overall_chapter_num, chapter, chapters, chapters_are_
     return_to_front_matter_link = f"[[{dots_to_front_matter}|Return to front matter]]"
     
     chapter_name = chapter["title"]
+    chapter_prefix = chapter["prefix"]
 
     if overall_chapter_num == -1: # front matter
         previous_chapter_link = ""
@@ -150,7 +158,7 @@ def generate_chapter_links(overall_chapter_num, chapter, chapters, chapters_are_
     # try:
         previous_chapter_num_zero_indexed = overall_chapter_num - 1
 
-        previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num_zero_indexed, chapters_are_subpages_of_parts)
+        previous_chapter_link = generate_chapter_link(chapters, previous_chapter_num_zero_indexed, chapters_are_subpages_of_parts, chapter)
         if previous_chapter_num_zero_indexed == -1:
             previous_chapter_link = front_matter_link
 
@@ -158,7 +166,7 @@ def generate_chapter_links(overall_chapter_num, chapter, chapters, chapters_are_
     next_chapter_num_zero_indexed = overall_chapter_num + 1
 
     try:
-        next_chapter_link = generate_chapter_link(chapters, next_chapter_num_zero_indexed, chapters_are_subpages_of_parts)
+        next_chapter_link = generate_chapter_link(chapters, next_chapter_num_zero_indexed, chapters_are_subpages_of_parts, chapter)
     except IndexError:
         next_chapter_link = return_to_front_matter_link
 
@@ -332,13 +340,15 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
             chapter_transclusion_tags.append(pages_tag)
             starting_page_num = page_split + 1
             continue
-
+        
+        page_type_condition = (page_type == "break")
         if page_type == "break" or page_num == chapter_end or next_page_quality == "0" or not next_page_marker.isdigit() or (front_matter and not page_type == "toc") or page_is_image_page(page) or page_is_image_page(next_page):
+            print(f"Got here and page_type == break is {page_type_condition}")
             page_split = page_num
             pages_tag = generate_transclusion_tag(filename, starting_page_num, page_split)
             chapter_transclusion_tags.append(pages_tag)
             starting_page_num = page_split + 1
-            if next_page_marker == "ad" and not page_marker == "ad":
+            if (next_page_marker == "ad" and not page_marker == "ad") or page_num == chapter_end:
                 break
             # chapter_transclusion_tags.append(f"<pages index=\"{filename}\" include={page_num} />")
         # elif page["page_quality"] == "0":
@@ -431,7 +441,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
         print(chapter_page_title)
         print(chapter_text)
-        # save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
+        save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 def generate_defaultsort_tag(mainspace_work_title):
     bad_prefixes = [
@@ -643,7 +653,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 
     print(front_matter_text)
 
-    # save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
+    save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
         transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts)
