@@ -98,7 +98,11 @@ hanced
 # Waylaid: regex "[any consonant]j " -> "$1, "
 
 
-
+# GLITTER (A. L. BURT COMPANY)
+# Commons: Write the Commons category correctly. Convert to surname Brush for parens.
+# Parse: Chapter prefix being "Book", make that parse correctly.
+# Parse: chh - chapter half
+# Transclusion: Make chapter prefix "Book" transclude correctly.
 
 
 
