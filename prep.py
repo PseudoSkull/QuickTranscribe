@@ -14,9 +14,6 @@ from waylaid import correct_text
 
 ## TO DO LATER: if IA work ends in "goog", take the first page out of the PDF and DJVU
 
-prep_progresses = [
-]
-
 site = pywikibot.Site('en', 'wikisource')
 transcription_page = pywikibot.Page(site, transcription_page_title)
 
@@ -60,16 +57,19 @@ expected_progress = "ia_files_downloaded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    IA_files = get_IA_files(IA_id)
-    unzip_jp2_folder(IA_files)
-    rename_and_copy_text_file()
+    if IA_id:
+        IA_files = get_IA_files(IA_id)
+        unzip_jp2_folder(IA_files)
+        rename_and_copy_text_file()
 
-    if not GB_id:
-        GB_id = get_google_books_id_from_ia(IA_id)
-        transcription_text = update_conf_value(transcription_text, "gb", GB_id)
-    
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that IA files have been downloaded...")
+        if not GB_id:
+            GB_id = get_google_books_id_from_ia(IA_id)
+            transcription_text = update_conf_value(transcription_text, "gb", GB_id)
+        
+        transcription_text = update_QT_progress(transcription_text, expected_progress)
+        save_page(transcription_page, site, transcription_text, "Noting that IA files have been downloaded...")
+    else:
+        print_in_yellow("IA id not found. Skipping...")
 
 transcription_text = transcription_page.text
 expected_progress = "hathi_files_downloaded"
@@ -96,7 +96,7 @@ if not at_expected_progress:
 
 ocr_file_path = "projectfiles/original_ocr.txt"
 
-generate_ocr(ocr_file_path)
+generate_ocr()
 
 ocr_file = open(ocr_file_path, "r")
 

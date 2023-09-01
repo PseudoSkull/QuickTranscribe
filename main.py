@@ -101,6 +101,7 @@ hanced
 # GLITTER (A. L. BURT COMPANY)
 # Commons: Write the Commons category correctly. Convert to surname Brush for parens.
 # Parse: Chapter prefix being "Book", make that parse correctly.
+# Parse: Make it say "Book One" as an English word instead of as a Roman numeral.
 # Parse: chh - chapter half
 # Transclusion: Make chapter prefix "Book" transclude correctly.
 
@@ -240,6 +241,7 @@ common_locations = {
 }
 
 common_publishers = {
+    "Burt": "Q24204324",
     "Century": "Q7721960",
     "Dodd": "Q5287721",
     "Doubleday": "Q1251563",

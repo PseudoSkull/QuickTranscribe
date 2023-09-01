@@ -1142,7 +1142,7 @@ def correct_text(text_file):
     x = x.replace(", 'she ", ",\" she ")
     x = x.replace(" I I ", "! I ")
     x = re.sub(r" I ([A-Z])", r"! \1", x)
-    x = re.sub(r"\"(\S+?) \"", r"\"\1\" ", x)
+    x = re.sub(r"\"(\S+?) \"", "\"\1\" ", x)
     x = x.replace("vllle", "ville")
     x = x.replace("¬ ", "")
     x = x.replace("¬", "")
@@ -1211,6 +1211,17 @@ def correct_text(text_file):
     x = x.replace(" bom;", " born;")
     x = x.replace(" Jet ", " let ")
     x = x.replace("\n\n\"u", "\n\n\"Ju")
+    x = x.replace(" ona ", " on a ")
+    x = x.replace(" ina ", " in a ")
+    x = re.sub(r"([a-z])\.\"([A-Z])", "\1. \"\2", x)
+    x = x.replace(",\" asked ", "?\" asked ")
+    x = x.replace(",\" he asked", "?\" he asked")
+    x = x.replace(",\" she asked", "?\" she asked")
+
+    # Correct stuff like this:
+    # When I said that, he said this: 'Love is love." And that was that.
+    # When I said that, he said this: 'Love is love."\n\n
+    # 'Love is love," said Jack. "And that was that."
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
 

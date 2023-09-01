@@ -99,12 +99,12 @@ ty=
 gen=
 
 ia=
-ht=
+htt=
 dl=
 dlt=
 
 beg=sc
-sec=rom
+ch=rom
 
 //conf/
 
