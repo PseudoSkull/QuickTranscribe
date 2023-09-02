@@ -2,7 +2,7 @@
 
 from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
-from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural
+from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
 from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item
 import pywikibot
@@ -213,19 +213,29 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
 
     return categories
 
-def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title):
-    if title != mainspace_work_title:
+def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname):
+    title_hierarchy = get_title_hierarchy(mainspace_work_title)
+    if title_hierarchy == "disambig":
         category_title = mainspace_work_title
+    else:
+        category_title = title
+    commons_site = pywikibot.Site("commons", "commons")
+
     
     category_title_no_prefix = category_title
 
     category_title = category_namespace_prefix + category_title
 
+    if page_exists(category_title, commons_site):
+        # either title hierarchy is "work" or "version"
+        print_in_yellow(f"Commons page for {category_title} already exists. Adding author surname to category title to disambiguate...")
+        category_title += f" ({author_surname})"
+
     return category_title, category_title_no_prefix
 
 
-def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title):
-    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title)
+def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title, author_surname):
+    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname)
     print(f"Generating Commons category {category_page_title}...")
 
     # create subcategories

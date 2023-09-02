@@ -1217,6 +1217,7 @@ def correct_text(text_file):
     x = x.replace(",\" asked ", "?\" asked ")
     x = x.replace(",\" he asked", "?\" he asked")
     x = x.replace(",\" she asked", "?\" she asked")
+    x = x.replace(" —", " ")
 
     # Correct stuff like this:
     # When I said that, he said this: 'Love is love." And that was that.

@@ -61,6 +61,12 @@ style_defaults = {
 	margin-top: 2em;
 	margin-bottom: 2em;""",
 
+    "poem-italic":
+    """	font-size: 92%;
+	margin-top: 2em;
+	margin-bottom: 2em;
+    font-style: italic;""",
+
     "section":
     """	text-align: center;""",
 

@@ -8,7 +8,7 @@ import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page, get_author_page_title
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
-from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items
+from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
@@ -103,6 +103,7 @@ hanced
 # Parse: Chapter prefix being "Book", make that parse correctly.
 # Parse: Make it say "Book One" as an English word instead of as a Roman numeral.
 # Parse: chh - chapter half
+# Parse: poi -> poem-italic class
 # Transclusion: Make chapter prefix "Book" transclude correctly.
 
 
@@ -421,6 +422,8 @@ author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
 base_work_conf_variable = "base"
 
+author_surname = get_surname_from_author(author_item)
+
 dedications = get_dedications(page_data, author_item)
 
 # transcription_page.text
@@ -491,7 +494,7 @@ expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title)
+    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title, author_surname)
 
     commons_category_page = pywikibot.Page(commons_site, commons_category)
     save_page(commons_category_page, commons_site, commons_category_text, f"Creating Commons category for book {title} that will be filled shortly...", transcription_page_title)
