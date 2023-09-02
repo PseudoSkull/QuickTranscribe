@@ -76,6 +76,7 @@ chapter_tags = [
     "bibl",
     "bk",
     "ch",
+    "chh",
     "chrn",
     "concl",
     "contch",
@@ -455,6 +456,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     first_chapter_tag_found = ""
 
+
+    # Below for loop is for checking if chapters are in the work AT ALL
     for chapter_tag in chapter_tags:
         chapter_tag = get_plain_tag(chapter_tag)
         if chapter_tag in text:
@@ -471,6 +474,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
     previous_chapter = None
     section_tag = get_plain_tag("sec")
     chapter_splice_points = get_chapter_splice_points(text)
+
+    skip_chapter_because_of_chapter_half = False
 
     for page in page_data:
         page_num = page["marker"]
@@ -503,6 +508,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                 chapter_tag = get_plain_tag(chapter_tag)
                 if chapter_tag in line:
                     # get_basic_chapter_data(line)
+                    if skip_chapter_because_of_chapter_half and chapter_tag == "/ch/":
+                        skip_chapter_because_of_chapter_half = False
+                        print("ARE WE NOT EVEN FUCKING GETTING HERE?????")
+                        break
+                    
+                    if chapter_tag == "/chh/":
+                        skip_chapter_because_of_chapter_half = True
+                    
                     chapter_parameters = get_chapter_parameters(line) # because the first will always be '' which is useless
                     
                     chapter_tag = chapter_parameters["chapter_tag"]
@@ -511,14 +524,12 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
                     chapter_title = chapter_parameters["chapter_title"]
                     
-                
-
 
                     if chapter_tag in prefixless_chapter_titles:
                         chapter_title = prefixless_chapter_titles[chapter_tag]
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
-                    
+                
                     elif chapter_tag == "bk" or chapter_tag == "pt":
                         part_num += 1
                         chapter["prefix"] = chapter_prefixes[chapter_tag]
@@ -533,7 +544,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["chapter_num"] = None
                         if not chapter_title:
                             chapter["title"] = work_title
-
+                        
                     else:
                         chapter_num += 1
 
@@ -652,7 +663,8 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         # print(f"Page {page_num}")
         chapter_page_num = chapter["page_num"]
         chapter_prefix = chapter["prefix"]
-        if for_sections and chapter_prefix == "Book" or chapter_prefix == "Part":
+        part_num = chapter["part_num"]
+        if for_sections and part_num and chapter_prefix == "Book" or chapter_prefix == "Part":
             continue
         try:
             next_chapter = chapters[chapter_num + 1]
@@ -661,7 +673,7 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
                 next_chapter_page_num = chapter_page_num + 1000
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
-        print(chapter)
+        # print(chapter)
         print(f"Page num: {page_num} Chapter page num: {chapter_page_num} Next chapter page num: {next_chapter_page_num}")
         
         # if previous_chapter_page_num == 0 and chapter_page_num > overall_page_num:
@@ -732,7 +744,7 @@ def get_section_data(chapters, page_data, transcription_text):
                 chapter_start_page_num = chapter["page_num"]
                 part_num = chapter["part_num"]
                 chapter_prefix = chapter["prefix"]
-                if chapter_prefix == "Book":
+                if (chapter_prefix == "Book" or chapter_prefix == "Part") and part_num:
                     continue
                 
                 # print(sections)

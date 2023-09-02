@@ -99,7 +99,6 @@ hanced
 
 
 # GLITTER (A. L. BURT COMPANY)
-# Commons: Write the Commons category correctly. Convert to surname Brush for parens.
 # Parse: Chapter prefix being "Book", make that parse correctly.
 # Parse: Make it say "Book One" as an English word instead of as a Roman numeral.
 # Parse: chh - chapter half
