@@ -117,7 +117,7 @@ ch=rom
 
 /tocform//
 <nowiki>
-{{TOC row 1-1-1|{{fine|/cnum/}}|{{fine|/cnam/}}|{{fine|/pnum/}}}}
+{{TOC row 1-1-1|/cnum/|/cnam/|/pnum/}}
 </nowiki>
 //tocform/
 

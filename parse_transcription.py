@@ -3,6 +3,7 @@
 import pywikibot
 import re
 import roman
+import inflect
 
 from cleanup import remove_triple_newlines
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
@@ -906,6 +907,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
             replacements = {
                 "cnum": str(chapter_num_as_roman),
                 "cnam": toc_link,
+                "cpre": chapter_prefix.upper(), # just in case prefix is put into the toc, but usually it isn't
                 "pnum": str(page_num),
             }
             
@@ -1229,8 +1231,12 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             real_chapter_num = chapter["chapter_num"]
             if real_chapter_num:
                 roman_chapter_num = roman.toRoman(real_chapter_num)
+                inflect_engine = inflect.engine()
+                chapter_num_as_word = inflect_engine.number_to_words(real_chapter_num).capitalize()
                 if chapter_type == "num":
                     displayed_section_num = real_chapter_num
+                elif chapter_type == "word":
+                    displayed_section_num = chapter_num_as_word
                 else:
                     displayed_section_num = roman_chapter_num
             else:
@@ -1257,9 +1263,13 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
 
                 if chapter_text == chapter_format:
                     chapter_text = f"{{{{ph|class=chapter|{chapter_title}.}}}}"
+                if ch_tag == "/ch/" and chapter_half_is_in_work:
+                    chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 # else: handle section tags
             else:
-                if chapter_title == None: # try this very verbose solution, but why on earth is it needed???
+                if ch_tag == "/ch/" and chapter_half_is_in_work:
+                    chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
+                elif chapter_title == None: # try this very verbose solution, but why on earth is it needed???
                     chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 elif ch_tag == "/contch/":
                     chapter_text = f"{{{{ph|class=title|{chapter_title}}}}}"
@@ -1269,6 +1279,10 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                     # print(type(chapter_title))
                     # print(chapter_title)
                     chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+            
+            if "/chh/" in ch_tag:
+                chapter_text = chapter_text.replace("class=chapter ", "class=chapter-half ")
+                chapter_text = chapter_text.replace("class=chapter|", "class=chapter-half|")
             
             if ch_tag == "/pt/" or ch_tag == "/bk/":
                 part_num = chapter["part_num"]
