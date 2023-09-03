@@ -1196,7 +1196,7 @@ def add_toc_to_transcription(page, toc, block_continuations):
 
     return block_continuations, page
 
-def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type):
+def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work):
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
@@ -1214,21 +1214,13 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             chapters_in_page.append(chapters_in_page_of_tag)
     
     print(chapters_in_page)
-    # chapters_in_page = get_string_from_lines(content, ch_tag)
-    # books_in_page = get_string_from_lines(content, bk_tag)
-    # parts_in_page = get_string_from_lines(content, pt_tag)
-    # prefaces_in_page = get_string_from_lines(content, pref_tag)
-    # if len(chapters_in_page) == 0 and len(prefaces_in_page) > 0:
-    #     chapters_in_page = prefaces_in_page
-    # content_chapters_in_page = get_string_from_lines(content, contch_tag)
-    # if len(chapters_in_page) == 0 and len(content_chapters_in_page) > 0:
-    #     chapters_in_page = content_chapters_in_page
 
     for chapter in chapters_in_page:
         for line_num, ch_tag in chapter.items():
             # part_num_zero_indexed = part_num - 1
             # chapter = chapters[chapter_num]
-            overall_chapter_num += 1
+            if not ("/ch/" in ch_tag and chapter_half_is_in_work):
+                overall_chapter_num += 1
 
             overall_chapter_num_zero_indexed = overall_chapter_num - 1
             chapter = chapters[overall_chapter_num_zero_indexed]
@@ -1283,7 +1275,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 roman_part_num = roman.toRoman(part_num)
                 chapter_text = f"{{{{ph|class=part-header|{chapter_prefix} {roman_part_num}}}}}"
             
-            if chapter_has_sections:
+            if chapter_has_sections and "/chh/" not in ch_tag:
                 chapter_text += "\n/sec/"
 
             content = replace_line(content, chapter_text, line_num)
@@ -1351,6 +1343,9 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
             #     # section_text = f"{{{{ph|class=chapter num|{chapter_prefix} {roman_chapter_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
             #     pass # for now
 
+
+def check_if_chapter_half_in_work(transcription_text):
+    return "/chh/" in transcription_text
 
 ########################## references ##########################
 
@@ -2112,6 +2107,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     inline_continuations = []
     reference_continuations = []
     hyphenated_word_continuations = []
+    chapter_half_is_in_work = check_if_chapter_half_in_work(transcription_text)
     for page in page_data:
         page_num = page["page_num"]
         print(f"Parsing page {page_num}...")
@@ -2150,7 +2146,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
         page = add_illustrations_to_transcription(page, illustrations)
-        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type)
+        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work)
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
 
         page = remove_split_tag(page)
