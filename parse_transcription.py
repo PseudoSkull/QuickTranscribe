@@ -1875,7 +1875,7 @@ def handle_fqm(text):
     # print(text)
     # text = text.replace("{{ppoem|class=poem|\n\"", "{{ppoem|class=poem|\n{{fqm}}")
     # text = text.replace("{{ppoem|class=poem|\n\'", "{{ppoem|class=poem|\n{{fqm|'}}")
-    poem_pattern = r'\{\{ppoem\|class=poem\|([.\s\S]*?)\n\}\}'
+    poem_pattern = r'\{\{ppoem\|class=.+?\|([.\s\S]*?)\n\}\}'
     poems = re.findall(poem_pattern, text)
 
     # remove poems from text so that they can be parsed
@@ -1899,20 +1899,21 @@ def handle_poem_continuations(poem_continuations): # unused for now, until poem 
     return poem_continuations
 
 def convert_poems(page, poem_continuations, convert_fqms):
-    # text = convert_block_element(text, "poem", "poem")
     content = page["content"]
 
     if len(poem_continuations) == 0:
-        if string_not_in_content(content, "/po/", "Converting poems"):
+        if string_not_in_content(content, "/po/", "Converting poems") and string_not_in_content(content, "/poi/", "Converting italic poems"):
             return poem_continuations, page
 
     # if there's an existing poem continuation, handle that before parsing other poems
+    # WHEN THERE IS A CONTINUING ITALIC POEM, THAT WILL BE AN ISSUE. Need to make poem continuations into DICTIONARY to handle this
     if len(poem_continuations) > 0:
         start_continuation = poem_continuations[0]
         poem_continuations = []
-        if "//po/" in content:
+        if "//po/" in content or "//poi/" in content:
             end_continuation = None
             content = content.replace("//po/", "}}", 1)
+            content = content.replace("//poi/", "}}", 1)
         else:
             content += "\n}}"
             if "{{nop}}" in content or "/n/" in content:
@@ -1938,12 +1939,16 @@ def convert_poems(page, poem_continuations, convert_fqms):
     
     # parse poems that are not continued
     pattern = r"\/po\//([\s\S]+?)\//po\/"
+    italic_pattern = r"\/poi\//([\s\S]+?)\//poi\/"
     replacement = r"{{ppoem|class=poem|\1}}"
+    italic_replacement = r"{{ppoem|class=poem-italic|\1}}"
     content = re.sub(pattern, replacement, content)
+    content = re.sub(italic_pattern, italic_replacement, content)
     
     # if /po// tag still in content after conversions, then start the continuation process
-    if "/po//" in content:
+    if "/po//" in content or "/poi//" in content:
         content = content.replace("/po//", "{{ppoem|class=poem|end=follow|")
+        content = content.replace("/poi//", "{{ppoem|class=poem-italic|end=follow|")
         poem_continuations.append("follow")
         content += "\n}}"
 

@@ -38,6 +38,19 @@ style_defaults = {
 	margin-bottom: 1.5em;""",
     },
 
+    "chapter-half": # IF NO STYLE IS SPECIFIED, USE THIS
+    {
+        "has_children":
+        """	text-align: center;
+	margin-bottom: 1.5em;""",
+
+        "no_children":
+        """	text-align: center;
+	text-transform: uppercase;
+	font-size: 120%;
+	margin-bottom: 1.5em;""",
+    },
+
     "chapter num":
     """	text-transform: uppercase;
 	font-size: 120%;
@@ -45,6 +58,15 @@ style_defaults = {
 
     "chapter title":
     """	font-variant: all-small-caps;""",
+
+    "chapter-half num":
+    """	text-transform: uppercase;
+	font-size: 120%;
+	margin-bottom: 1.5em;""",
+
+    "chapter-half title":
+    """	font-style: italic;
+    font-size: 120%;""",
 
     "half":
     """	text-align: center;
@@ -91,9 +113,9 @@ style_defaults = {
     "wst-freedimg-caption":
     """	font-size: 92%;""",
 
-    "wst-smaller-block":
-    """	margin-bottom: 2em;
-	margin-top: 2em;""",
+    # "wst-smaller-block":
+    # """	margin-bottom: 2em;
+	# margin-top: 2em;""",
 
     "wst-toc-table":
     """	font-variant: small-caps;

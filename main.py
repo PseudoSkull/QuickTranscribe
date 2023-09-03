@@ -99,9 +99,6 @@ hanced
 
 
 # GLITTER (A. L. BURT COMPANY)
-# Parse: Chapter prefix being "Book", make that parse correctly.
-# Parse: Make it say "Book One" as an English word instead of as a Roman numeral.
-# Parse: chh - chapter half
 # Parse: poi -> poem-italic class
 # Transclusion: Make chapter prefix "Book" transclude correctly.
 
@@ -609,6 +606,8 @@ chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 if chapters_are_subpages_of_parts == None:
     chapters_are_subpages_of_parts = True
+if chapter_prefix == "Book" or chapter_prefix == "Part":
+    chapters_are_subpages_of_parts = False
 
 
 
