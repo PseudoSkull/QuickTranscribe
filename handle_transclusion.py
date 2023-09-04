@@ -4,7 +4,7 @@ import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from handle_wikidata import get_value_from_property
-from edit_mw import save_page, get_english_plural, has_digits, linkify
+from edit_mw import save_page, get_english_plural, has_digits, linkify, get_title_hierarchy
 import json
 
 # FIND A WAY TO CLEAN THE TRANSCLUDE PAGES LOGIC UP. IT'S A BIT OF A MESS.
@@ -525,10 +525,13 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         author_header_display = author_WS_name # for now. There will be logic here later.
     defaultsort = generate_defaultsort_tag(mainspace_work_title) # for now. There will be logic here later.
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
-    if "(" in mainspace_work_title:
+    title_hierarchy = get_title_hierarchy(mainspace_work_title)
+    if title_hierarchy == "disambig":
         disambiguation_pointer = f"{{{{similar|{title}}}}}\n"
+    elif title_hierarchy == "version":
+        disambiguation_pointer = f"{{{{other versions|{title}}}}}"
     else:
-        disambiguation_pointer = "" # for now. There will be logic here later.
+        disambiguation_pointer = ""
     # Hierarchy: disambig > work > version
     # IDEA: Go to version_item, then check base_work for a versions page on WS. If it doesn't have one, then check for disambig.
 

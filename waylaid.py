@@ -1213,16 +1213,113 @@ def correct_text(text_file):
     x = x.replace("\n\n\"u", "\n\n\"Ju")
     x = x.replace(" ona ", " on a ")
     x = x.replace(" ina ", " in a ")
+    x = x.replace(" ata ", " at a ")
     x = re.sub(r"([a-z])\.\"([A-Z])", "\1. \"\2", x)
     x = x.replace(",\" asked ", "?\" asked ")
     x = x.replace(",\" he asked", "?\" he asked")
     x = x.replace(",\" she asked", "?\" she asked")
+    x = x.replace(", he said", ",\" he said")
+    x = x.replace(", she said", ",\" she said")
     x = x.replace(" —", " ")
+    x = x.replace(", The", ". The")
+    x = x.replace(", But ", ". But ")
+    x = x.replace(", And", ". And")
+    x = x.replace(", He's", ". He's")
+    x = x.replace(", He ", ". He ")
+    x = x.replace(", She ", ". She ")
+    x = x.replace(", She's", ". She's")
+    x = x.replace(", Tha", ". Tha")
+    x = x.replace(", Not", ". Not")
+    x = x.replace(", Are", ". Are")
+    x = x.replace(", Is ", ". Is ")
+    x = x.replace(", Isn't", ". Isn't")
+    x = x.replace(" hin ", " him ")
+    x = x.replace(" hin, ", " him, ")
+    x = x.replace("\"Yd ", "\"I'd ")
+    x = x.replace("tete-a-tete", "tête-à-tête")
+    x = x.replace("negligee", "negligée")
+    x = x.replace("matinee", "matinée")
+    x = x.replace("?' ", "?\" ")
+    x = x.replace("?'\n\n", "?\"\n\n")
+    x = x.replace("?\".", "?\"")
+    x = x.replace("\"?", "\"")
+    x = x.replace("said. '", "said. \"")
+    x = x.replace("said, '", "said, \"")
+    x = x.replace("' he said", "\" he said")
+    x = x.replace("' she said", "\" she said")
+    x = x.replace("\"Gh!", "\"Oh!")
+    x = x.replace("\"Gh,", "\"Oh,")
+    x = x.replace("\"Gh—", "\"Oh—")
+    x = x.replace(" )\n", ")\n")
+    x = x.replace("['m", "I'm")
+    x = x.replace("T\"m", "I'm")
+    x = x.replace("TI'", "I'")
+    x = x.replace("\"T\"I", "\"I")
+    x = x.replace(" V'", " I'")
+    x = x.replace("Dve ", "I've ")
+    x = x.replace(" Yon ", " You ")
+    x = x.replace(" yon ", " you ")
+    x = x.replace("l]", "ll")
+
+
+
+    dialogue_words = [
+        "added",
+        "answered",
+        "assented",
+        "began",
+        "concluded",
+        "continued",
+        "cried",
+        "declared",
+        "demanded",
+        "denied",
+        "directed",
+        "drawled",
+        "echoed",
+        "explained",
+        "inquired",
+        "marveled",
+        "mused",
+        "observed",
+        "persisted",
+        "queried",
+        "remarked",
+        "reminded",
+        "repeated",
+        "reported",
+        "responded",
+        "retorted",
+        "said",
+        "sighed",
+        "shrugged",
+        "stated",
+        "suggested",
+        "teased",
+        "thought",
+        "told",
+        "whispered",
+    ]
+
+    x = x.replace(" hke ", " like ")
+
+    # "I am very drunk, said Johnny, adding politely, "And you?"
+    # "I am very drunk," said Johnny, adding politely, "And you?"
+    x = re.sub(r"\n\n(\".+?), said ", "\n\n\1,\" said ", x)
+
+    # dotdotdots fixed
+    x = x.replace(", . . .", ". . . .")
+    x = re.sub(r"([a-z])\. \.\n\n", "\1. . . .\n\n")
+    x = re.sub(r"([a-z])\. \. \.\n\n", "\1. . . .\n\n")
+    x = re.sub(r"([a-z]) \. \. ([a-z])", "\1 . . . \2")
+    x = re.sub(r"([a-z])\.\. \. ", "\1. . . . ")
 
     # Correct stuff like this:
     # When I said that, he said this: 'Love is love." And that was that.
     # When I said that, he said this: 'Love is love."\n\n
     # 'Love is love," said Jack. "And that was that."
+
+    
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
 
