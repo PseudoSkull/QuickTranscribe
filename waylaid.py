@@ -1214,6 +1214,7 @@ def correct_text(text_file):
     x = x.replace(" ona ", " on a ")
     x = x.replace(" ina ", " in a ")
     x = x.replace(" ata ", " at a ")
+    x = x.replace("Iam", "I am")
     x = re.sub(r"([a-z])\.\"([A-Z])", "\1. \"\2", x)
     x = x.replace(",\" asked ", "?\" asked ")
     x = x.replace(",\" he asked", "?\" he asked")
@@ -1252,24 +1253,46 @@ def correct_text(text_file):
     x = x.replace("\"Gh—", "\"Oh—")
     x = x.replace(" )\n", ")\n")
     x = x.replace("['m", "I'm")
+
     x = x.replace("T\"m", "I'm")
     x = x.replace("TI'", "I'")
+    x = x.replace("—TI ", "—I ")
+    
     x = x.replace("\"T\"I", "\"I")
     x = x.replace(" V'", " I'")
+    x = x.replace(" Vl ", " I'll ")
+    x = x.replace("Pd ", "I'd ")
+    x = x.replace("P've ", "I've ")
+    x = x.replace("Im ", "I'm ")
     x = x.replace("Dve ", "I've ")
     x = x.replace(" Yon ", " You ")
     x = x.replace(" yon ", " you ")
     x = x.replace("l]", "ll")
+    x = x.replace("[ll", "I'll")
+    x = x.replace(" agam.", " again.")
+    x = x.replace(" agam ", " again ")
+    x = x.replace("youre", "you're")
+    x = x.replace(".\".\n", ".\"\n")
+
 
 
 
     dialogue_words = [
         "added",
+        "advised",
+        "agreed",
         "answered",
+        "appended",
+        "approved",
         "assented",
+        "asserted",
         "began",
+        "begged",
+        "called",
         "concluded",
+        "confided",
         "continued",
+        "contributed",
         "cried",
         "declared",
         "demanded",
@@ -1277,18 +1300,24 @@ def correct_text(text_file):
         "directed",
         "drawled",
         "echoed",
+        "equivocated",
         "explained",
         "inquired",
+        "interjected",
         "marveled",
+        "murmured",
         "mused",
+        "muttered",
         "observed",
         "persisted",
         "queried",
         "remarked",
         "reminded",
+        "remonstrated",
         "repeated",
         "reported",
         "responded",
+        "resumed",
         "retorted",
         "said",
         "sighed",
@@ -1298,10 +1327,14 @@ def correct_text(text_file):
         "teased",
         "thought",
         "told",
+        "urged",
+        "ventured",
+        "wailed",
         "whispered",
     ]
 
     x = x.replace(" hke ", " like ")
+    x = x.replace(" ery", " cry") # cry, crystal
 
     # "I am very drunk, said Johnny, adding politely, "And you?"
     # "I am very drunk," said Johnny, adding politely, "And you?"
@@ -1309,10 +1342,10 @@ def correct_text(text_file):
 
     # dotdotdots fixed
     x = x.replace(", . . .", ". . . .")
-    x = re.sub(r"([a-z])\. \.\n\n", "\1. . . .\n\n")
-    x = re.sub(r"([a-z])\. \. \.\n\n", "\1. . . .\n\n")
-    x = re.sub(r"([a-z]) \. \. ([a-z])", "\1 . . . \2")
-    x = re.sub(r"([a-z])\.\. \. ", "\1. . . . ")
+    x = re.sub(r"([a-z])\. \.\n\n", "\1. . . .\n\n", x)
+    x = re.sub(r"([a-z])\. \. \.\n\n", "\1. . . .\n\n", x)
+    x = re.sub(r"([a-z]) \. \. ([a-z])", "\1 . . . \2", x)
+    x = re.sub(r"([a-z])\.\. \. ", "\1. . . . ", x)
 
     # Correct stuff like this:
     # When I said that, he said this: 'Love is love." And that was that.

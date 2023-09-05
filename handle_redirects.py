@@ -123,6 +123,11 @@ redirect_words = [
         "St",
         "Saint",
     ],
+
+    [
+        "gray",
+        "grey",
+    ],
 ]
 
 one_way_redirects = [
@@ -141,6 +146,10 @@ one_way_redirects = [
     [
         "an'",
         "and",
+    ],
+    [
+        "li'l",
+        "little",
     ],
 ]
 

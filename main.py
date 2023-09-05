@@ -122,7 +122,18 @@ hanced
 
 
 
+# THE GREY STORY BOOK
+# /npbr/
+# Parse: If subpages = works, chapter name is the header, not numeric
+# Transclusion: If subpages = works, chapter name is the header, not numeric
 
+
+
+
+
+
+
+# Edition number
 # AUTOMATICALLY ADD OCLC WORK ID to WORK DATA from Hathi catalog data, P5331, from for example https://www.worldcat.org/oclc/2928145
 # /dedic/i=Q121811188/
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
@@ -222,7 +233,9 @@ common_work_types = {
     "novel": "Q8261",
     "play": "Q25379",
     "poetry collection": "Q7010019",
+    "pc": "Q7010019",
     "short story collection": "Q1279564",
+    "ssc": "Q1279564",
     "speech": "Q861911",
 }
 
