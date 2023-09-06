@@ -202,6 +202,10 @@ def generate_title_with_variants(words):
             if word == word_to_change:
                 variants_of_word += redirect_combo
 
+        for redirect_combo in redirect_words:
+            if word in redirect_combo:
+                variants_of_word += redirect_combo
+
         if word_num == last_word_index:
             # ending symbols
             for symbol in ending_symbols:
@@ -278,7 +282,7 @@ def generate_variant_titles(page_title_to_parse):
     words = page_title_to_parse.split(" ")
     defaultsort_prefix, words = get_defaultsort_prefixes(words)
     title_with_variants = generate_title_with_variants(words)
-    # print(title_with_variants)
+    print(title_with_variants)
     combinations = generate_combinations(title_with_variants, defaultsort_prefix)
     combinations.remove(page_title_to_parse)
     combination_length = len(combinations)

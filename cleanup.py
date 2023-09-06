@@ -591,8 +591,8 @@ def modify_drop_initial_data(drop_initials, marker, drop_initial_letter):
 
     return drop_initials
 
-def find_drop_initial_letters(page_data, chapter_type):
-    if chapter_type != "dii":
+def find_drop_initial_letters(page_data, chapter_beginning_formatting):
+    if chapter_beginning_formatting != "dii":
         print_in_green("No drop initial images in page.")
         return
     drop_initials = []

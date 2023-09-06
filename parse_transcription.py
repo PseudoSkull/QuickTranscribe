@@ -417,7 +417,7 @@ def parse_chapter_settings(chapter_settings):
 
     return chapter_settings_data
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -496,6 +496,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["part_num"] = None
             chapter["has_sections"] = False
             chapter["splice"] = False
+            chapter["type"] = "advertisements"
             chapter["format"] = page_format
             
             chapters.append(chapter)
@@ -530,12 +531,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter_title = prefixless_chapter_titles[chapter_tag]
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
+                        chapter["type"] = "preface"
                 
                     elif chapter_tag == "bk" or chapter_tag == "pt":
                         part_num += 1
                         chapter["prefix"] = chapter_prefixes[chapter_tag]
                         chapter["chapter_num"] = part_num
                         chapter["title"] = None
+                        chapter["type"] = "part"
 
                         if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
                             chapter_num = 0
@@ -551,10 +554,17 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
                         if chapter_prefix == "n":
                             chapter["prefix"] = None
+                        elif work_type_name == "scc" or work_type_name == "short story collection":
+                            chapter["prefix"] = None
+                            chapter["type"] = "short story"
+                        elif work_type_name == "pc" or work_type_name == "poetry collection":
+                            chapter["prefix"] = None
+                            chapter["type"] = "poem"
                         elif not chapter_prefix:
                             chapter["prefix"] = "Chapter"
                         else:
                             chapter["prefix"] = chapter_prefix
+                            chapter["type"] = "numbered chapter"
                         chapter["chapter_num"] = chapter_num
 
                         # chapter["title"] = None
@@ -569,6 +579,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     if chapter_type == "nam":
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
+                        chapter["type"] = "non-work chapter"
                     
                     # if chapter_title:
                     chapter["title"] = chapter_title
@@ -885,6 +896,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         page_num = convert_page_num_to_roman_if_roman(page_num, page_data)
         chapter_title = chapter["title"]
         chapter_prefix = chapter["prefix"]
+        chapter_type = chapter["type"]
         splice = chapter["splice"]
         chapter_is_auxiliary = chapter["auxiliary"]
         # chapter_num = chapter_num + 1 # 1-indexed rather than 0
@@ -901,6 +913,9 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
                 chapter_prefix = "Chapter"
             toc_link = f"[[{mainspace_work_title}/{chapter_prefix} {chapter_num}|{chapter_title}]]"
 
+        if chapter_type == "poem" or chapter_type == "short story" or chapter_type == "essay":
+            toc_link = f"[[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
+        
         if toc_format:
             toc_row = toc_format
 

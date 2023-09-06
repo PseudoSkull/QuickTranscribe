@@ -126,6 +126,7 @@ hanced
 # /npbr/
 # Parse: If subpages = works, chapter name is the header, not numeric
 # Transclusion: If subpages = works, chapter name is the header, not numeric
+# Transclusion: If subpages = works, authority control at the bottom of subpages
 
 
 
@@ -334,7 +335,8 @@ if not at_expected_progress:
 page_data = get_page_data(transcription_text)
 chapter_type = get_work_data(work_data, "chapter type")
 section_type = get_work_data(work_data, "section type")
-drop_initial_letter_data = find_drop_initial_letters(page_data, chapter_type)
+chapter_beginning_formatting = get_work_data(work_data, "chapter beginning formatting")
+drop_initial_letter_data = find_drop_initial_letters(page_data, chapter_beginning_formatting)
 
 # exit()
 
@@ -398,6 +400,10 @@ country_name = get_country_name(country)
 work_type = get_work_data(work_data, "work type", common_work_types)
 genre = get_work_data(work_data, "genre", common_genres)
 work_type_name = get_work_data(work_data, "work type")
+if work_type_name == "ssc":
+    work_type_name = "short story collection"
+elif work_type_name == "pc":
+    work_type_name = "poetry collection"
 if not work_type_name:
     work_type_name = "work"
 genre_name = get_work_data(work_data, "genre")
@@ -563,6 +569,8 @@ if not at_expected_progress:
 
 advertising_is_transcluded = check_if_advertising_transcluded(page_data)
 
+print(drop_initial_letter_data)
+
 image_data = generate_image_data(page_data, title, year, drop_initial_letter_data)
 
 transcription_text = transcription_page.text
@@ -610,8 +618,6 @@ file_extension = extract_file_extension(filename)
 publisher_name = get_wikisource_page_from_wikidata(publisher)
 location_name = get_label(location)
 
-chapter_beginning_formatting = get_work_data(work_data, "chapter beginning formatting")
-
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
@@ -624,7 +630,7 @@ if chapter_prefix == "Book" or chapter_prefix == "Part":
 
 
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type)
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name)
 sections = get_section_data(chapters, page_data, transcription_text)
 
 toc_format = find_form_section(transcription_text, "toc")

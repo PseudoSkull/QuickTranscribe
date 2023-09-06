@@ -263,6 +263,8 @@ def generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
     if scan_source == "ia":
         return f"{{{{Internet Archive link|{IA_id}}}}}"
     elif scan_source == "ht":
+        if type(hathitrust_full_text_id) == list:
+            hathitrust_full_text_id = "/".join(hathitrust_full_text_id)
         return f"{{{{HathiTrust link|{hathitrust_full_text_id}}}}}"
     elif scan_source == "gb":
         return f"{{{{Google Books link|{GB_id}}}}}"
@@ -455,9 +457,10 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                             image_type = determine_image_type(marker, settings, overall_page_num)
                         if image_type == "sequential":
                             seq_num += 1
-                    img_num += 1
+                        img_num += 1
+                        print(img_num)
+                        image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
                     image_title = generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num)
-                    image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
@@ -471,11 +474,13 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                     image["caption"] = caption
                     image["settings"] = settings
                     image["extension"] = extension
+                    if image_type == "drop initial" and letter not in image_path:
+                        image_path = f"{image_files_folder}/{letter}.{extension}"
                     image["path"] = image_path
                     image["size"] = image_size
                     image["alignment"] = "center"
                     image["letter"] = letter
-
+                    print(image)
                     image_data.append(image)
     if drop_initial_letter_data:
         for drop_initial in drop_initial_letter_data:
@@ -679,6 +684,7 @@ def get_file_path_and_extension(path, expected_filename):
         image_path = os.path.join(path, expected_filename + "." + extension)
         if os.path.isfile(image_path):
             return image_path, extension
+    print("WELL WE GOT HERE SOMEHOW")
 
 def upload_images_to_commons(image_data, scan_filename, author_item, author, transcription_page_title, work_title, year, pub_date, country_name, main_commons_category, illustrator_item, illustrator):
     print("Uploading work images to Wikimedia Commons...")
