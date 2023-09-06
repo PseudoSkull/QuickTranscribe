@@ -50,6 +50,10 @@ def generate_genre_categories(genre_name, work_type_name):
         categories.append(category)
     return categories
 
+def check_if_parts_exist(transcription_text):
+    if "/bk/" in transcription_text or "/pt/" in transcription_text or "part-header" in transcription_text:
+        return True
+
 def generate_type_category(work_type_name, country):
     # print(work_type_name)
     "P1549: demonym"

@@ -13,7 +13,7 @@ from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
-from handle_transclusion import transclude_pages, check_if_advertising_transcluded
+from handle_transclusion import transclude_pages, check_if_advertising_transcluded, check_if_parts_exist
 from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file
 from handle_projectfiles import compare_image_counts
 from handle_new_texts import add_to_new_texts
@@ -97,10 +97,6 @@ hanced
 # PUTTING ON THE SCREWS
 # Waylaid: regex "[any consonant]j " -> "$1, "
 
-
-# GLITTER (A. L. BURT COMPANY)
-# Parse: poi -> poem-italic class
-# Transclusion: Make chapter prefix "Book" transclude correctly.
 
 
 
@@ -622,8 +618,9 @@ drop_initials_float_quotes = get_work_data(work_data, "drop initials float quote
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
 chapter_prefix = get_work_data(work_data, "prefix for chapter names")
+parts_exist = check_if_parts_exist(transcription_text)
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
-if chapters_are_subpages_of_parts == None:
+if chapters_are_subpages_of_parts == None and parts_exist:
     chapters_are_subpages_of_parts = True
 if chapter_prefix == "Book" or chapter_prefix == "Part":
     chapters_are_subpages_of_parts = False

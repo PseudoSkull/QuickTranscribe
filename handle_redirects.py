@@ -125,8 +125,8 @@ redirect_words = [
     ],
 
     [
-        "gray",
-        "grey",
+        "Grey",
+        "Gray",
     ],
 ]
 
@@ -148,8 +148,8 @@ one_way_redirects = [
         "and",
     ],
     [
-        "li'l",
-        "little",
+        "Li'l",
+        "Little",
     ],
 ]
 
@@ -217,7 +217,7 @@ def generate_title_with_variants(words):
             title_with_variants.append(word)
         else:
             first_variant = variants_of_word[0]
-            if first_variant != word:
+            if first_variant != word and word not in variants_of_word:
                 variants_of_word.insert(0, word)
             # remove duplicate values
             title_with_variants.append(variants_of_word)
