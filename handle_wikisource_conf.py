@@ -83,6 +83,9 @@ statuses = [
     "subpages_disambiguated",
     "added_to_new_texts",
     "archived",
+    "subwork_data_items_created",
+    "subworks_disambiguated",
+    "subworks_listed_at_author",
     "done",
 ]
 
