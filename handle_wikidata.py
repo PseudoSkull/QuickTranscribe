@@ -574,12 +574,12 @@ def get_surname_from_author(author_item):
     surname_property = "P734"
     author_surname_item = get_value_from_property(author_item, surname_property)
 
-    if author_surname_item:
-        author_surname = get_label(author_surname_item)
-        print_in_green(f"Surname retrieved successfully from author! {author_surname}")
-        return author_surname
-    else:
-        author_label = get_label(author_item)
-        author_surname = author_label.split(' ')[-1]
-        print_in_yellow(f"Couldn't get surname from author using property. Using label instead: {author_surname}")
-        return author_surname
+    # if author_surname_item:
+    #     author_surname = get_label(author_surname_item)
+    #     print_in_green(f"Surname retrieved successfully from author! {author_surname}")
+    #     return author_surname
+    # else:
+    author_label = get_label(author_item)
+    author_surname = author_label.split(' ')[-1]
+    print_in_yellow(f"Couldn't get surname from author using property. Using label instead: {author_surname}")
+    return author_surname

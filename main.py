@@ -774,6 +774,9 @@ expected_progress = "subworks_disambiguated"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    redirect_and_disambiguate_subworks(subworks)
+    redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author)
 
     process_break()
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")

@@ -189,14 +189,16 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
                 continue
             print_in_yellow(f"Disambiguation page exists for {subwork_title}!")
             work_link = f"{subwork_title} ({author_surname})"
-            add_to_disambiguation_page(disambiguation_page_title, work_link, work_type_name, original_year, work_type_name, author_WS_name)
+            add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_link, work_type_name, original_year, work_type_name, author_WS_name)
         else:
             work_link = subwork_title
 
+        subwork["work_link"] = work_link
+        subworks = append_subwork_data(subwork, subworks)
 
         create_redirects(work_link, redirect_target=wikisource_link)
 
-    pass
+    print_in_green("All redirects and disambiguation done!")
 
 
 """
