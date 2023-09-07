@@ -29,6 +29,7 @@ def get_subwork_data(chapters, mainspace_work_title):
     if os.path.exists(file_path):
         with open(file_path, 'r') as file:
             subworks = json.load(file)
+            file.close()
     else:
         subworks = []
         for chapter in chapters:
@@ -54,6 +55,7 @@ def get_subwork_data(chapters, mainspace_work_title):
         
         with open(file_path, 'x') as file:
             json.dump(subworks, file, indent=4)
+            file.close()
 
     print(subworks)
 
@@ -72,6 +74,7 @@ def append_subwork_data(subwork, subworks):
 
     with open(file_path, 'w+') as file:
         json.dump(new_subworks, file, indent=4)
+        file.close()
     
     return new_subworks
 
@@ -87,6 +90,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     subwork["work_item"] = item_id
     work_item = subwork["work_item"]
 
+    print(f"WORK ITEM IS {work_item} WHEN ITS CREATED")
     subworks = append_subwork_data(subwork, subworks)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
@@ -140,6 +144,7 @@ def create_subwork_wikidata_items(subworks, collection_version_item, transcripti
         subwork_title = subwork["title"]
         print(f"Creating Wikidata items for {subwork_title}...")
         subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year)
+        print(f"Work item is {work_item} AFTER SUBWORK ITEM IS CREATED")
         subworks, version_item = create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item)
 
         add_version_to_base_work_item(work_item, version_item)

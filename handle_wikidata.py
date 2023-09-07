@@ -377,7 +377,11 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
         save_page(transcription_page, site, transcription_text, f"Noting that the Wikidata item for {variable_name} has been created...")
         return [item, repo, item_id]
 
-    item_id = existing_item
+    if not existing_item:
+        item.get()
+        item_id = extract_id_from_item_page(item)
+    else:
+        item_id = existing_item
 
     return [item, repo, item_id]
 
