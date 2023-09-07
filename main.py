@@ -21,7 +21,7 @@ from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos, find_drop_initial_letters
 from handle_dedications import get_dedications
-from handle_subworks import get_subwork_data, create_subwork_wikidata_items
+from handle_subworks import get_subwork_data, create_subwork_wikidata_items, redirect_and_disambiguate_subworks
 import datetime
 
 
@@ -746,6 +746,14 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription has been archived...")
 
+
+
+
+
+
+
+
+
 subworks = get_subwork_data(chapters, mainspace_work_title)
 
 transcription_text = transcription_page.text
@@ -759,3 +767,13 @@ if not at_expected_progress:
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")
+
+
+transcription_text = transcription_page.text
+expected_progress = "subworks_disambiguated"
+at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+if not at_expected_progress:
+    redirect_and_disambiguate_subworks(subworks)
+
+    process_break()

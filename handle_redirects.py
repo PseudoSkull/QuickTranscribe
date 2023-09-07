@@ -254,6 +254,10 @@ def generate_combinations(title_with_variants, defaultsort_prefix):
     if defaultsort_prefix:
         combinations += [defaultsort_prefix + " " + combination for combination in combinations]
 
+    for title in combinations:
+        if title.startswith("\"") and title.endswith("\""):
+            combinations.append(title[1:-1])
+
     return combinations
  
 
@@ -279,34 +283,54 @@ def generate_combinations(title_with_variants, defaultsort_prefix):
 
 def generate_variant_titles(page_title_to_parse):
     print(f"Generating variant titles for: {page_title_to_parse}")
-    words = page_title_to_parse.split(" ")
-    defaultsort_prefix, words = get_defaultsort_prefixes(words)
-    title_with_variants = generate_title_with_variants(words)
-    print(title_with_variants)
-    combinations = generate_combinations(title_with_variants, defaultsort_prefix)
-    combinations.remove(page_title_to_parse)
-    combination_length = len(combinations)
+    if "(" in page_title_to_parse:
+        combinations = [page_title_to_parse]
+    else:
+        words = page_title_to_parse.split(" ")
+        defaultsort_prefix, words = get_defaultsort_prefixes(words)
+        title_with_variants = generate_title_with_variants(words)
+        print(title_with_variants)
+        combinations = generate_combinations(title_with_variants, defaultsort_prefix)
+        combinations.remove(page_title_to_parse)
+        combination_length = len(combinations)
     print_in_green(f"Successfully generated {combination_length} variant titles.")
     return combinations
 
-def create_redirects(page_title_to_parse):
+def create_redirect(redirect_title, redirect_target, site, edit_summary):
+    redirect_page = pywikibot.Page(site, redirect_title)
+    redirect_text = f"#REDIRECT [[{redirect_target}]]"
+    print(redirect_text)
+    save_page(redirect_page, site, redirect_text, edit_summary)
+
+def create_redirects(page_title_to_parse, redirect_target=None):
     if "(" in page_title_to_parse:
-        print("Page title contains parentheses. Skipping redirects...")
-        return
+        if not redirect_target:
+            print("Page title contains parentheses. Skipping redirects...")
+            return
+        else:
+            print("Page title contains parentheses. Creating sole redirect...")
+
     variant_titles = generate_variant_titles(page_title_to_parse)
     number_of_variants = len(variant_titles)
-    if number_of_variants == 0:
+    if number_of_variants == 0 and not redirect_target:
         print("No variant titles to create redirects for. Skipping redirects...")
-    redirect_target = page_title_to_parse # for now; when we get to disambig situations it'll be different
+    if redirect_target:
+        if page_title_to_parse not in variant_titles:
+            variant_titles += [page_title_to_parse]
+    else:
+        redirect_target = page_title_to_parse
     print(f"Creating redirects to {redirect_target}...")
     site = pywikibot.Site("en", "wikisource")
     for title_num, title in enumerate(variant_titles):
         title_num += 1
-        redirect_page = pywikibot.Page(site, title)
-        redirect_text = f"#REDIRECT [[{redirect_target}]]"
         print(f"Redirect {title_num} (of {number_of_variants}): {title}")
-        print(redirect_text)
-        save_page(redirect_page, site, redirect_text, f"Creating redirect to {redirect_target} (variant {title_num} of {number_of_variants})")
+        
+        if page_title_to_parse in variant_titles and len(variant_titles) == 1:
+            edit_summary = "Creating disambiguating redirect (only one is needed because it contains parentheses)..."
+        else:
+            edit_summary = f"Creating redirect to {redirect_target} (variant {title_num} of {number_of_variants})"
+
+        create_redirect(title, redirect_target, site, edit_summary)
     print_in_green("All redirect pages successfully created!")
 
 # create_redirects("The Ifs of History")

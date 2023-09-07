@@ -1,6 +1,10 @@
 # WS_collection
 
+from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+from edit_mw import page_exists, save_page
 from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item
+from handle_redirects import generate_variant_titles, create_redirects
+from handle_disambig import add_to_disambiguation_page
 import pywikibot
 import os
 import json
@@ -151,11 +155,48 @@ def create_subwork_wikidata_items(subworks, collection_version_item, transcripti
 
 
     # get all subwork items
-    subwork_version_items = [i for i in subworks if i["version_item"] is not None]
+    subwork_version_items = [i["version_item"] for i in subworks if i["version_item"] is not None]
 
     add_property(site, collection_version_item, 'P527', subwork_version_items, 'has parts (subwork versions included in this version of the collection)', transcription_page_title)
 
     return subworks
+
+
+def determine_if_disambiguation_page_exists(subwork_title, site):
+    # LOGIC WILL NEED TO BE CREATED FOR IF THE PAGE YOU CAME ACROSS WAS A *WORK* OR A *VERSIONS PAGE* rather than a disambig page
+    variant_titles = generate_variant_titles(subwork_title)
+    redirect_titles = variant_titles + [subwork_title]
+    for title in redirect_titles:
+        if page_exists(title, site):
+            print_in_red(f"Uh oh! {title} already exists! Disambiguation is needed.")
+            return title
+    return False
+
+def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author_WS_name):
+    site = pywikibot.Site("en", "wikisource")
+    for subwork in subworks:
+        work_link = subwork["work_link"]
+        wikisource_link = subwork["wikisource_link"]
+        subwork_title = subwork["title"]
+        work_type_name = subwork["type"]
+        print(f"Creating redirects for {subwork_title} ({wikisource_link})")
+        disambiguation_page_title = determine_if_disambiguation_page_exists(subwork_title, site)
+
+        # print(variant_titles)
+        if disambiguation_page_title:
+            if work_link:
+                print_in_yellow("This disambiguation has already been done. Skipping...")
+                continue
+            print_in_yellow(f"Disambiguation page exists for {subwork_title}!")
+            work_link = f"{subwork_title} ({author_surname})"
+            add_to_disambiguation_page(disambiguation_page_title, work_link, work_type_name, original_year, work_type_name, author_WS_name)
+        else:
+            work_link = subwork_title
+
+
+        create_redirects(work_link, redirect_target=wikisource_link)
+
+    pass
 
 
 """
@@ -172,69 +213,4 @@ Proposed workflow:
 
 * Create section "Individual short stories" on author page (handle_author.py)
 ** Rely on work_link for each entry
-"""
-
-"""
-WORK ITEM SHOULD LOOK LIKE THIS
-
-In the Tall Grass (Q122228186)
-short story by Katherine Merritte Yates
-
-instance of
-literary work
-
-title
-In the Tall Grass (English)
-
-form of creative work
-short story
-
-genre
-children's fiction
-Christian literature
-
-has edition or translation
-In the Tall Grass
-
-author
-Katherine Merritte Yates
-
-country of origin
-United States of America
-
-language of work or name
-English
-
-publication date
-1904
-"""
-
-"""
-VERSION ITEM SHOULD LOOK LIKE THIS
-In the Tall Grass (Q122228206)
-1905 edition of work by Katherine Merritte Yates
-
-instance of
-version, edition, or translation
-
-title
-In the Tall Grass (English)
-
-edition or translation of
-In the Tall Grass
-
-author
-Katherine Merritte Yates
-
-language of work or name
-English
-
-publication date
-1905
-
-published in (P1433)
-The Grey Story Book (version of collection)
-
-Wikisource (1 entry)
-en	The Grey Story Book/In the Tall Grass (proofread badge)
 """
