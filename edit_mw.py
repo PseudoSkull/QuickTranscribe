@@ -149,7 +149,7 @@ def get_title_hierarchy(page_title):
         parens = page_title.split("(")[1][:-1]
         if "," in parens or "." in parens or "&" in parens or "Company" in parens or parens.isdigit():
             return "version"
-        return "disambiguation"
+        return "disambig"
     return "work"
 
 # def count_instances_of_substring(s):

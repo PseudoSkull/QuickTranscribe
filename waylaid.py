@@ -537,7 +537,7 @@ def correct_text(text_file):
 
 
     #clean up weird apostrophe-quote combinations
-    x = x.replace("\"' ", "\"'")
+    # x = x.replace("\"' ", "\"'")
     x = x.replace(" '\"", "'\"")
     x = x.replace("\"'\" ", "\"'\"")
     x = x.replace(" \"'\"", "\"'\"")
@@ -1362,8 +1362,12 @@ def correct_text(text_file):
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
 
+    x = x.replace(",\" asked", "?\" asked")
+    x = x.replace(",\" inquired", "?\" inquired")
+    x = x.replace(",\" exclaimed", "!\" exclaimed")
 
     # Q followed by any word that's not u > G.
+
 
 
     # pattern = "\n\n\"(.+?) \""
