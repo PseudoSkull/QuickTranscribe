@@ -1034,6 +1034,7 @@ def correct_text(text_file):
 
     x = x.replace(". Laurel", ", Laurel")
     x = x.replace(" Ve ", "'ve ")
+    x = x.replace("\\", "")
 
     x = x.replace("-a ", "—a ")
     x = x.replace("-and ", "—and ")
@@ -1142,7 +1143,8 @@ def correct_text(text_file):
     x = x.replace(", 'she ", ",\" she ")
     x = x.replace(" I I ", "! I ")
     x = re.sub(r" I ([A-Z])", r"! \1", x)
-    x = re.sub(r"\"(\S+?) \"", "\"\1\" ", x)
+    x = re.sub(r"\"(\S+?) \"", r"\"\1\" ", x)
+    x = x.replace("\\", "")
     x = x.replace("vllle", "ville")
     x = x.replace("¬ ", "")
     x = x.replace("¬", "")
@@ -1167,9 +1169,10 @@ def correct_text(text_file):
     x = x.replace(" yon ", " you ")
     x = x.replace("Hke", "like")
     x = x.replace("\"0", "\"O")
-    x = re.sub(".\" ([a-z])", r",\" \1", x)
+    x = re.sub(r".\" ([a-z])", r",\" \1", x)
     x = re.sub(r"([a-z])\*s", r"\1's", x)
     x = re.sub(r"([a-z])\*d", r"\1'd", x)
+    x = x.replace("\\", "")
     x = x.replace("*ve", "'ve")
     x = x.replace("Vm", "I'm")
     x = x.replace("I*m", "I'm")
@@ -1215,7 +1218,8 @@ def correct_text(text_file):
     x = x.replace(" ina ", " in a ")
     x = x.replace(" ata ", " at a ")
     x = x.replace("Iam", "I am")
-    x = re.sub(r"([a-z])\.\"([A-Z])", "\1. \"\2", x)
+    x = re.sub(r"([a-z])\.\"([A-Z])", r"\1. \"\2", x)
+    x = x.replace("\\", "")
     x = x.replace(",\" asked ", "?\" asked ")
     x = x.replace(",\" he asked", "?\" he asked")
     x = x.replace(",\" she asked", "?\" she asked")
@@ -1261,6 +1265,7 @@ def correct_text(text_file):
     x = x.replace("TIT ", "I ")
     x = x.replace("TIT ", "I ")
     x = x.replace("\"T ", "\"I ")
+    x = x.replace("Tn ", "In ")
 
 
     
@@ -1340,11 +1345,12 @@ def correct_text(text_file):
     ]
 
     x = x.replace(" hke ", " like ")
+    x = x.replace("\"ust ", "\"Just ")
     x = x.replace(" ery", " cry") # cry, crystal
 
     # "I am very drunk, said Johnny, adding politely, "And you?"
     # "I am very drunk," said Johnny, adding politely, "And you?"
-    x = re.sub(r"\n\n(\".+?), said ", "\n\n\1,\" said ", x)
+    x = re.sub(r"\n\n(\".+?), said ", r"\n\n\1,\" said ", x)
 
     # dotdotdots fixed
     x = x.replace(", . . .", ". . . .")
@@ -1362,9 +1368,6 @@ def correct_text(text_file):
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
 
-    x = x.replace(",\" asked", "?\" asked")
-    x = x.replace(",\" inquired", "?\" inquired")
-    x = x.replace(",\" exclaimed", "!\" exclaimed")
 
     # Q followed by any word that's not u > G.
 
@@ -1387,6 +1390,13 @@ def correct_text(text_file):
         x = x.replace("\n\n", "\n")
         x = x.replace("\n\n\n", "\n")
     
+    x = x.replace(",\" asked", "?\" asked")
+    x = x.replace(",\" inquired", "?\" inquired")
+    x = x.replace(",\" exclaimed", "!\" exclaimed")
+
+    if ",\" asked" in x:
+        print_in_red("OH MY GOD WTF HAPPENED")
+        exit()
     print_in_green("OCR has been corrected!")
     return x
 
