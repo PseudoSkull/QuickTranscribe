@@ -1257,6 +1257,12 @@ def correct_text(text_file):
     x = x.replace("T\"m", "I'm")
     x = x.replace("TI'", "I'")
     x = x.replace("—TI ", "—I ")
+    x = x.replace("TIT", "I")
+    x = x.replace("TIT ", "I ")
+    x = x.replace("TIT ", "I ")
+    x = x.replace("\"T ", "\"I ")
+
+
     
     x = x.replace("\"T\"I", "\"I")
     x = x.replace(" V'", " I'")

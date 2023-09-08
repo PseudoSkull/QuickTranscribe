@@ -7,16 +7,20 @@ import io  # Import io module
 import os
 from waylaid import correct_text
 
-if "GB.pdf" in os.listdir("projectfiles"):
-    pdf_path = 'projectfiles/GB.pdf'
-elif "hathi.pdf" in os.listdir("projectfiles"):
-    pdf_path = 'projectfiles/hathi.pdf'
-original_ocr_file_path = "projectfiles/original_ocr.txt"
-# qt_page_separator = "\n\n-\n\n"
-qt_page_separator = "\n\n\n\n"
+
 
 def generate_ocr():
 
+    if "GB.pdf" in os.listdir("projectfiles"):
+        pdf_path = 'projectfiles/GB.pdf'
+    elif "hathi.pdf" in os.listdir("projectfiles"):
+        pdf_path = 'projectfiles/hathi.pdf'
+    else:
+        pdf_path = input("Enter the name of the PDF file: ")
+        pdf_path = f"projectfiles/{pdf_path}"
+    original_ocr_file_path = "projectfiles/original_ocr.txt"
+    # qt_page_separator = "\n\n-\n\n"
+    qt_page_separator = "\n\n\n\n"
     if os.path.exists(original_ocr_file_path):
         # open file
         with open(original_ocr_file_path, "r") as file:

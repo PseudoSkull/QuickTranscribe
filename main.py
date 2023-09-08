@@ -727,13 +727,13 @@ transcription_text = transcription_page.text
 expected_progress = "added_to_new_texts"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
-if not at_expected_progress:
-    add_to_new_texts(mainspace_work_title, title, author, year)
+# if not at_expected_progress:
+#     add_to_new_texts(mainspace_work_title, title, author, year)
 
-    process_break()
+#     process_break()
 
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
+#     transcription_text = update_QT_progress(transcription_text, expected_progress)
+#     save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
 
 transcription_text = transcription_page.text
 expected_progress = "archived"
@@ -746,6 +746,7 @@ if not at_expected_progress:
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription has been archived...")
+    exit()
 
 
 
