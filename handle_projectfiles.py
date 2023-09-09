@@ -6,6 +6,7 @@ import os
 import shutil
 import json
 import img2pdf
+import xml.etree.ElementTree as ET
 
 
 def rename_and_copy_text_file():
@@ -163,3 +164,30 @@ def assemble_pdf(folder_path, output_path=None):
         f.write(img2pdf.convert(images))
     
     print_in_green("PDF assembled!")
+
+def get_lccn_from_xml():
+    folder_path = "projectfiles"
+    for file in os.listdir(folder_path):
+        if file.endswith("_meta.xml"):
+            xml_file_path = os.path.join(folder_path, file)
+            print(f"XML file found at {xml_file_path}.")
+            with open(xml_file_path, "r") as xml_file:
+                try:
+                    tree = ET.parse(xml_file_path)
+                    root = tree.getroot()
+
+                    # Assuming <lccn> is a direct child of the root element
+                    lccn_element = root.find('lccn')
+
+                    if lccn_element is not None:
+                        lccn = lccn_element.text
+                        print_in_green(f"LCCN found: {lccn}")
+                        return lccn
+                    else:
+                        print("No <lccn> element found in the XML.")
+                        return None
+                except ET.ParseError as e:
+                    print(f"Error parsing XML: {str(e)}")
+                    return None
+    print_in_red("No XML file found in the folder.")
+    return None

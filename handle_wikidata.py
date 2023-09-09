@@ -417,7 +417,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -442,6 +442,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P1844', hathitrust_id, 'HathiTrust ID', transcription_page_title)
     add_property(repo, item, 'P724', IA_id, 'Internet Archive ID', transcription_page_title)
     add_property(repo, item, 'P675', GB_id, 'Google Books ID', transcription_page_title)
+    add_property(repo, item, 'P1144', lccn, 'LCCN (Library of Congress Catalog Number) ID', transcription_page_title)
 
     if filename:
         add_scan_file_to_version_item(repo, item, filename, transcription_page_title)

@@ -49,6 +49,7 @@ def filter_needed_files(links):
         '.pdf',
         '.djvu',
         '_jp2.zip',
+        '_meta.xml',
         '_tif.zip',
     ]
 

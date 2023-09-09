@@ -9,6 +9,7 @@ import sys
 import time
 import random
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+# T'll WAS STILL IN THE TEXT AFTER BEING SUPPOSEDLY CORRECTED. WHAT HAPPENED THIS TIME?????
 
 def correct_text(text_file):
     print("Parsing OCR...")
