@@ -165,7 +165,7 @@ def assemble_pdf(folder_path, output_path=None):
     
     print_in_green("PDF assembled!")
 
-def get_lccn_from_xml():
+def get_data_from_xml(tag_name):
     folder_path = "projectfiles"
     for file in os.listdir(folder_path):
         if file.endswith("_meta.xml"):
@@ -177,14 +177,14 @@ def get_lccn_from_xml():
                     root = tree.getroot()
 
                     # Assuming <lccn> is a direct child of the root element
-                    lccn_element = root.find('lccn')
+                    element = root.find(tag_name)
 
-                    if lccn_element is not None:
-                        lccn = lccn_element.text
-                        print_in_green(f"LCCN found: {lccn}")
-                        return lccn
+                    if element is not None:
+                        tag_text = element.text
+                        print_in_green(f"{tag_name} tag found: {tag_text}")
+                        return tag_text
                     else:
-                        print("No <lccn> element found in the XML.")
+                        print(f"No {tag_name} element found in the XML.")
                         return None
                 except ET.ParseError as e:
                     print(f"Error parsing XML: {str(e)}")
