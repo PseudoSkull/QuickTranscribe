@@ -8,7 +8,7 @@ import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page, get_author_page_title
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
-from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author
+from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
@@ -253,6 +253,7 @@ common_publishers = {
     "Grosset": "Q3117078",
     "Houghton": "Q390074",
     "Little": "Q552959",
+    "McClurg": "Q4647618",
     "Small": "Q7542583",
 }
 
@@ -412,8 +413,6 @@ commons_category = get_work_data(work_data, "Commons category")
 
 base_work = get_work_data(work_data, wikidata_item_of("base work"))
 
-oclc = get_data_from_xml("oclc-id")
-
 author_item = None
 
 if base_work:
@@ -444,7 +443,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, oclc, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -461,7 +460,6 @@ filename = get_work_data(work_data, "filename")
 version_item = get_work_data(work_data, wikidata_item_of("version"))
 publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
 lccn = get_data_from_xml("lccn")
-ark_identifier = get_data_from_xml("identifier-ark")
 
 
 
@@ -479,6 +477,9 @@ elif hathitrust_id and not hathitrust_full_text_id:
     transcription_text = update_conf_value(transcription_text, "htt", hathitrust_full_text_id)
     save_page(transcription_page, site, transcription_text, "Adding HathiTrust full text ID value...")
 
+oclc = get_oclc(hathitrust_id)
+ark_identifier = get_ark_identifier(hathitrust_full_text_id)
+
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
 
@@ -487,7 +488,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     print_in_yellow("Add progress 'version_item_created' manually. Restart to mitigate ver= problem (temporary).")

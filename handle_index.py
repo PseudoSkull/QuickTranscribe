@@ -68,6 +68,9 @@ style_defaults = {
     """	font-style: italic;
     font-size: 120%;""",
 
+    "dropinitial-with-image":
+    """	width: 75px;""",
+
     "half":
     """	text-align: center;
 	text-transform: uppercase;
@@ -371,6 +374,8 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
         classes_used.append("wst-block-center")
     if "{{TOC begin}}" in transcription_text:
         classes_used.append("wst-toc-table")
+    if "|image=" in transcription_text and "{{di|" in transcription_text: # drop initial images
+        classes_used.append("dropinitial-with-image")
     
     classes_that_have_children = []
     # put parent class in too

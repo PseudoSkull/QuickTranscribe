@@ -6,7 +6,8 @@ from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, 
 from edit_mw import edit_summary
 from pywikibot.page import ItemPage
 from pywikibot import WbTime, SiteLink
-from hathi import get_hathitrust_id_from_commons_page, get_hathitrust_catalog_id
+from hathi import get_hathitrust_id_from_commons_page, get_hathitrust_catalog_id, get_oclc_from_hathi, get_ark_identifier_from_hathi
+from handle_projectfiles import get_data_from_xml
 from handle_wikisource_conf import update_conf_value
 from edit_mw import save_page
 import re
@@ -389,7 +390,7 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
     
 
 
-def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, oclc, variable_name=None):
+def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
@@ -410,7 +411,6 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     # UNLESS IT'S A TRANSLATION, IN WHICH CASE WE NEED TO ADD THE ORIGINAL LANGUAGE, add this functionality later
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
-    add_property(repo, item, 'P243', oclc, 'OCLC (WorldCat) ID', transcription_page_title)
 
     
     return item_id
@@ -419,7 +419,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -445,6 +445,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P724', IA_id, 'Internet Archive ID', transcription_page_title)
     add_property(repo, item, 'P675', GB_id, 'Google Books ID', transcription_page_title)
     add_property(repo, item, 'P1144', lccn, 'LCCN (Library of Congress Catalog Number) ID', transcription_page_title)
+    add_property(repo, item, 'P243', oclc, 'OCLC (WorldCat) ID', transcription_page_title)
     add_property(repo, item, 'P8091', ark_identifier, 'ARK ID', transcription_page_title)
 
     if filename:
@@ -587,3 +588,15 @@ def get_surname_from_author(author_item):
     author_surname = author_label.split(' ')[-1]
     print_in_yellow(f"Couldn't get surname from author using property. Using label instead: {author_surname}")
     return author_surname
+
+def get_oclc(hathitrust_id):
+    if hathitrust_id:
+        return get_oclc_from_hathi(hathitrust_id)
+    else:
+        return get_data_from_xml("oclc-id")
+
+def get_ark_identifier(hathitrust_full_text_id):
+    if hathitrust_full_text_id:
+        return get_ark_identifier_from_hathi(hathitrust_full_text_id)
+    else:
+        return get_data_from_xml("ark-identifier")

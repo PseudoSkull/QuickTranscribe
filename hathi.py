@@ -198,3 +198,31 @@ def get_hathitrust_images(full_text_id, folder_path=None):
 
     return folder_path
     # return img_tags
+
+def get_oclc_from_hathi(hathitrust_id):
+    url = f"https://catalog.hathitrust.org/Record/{hathitrust_id}"
+    print("Attempting to get the OCLC link from:", url)
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        print_in_green("Response code 200. Parsing the HTML...")
+        page_content = str(response.content)
+        
+        if "/oclc/" in page_content:
+            oclc = re.findall(r'\/oclc\/([0-9]+?)\"', page_content)[0]
+            print_in_green(f"Success. OCLC: {oclc}")
+            return oclc
+        print_in_red("OCLC link not found.")
+        return None
+
+    print_in_red(f"Response code not 200. Was: {response.status_code}")
+    return None
+
+def get_ark_identifier_from_hathi(hathitrust_full_text_id):
+    if type(hathitrust_full_text_id) == list:
+        hathitrust_full_text_id = "/".join(hathitrust_full_text_id)
+        if "uc2.ark" in hathitrust_full_text_id:
+            ark_identifier = hathitrust_full_text_id[4:]
+            return ark_identifier
+
+    return None

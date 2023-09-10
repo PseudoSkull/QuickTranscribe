@@ -484,7 +484,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
         chapter = {}
 
-        if page_num == "ad" or page_num == "adv" and len(chapters) > 0:
+        chapter["type"] = "default"
+
+        if (page_num == "ad" or page_num == "adv") and len(chapters) > 0:
             chapter["prefix"] = None
             chapter["chapter_num"] = None
             chapter["title"] = "Advertisements"
@@ -662,7 +664,7 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         # if type(page_num) == int and type(first_chapter_start_page) == int:
         if page_num < first_chapter_start_page:
             return "Front matter"
-    except TypeError:
+    except (TypeError, ValueError):
         if page_num == "fro":
             return "Front matter"
         if for_sections:
@@ -1058,7 +1060,7 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
         image_extension = image["extension"]
         image_letter = image["letter"]
         image_filename = image_title + "." + image_extension
-        replacement = f"{{{{di|{image_letter}|image={image_filename}|imgsize=75px}}}}"
+        replacement = f"{{{{di|{image_letter}|image={image_filename}}}}}"
 
         content = re.sub(drop_initial_image_pattern, replacement, content)
         img_num += 1
@@ -1083,7 +1085,7 @@ def format_drop_initial_as_image(content, image_data, first_letter):
     image_filename = image_title + "." + image_extension
     image_size = image["size"]
 
-    content = content.replace(f"{{{{di|{first_letter}", f"{{{{di|{first_letter}|image={image_filename}|imgsize={image_size}px")
+    content = content.replace(f"{{{{di|{first_letter}", f"{{{{di|{first_letter}|image={image_filename}")
 
     return content
 

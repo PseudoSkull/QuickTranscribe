@@ -583,6 +583,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     defaultsort = generate_defaultsort_tag(mainspace_work_title, mainspace_work_title=True)
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
     title_hierarchy = get_title_hierarchy(mainspace_work_title)
+    print(title_hierarchy)
     if title_hierarchy == "disambig":
         disambiguation_pointer = f"{{{{similar|{title}}}}}\n"
     elif title_hierarchy == "version":
