@@ -659,12 +659,16 @@ def get_chapters_with_refs(chapters, page_data):
 def get_chapter_from_page_num(chapters, page_num, for_sections=False):
     try:
         page_num = int(page_num)
+        # print(f"WELL WE GOT HERE??? {page_num}")
         first_chapter = chapters[0]
         first_chapter_start_page = first_chapter["page_num"]
+        # print(f"WELL WE GOT HERE??????? {page_num} {first_chapter_start_page}")
         # if type(page_num) == int and type(first_chapter_start_page) == int:
         if page_num < first_chapter_start_page:
             return "Front matter"
+        # (TypeError, ValueError)
     except (TypeError, ValueError):
+        # print(f"Well page num IS {page_num}")
         if page_num == "fro":
             return "Front matter"
         if for_sections:
@@ -924,7 +928,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
             replacements = {
                 "cnum": str(chapter_num_as_roman),
                 "cnam": toc_link,
-                "cpre": chapter_prefix.upper(), # just in case prefix is put into the toc, but usually it isn't
+                "cpre": chapter_prefix.upper() if chapter_prefix else "", # just in case prefix is put into the toc, but usually it isn't
                 "pnum": str(page_num),
             }
             
@@ -1289,7 +1293,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 elif chapter_title == None: # try this very verbose solution, but why on earth is it needed???
                     chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 elif ch_tag == "/contch/":
-                    chapter_text = f"{{{{ph|class=title|{chapter_title}}}}}"
+                    chapter_text = f"{{{{ph|class=title-header|{chapter_title}}}}}"
                 elif not chapter_prefix and not displayed_section_num:
                     chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
                 else:
@@ -1535,7 +1539,7 @@ def convert_title_headers(page, title):
     if string_not_in_content(content, "/ti/", "Converting title headers"):
         return page
 
-    title_header = f"ph|class=title|{title}"
+    title_header = f"ph|class=title-header|{title}"
 
     content = convert_simple_markup(content, "ti", title_header)
 

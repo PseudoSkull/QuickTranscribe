@@ -120,16 +120,11 @@ hanced
 
 
 
-# CHEERY AND THE CHUM
-# Wikidata: Get LCCN from IA page and use property Library of Congress Control Number (LCCN) (bibliographic) (P1144)
-# Parse/Index: Assign a class to all drop initial images
 
 
 
 
-
-# Edition number
-# AUTOMATICALLY ADD OCLC WORK ID to WORK DATA from Hathi catalog data, P5331, from for example https://www.worldcat.org/oclc/2928145
+# For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)
 # /dedic/i=Q121811188/
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Transclusion: Do not add pages if page_quality == "i"
@@ -461,7 +456,7 @@ version_item = get_work_data(work_data, wikidata_item_of("version"))
 publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
 lccn = get_data_from_xml("lccn")
 
-
+edition_number = get_work_data(work_data, "edition number")
 
 
 hathitrust_id = get_work_data(work_data, "HathiTrust catalog ID")
@@ -488,7 +483,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     print_in_yellow("Add progress 'version_item_created' manually. Restart to mitigate ver= problem (temporary).")
