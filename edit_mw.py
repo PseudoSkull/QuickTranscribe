@@ -4,6 +4,7 @@ import pywikibot
 from pywikibot import pagegenerators
 import mwparserfromhell
 from debug import print_in_red, print_in_green, print_in_yellow
+import re
 
 def edit_summary(summary, transcription_page_title=None):
     if transcription_page_title:
@@ -142,6 +143,60 @@ def get_category_items(site, category_name):
         category_items.append(item.title())
 
     return category_items
+
+def get_backlinks(site, page_title):
+    page = pywikibot.Page(site, page_title)
+
+    backlinks = list(page.backlinks())
+
+    backlink_titles = []
+
+    for backlink in backlinks:
+        backlink_titles.append(backlink.title())
+
+    return backlink_titles
+
+def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
+    site = pywikibot.Site("en", "wikisource")
+
+    backlinks = get_backlinks(site, mainspace_work_title)
+
+    for backlink in backlinks:
+        page = pywikibot.Page(site, backlink)
+        page_text = page.text
+
+        templates_to_remove = [
+            "esl",
+            "ssl",
+            "small scan link",
+            "external scan link",
+            "scn",
+            "scan needed",
+        ]
+
+        new_page_text = []
+
+        found_template = ""
+
+        for line in page_text.split("\n"):
+            if mainspace_work_title in line:
+                for template in templates_to_remove:
+                    if template in line.lower():
+                        # Example: "* ''[[Along the Trail (Yates)|Along the Trail]]'' (1912) {{esl|The Life of Samuel Johnson, LL.D. (1791).djvu}}"
+                        # Remove everything after " {{esl|"
+
+                        line = re.sub(rf" {{{{{template}\|.*?}}}}", "", line, flags=re.IGNORECASE)
+                        found_template = template
+                        break
+
+            new_page_text.append(line)
+        
+        new_page_text = "\n".join(new_page_text)
+
+        if found_template != "":
+            save_page(page, site, new_page_text, f"Removing [[Template:{found_template}]] template for completed work, [[{mainspace_work_title}]]")
+
+
 
 
 def get_title_hierarchy(page_title):

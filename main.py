@@ -6,7 +6,7 @@
 
 import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
-from edit_mw import save_page, get_author_page_title
+from edit_mw import save_page, get_author_page_title, remove_esl_and_ssl_from_backlinks
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
@@ -743,9 +743,19 @@ if not at_expected_progress:
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription has been archived...")
-    exit()
+    # exit()
 
+transcription_text = transcription_page.text
+expected_progress = "removed_scan_links_from_backlinks"
+at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
+if not at_expected_progress:
+    remove_esl_and_ssl_from_backlinks(mainspace_work_title)
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that transcription backlink scan templates have been removed...")
+
+exit()
 
 
 
