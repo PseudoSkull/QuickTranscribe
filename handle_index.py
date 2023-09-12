@@ -20,6 +20,7 @@ marker_definitions = {
     "ha": "half",
     "i": "img",
     "ill": "illus",
+    "not": "note",
     "ti": "title",
     "toc": "toc",
 }

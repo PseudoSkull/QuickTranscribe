@@ -509,8 +509,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
         for line in content_lines:
             for chapter_tag in chapter_tags:
+                chapter_tag_without_slashes = chapter_tag
                 chapter_tag = get_plain_tag(chapter_tag)
                 if chapter_tag in line:
+                    
                     # get_basic_chapter_data(line)
                     if skip_chapter_because_of_chapter_half and chapter_tag == "/ch/":
                         skip_chapter_because_of_chapter_half = False
@@ -522,7 +524,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     
                     chapter_parameters = get_chapter_parameters(line) # because the first will always be '' which is useless
                     
-                    chapter_tag = chapter_parameters["chapter_tag"]
+                    chapter_tag = chapter_tag_without_slashes
                     chapter_settings = chapter_parameters["chapter_settings"]
                     chapter_settings = parse_chapter_settings(chapter_settings)
 
@@ -534,12 +536,13 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                         chapter["type"] = "preface"
+                        chapter_title = prefixless_chapter_titles[chapter_tag]
                 
                     elif chapter_tag == "bk" or chapter_tag == "pt":
                         part_num += 1
                         chapter["prefix"] = chapter_prefixes[chapter_tag]
                         chapter["chapter_num"] = part_num
-                        chapter["title"] = None
+                        chapter_title = None
                         chapter["type"] = "part"
 
                         if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
@@ -548,8 +551,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     elif chapter_tag == "contch":
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
-                        if not chapter_title:
-                            chapter["title"] = work_title
+                        # if not chapter_title or chapter_title == "\n":
+                        chapter_title = work_title
+                        # else:
+                        #     chapter["title"] = chapter_title
                         
                     else:
                         chapter_num += 1
@@ -583,7 +588,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["chapter_num"] = None
                         chapter["type"] = "non-work chapter"
                     
-                    # if chapter_title:
+                    # if not chapter["title"]:
                     chapter["title"] = chapter_title
 
                     chapter["hidden"] = False
@@ -624,6 +629,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
     chapters = get_chapters_with_refs(chapters, page_data)
 
+    print(chapters)
+    # exit()
     write_to_json_file(chapters_json_file, chapters)
     print_in_green("Chapter data retrieved! Go and make sure it's all correct.")
     exit()
@@ -668,14 +675,14 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
             return "Front matter"
         # (TypeError, ValueError)
     except (TypeError, ValueError):
-        # print(f"Well page num IS {page_num}")
+        print(f"Well page num IS {page_num}")
         if page_num == "fro":
             return "Front matter"
         if for_sections:
             pass
         else:
             print_in_red(f"Page number {page_num} is not an integer.")
-            exit()
+            # exit()
     for chapter_num, chapter in enumerate(chapters):
         # print(f"Chapter {chapter}")
         # print(f"Page {page_num}")
@@ -990,6 +997,7 @@ def determine_illustration_page_number(image, page_data):
 
 
 def generate_illustrations(image_data, page_data, chapters, mainspace_work_title):
+    print("Are we trying to LITERALLY FUCKING GENERATE ILLUSTRATIONS?")
     first_sequential_image_done = False
     illustrations_beginning = """{{c|{{larger|LIST OF ILLUSTRATIONS}}}}
 {{dhr}}

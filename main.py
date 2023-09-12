@@ -237,6 +237,7 @@ common_locations = {
     "New York": "Q60",
     "New York City": "Q60",
     "Philadelphia": "Q1345",
+    "San Francisco": "Q62",
     "Toronto": "Q172",
 }
 
@@ -635,8 +636,10 @@ section_format = find_form_section(transcription_text, "sec")
 
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, chapters_are_subpages_of_parts)
 
-illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title)
-
+if "/illus/" in transcription_text:
+    illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title)
+else:
+    illustrations = ""
 
 transcription_text = transcription_page.text
 expected_progress = "transcription_parsed"
@@ -724,13 +727,13 @@ transcription_text = transcription_page.text
 expected_progress = "added_to_new_texts"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
-# if not at_expected_progress:
-#     add_to_new_texts(mainspace_work_title, title, author, year)
+if not at_expected_progress:
+    add_to_new_texts(mainspace_work_title, title, author, year)
 
-#     process_break()
+    process_break()
 
-#     transcription_text = update_QT_progress(transcription_text, expected_progress)
-#     save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that the completed work has been added to New texts...")
 
 transcription_text = transcription_page.text
 expected_progress = "archived"

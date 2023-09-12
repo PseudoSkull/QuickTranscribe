@@ -598,6 +598,6 @@ def get_oclc(hathitrust_id):
 
 def get_ark_identifier(hathitrust_full_text_id):
     if hathitrust_full_text_id:
-        return get_ark_identifier_from_hathi(hathitrust_full_text_id)
-    else:
+        ark_identifier = get_ark_identifier_from_hathi(hathitrust_full_text_id)
+    if not ark_identifier:
         return get_data_from_xml("ark-identifier")

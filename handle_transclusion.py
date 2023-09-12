@@ -506,11 +506,12 @@ def generate_defaultsort_tag(title, mainspace_work_title=False):
             defaultsort_title = title[len(prefix):]
             defaultsort = f"{{{{DEFAULTSORT:{defaultsort_title}}}}}"
             return defaultsort
-    if title[:-1].isdigit() and mainspace_work_title:
+        
+    if title[:-1].isdigit() and mainspace_work_title: # if it's a chapter number
         return ""
-    else:
+    elif mainspace_work_title:
         return f"{{{{DEFAULTSORT:{title}}}}}"
-    # return ""
+    return ""
 
 def get_first_content_page(page_data): # if there's no chapters in the book
     for page_num, page in enumerate(page_data):
