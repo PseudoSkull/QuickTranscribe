@@ -419,7 +419,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -448,6 +448,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P1144', lccn, 'LCCN (Library of Congress Catalog Number) ID', transcription_page_title)
     add_property(repo, item, 'P243', oclc, 'OCLC (WorldCat) ID', transcription_page_title)
     add_property(repo, item, 'P8091', ark_identifier, 'ARK ID', transcription_page_title)
+    add_property(repo, item, 'P648', openlibrary_id, 'OpenLibrary ID', transcription_page_title)
 
     if filename:
         add_scan_file_to_version_item(repo, item, filename, transcription_page_title)
@@ -594,10 +595,29 @@ def get_oclc(hathitrust_id):
     if hathitrust_id:
         return get_oclc_from_hathi(hathitrust_id)
     else:
-        return get_data_from_xml("oclc-id")
+        oclc = get_data_from_xml("oclc-id")
+        if not oclc:
+            external_identifier = get_data_from_xml("external-identifier")
+            if external_identifier:
+                # example: urn:oclc:record:1102109269
+                # get everything after the last colon
+                oclc = external_identifier.split(":")[-1]
+                return oclc
+            else:
+                return None
 
 def get_ark_identifier(hathitrust_full_text_id):
+    ark_identifier = None
     if hathitrust_full_text_id:
         ark_identifier = get_ark_identifier_from_hathi(hathitrust_full_text_id)
     if not ark_identifier:
-        return get_data_from_xml("ark-identifier")
+        ark_identifier = get_data_from_xml("ark-identifier")
+        if not ark_identifier:
+            ark_identifier = get_data_from_xml("identifier-ark")
+    return ark_identifier
+
+def get_openlibrary_id():
+    openlibrary_id = get_data_from_xml("openlibrary_edition")
+    if not openlibrary_id:
+        openlibrary_id = get_data_from_xml("openlibrary_work")
+    return openlibrary_id

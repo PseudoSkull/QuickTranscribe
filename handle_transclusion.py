@@ -420,6 +420,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         dots_to_front_matter = "../"
         if chapter_prefix == "Chapter" and chapters_are_subpages_of_parts:
             dots_to_front_matter = "../../"
+        if not chapter_prefix:
+            chapter_prefix = "Chapter"
         title_display = f"[[{dots_to_front_matter}|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters, chapters_are_subpages_of_parts)
         chapter_format = chapter["format"]
