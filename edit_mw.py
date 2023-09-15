@@ -172,6 +172,7 @@ def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
             "external scan link",
             "scn",
             "scan needed",
+            "IA small link",
         ]
 
         new_page_text = []

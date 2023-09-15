@@ -119,10 +119,8 @@ hanced
 
 
 
-
-
-# IN THE VALLEY (YATES)
-# Make it get Openlibrary_edition OL7194501M from XML
+# Music After the Great War, and Other Studies
+# Igor Strawinsky: A New Composer - Get subtitle from title
 
 
 # For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)
