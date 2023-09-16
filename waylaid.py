@@ -404,6 +404,7 @@ def correct_text(text_file):
     # dash THINGS
 
     x = x.replace(" | ", "")
+    x = x.replace("| ", "")
     x = x.replace("»", "\"")
     x = x.replace("«", "\"")
     x = x.replace(",-", ",—")
@@ -1283,6 +1284,7 @@ def correct_text(text_file):
     x = x.replace("[ll", "I'll")
     x = x.replace(" agam.", " again.")
     x = x.replace(" agam ", " again ")
+    x = x.replace(" tle ", " the ")
     x = x.replace("youre", "you're")
     x = x.replace(".\".\n", ".\"\n")
 
