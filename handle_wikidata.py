@@ -581,10 +581,10 @@ def get_surname_from_author(author_item):
     surname_property = "P734"
     author_surname_item = get_value_from_property(author_item, surname_property)
 
-    # if author_surname_item:
-    #     author_surname = get_label(author_surname_item)
-    #     print_in_green(f"Surname retrieved successfully from author! {author_surname}")
-    #     return author_surname
+    if author_surname_item:
+        author_surname = get_label(author_surname_item)
+        print_in_green(f"Surname retrieved successfully from author! {author_surname}")
+        return author_surname
     # else:
     author_label = get_label(author_item)
     author_surname = author_label.split(' ')[-1]
@@ -592,11 +592,13 @@ def get_surname_from_author(author_item):
     return author_surname
 
 def get_oclc(hathitrust_id):
-    if hathitrust_id:
+    if hathitrust_id and hathitrust_id != "None":
         return get_oclc_from_hathi(hathitrust_id)
     else:
         oclc = get_data_from_xml("oclc-id")
-        if not oclc:
+        if oclc:
+            return oclc
+        else:
             external_identifier = get_data_from_xml("external-identifier")
             if external_identifier:
                 # example: urn:oclc:record:1102109269

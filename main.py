@@ -124,8 +124,10 @@ hanced
 # Related author FOR subwork
 
 # THE BLIND BOW-BOY
-# /a decoration/ /frontispiece/ /an illustration/ etc. - link to frontispiece
 # Dedications: Detect the author link
+# Parse: /a decoration/ /frontispiece/ /an illustration/ etc. - link to frontispiece
+# Parse: /l/fr/ //l/
+# Parse: poem language /po/fr/
 
 
 

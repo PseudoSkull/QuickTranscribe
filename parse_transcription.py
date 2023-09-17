@@ -1973,6 +1973,12 @@ def convert_poems(page, poem_continuations, convert_fqms):
     italic_replacement = r"{{ppoem|class=poem-italic|\1}}"
     content = re.sub(pattern, replacement, content)
     content = re.sub(italic_pattern, italic_replacement, content)
+
+    lang_in_poem = re.findall(r"\|(..)\n", content)
+    
+    if len(lang_in_poem) > 0:
+        for lang in lang_in_poem:
+            content = content.replace(f"|{lang}\n", f"|lang={lang}|\n")
     
     # if /po// tag still in content after conversions, then start the continuation process
     if "/po//" in content or "/poi//" in content:
