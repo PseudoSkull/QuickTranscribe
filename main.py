@@ -121,9 +121,17 @@ hanced
 
 # Music After the Great War, and Other Studies
 # Igor Strawinsky: A New Composer - Get subtitle from title
+# Related author FOR subwork
+
+# THE BLIND BOW-BOY
+# /a decoration/ /frontispiece/ /an illustration/ etc. - link to frontispiece
+# Dedications: Detect the author link
+
+
 
 
 # For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)
+# For signature images, /sign/ and default name to author of work
 # /dedic/i=Q121811188/
 # Gutenberg: " 'll" -> "'ll", " 've" -> "'ve", etc.
 # Transclusion: Do not add pages if page_quality == "i"
@@ -247,6 +255,7 @@ common_publishers = {
     "Doubleday": "Q1251563",
     "Grosset": "Q3117078",
     "Houghton": "Q390074",
+    "Knopf": "Q1431868",
     "Little": "Q552959",
     "McClurg": "Q4647618",
     "Small": "Q7542583",

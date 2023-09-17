@@ -57,7 +57,7 @@ def generate_ocr():
                 text = pytesseract.image_to_string(image)
                 
                 # Print the extracted text
-                
+                print("Text was: ", text)
                 page_list.append(text)
                 
 

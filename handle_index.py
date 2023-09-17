@@ -21,6 +21,7 @@ marker_definitions = {
     "i": "img",
     "ill": "illus",
     "not": "note",
+    "quo": "quote",
     "ti": "title",
     "toc": "toc",
 }
