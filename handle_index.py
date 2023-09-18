@@ -352,7 +352,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 }}}}"""
     print(index_page_text)
     save_page(index_page, site, index_page_text, summary, transcription_page_title)
-    # add_index_page_to_version_item(version_item, index_page_title)
+    add_index_page_to_version_item(version_item, index_page_title)
     create_index_styles(transcription_text, index_page_title, transcription_page_title)
  
 def create_index_styles(transcription_text, index_page_title, transcription_page_title):

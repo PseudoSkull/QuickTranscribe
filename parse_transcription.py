@@ -608,7 +608,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     
                     if chapter_title:
                         chapter["title"] = convert_to_title_case(chapter["title"])
-                        chapter["display_title"] = convert_to_title_case(chapter["display_title"])
+                        # chapter["display_title"] = convert_to_title_case(chapter["display_title"])
 
                     splice_chapter = False
                     if chapter_splice_points:
@@ -1514,6 +1514,18 @@ def add_half_to_transcription(page, title):
 
     return page
 
+def convert_language_tags(page):
+    content = page["content"]
+
+    if string_not_in_content(content, "/l/", "Converting /l/ to {{lang}} tags in transcription"):
+        return page
+    
+    content = re.sub(r"\/l\/(.+?)\/(.+?)\//l\/", r"{{lang|\1|\2}}", content)
+
+    page["content"] = content
+
+    return page
+
 def convert_complex_dhr(page):
     content = page["content"]
 
@@ -1685,6 +1697,20 @@ def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
 def convert_page_links(page, chapters, mainspace_work_title):
     content = page["content"]
 
+    frontispiece_phrases = [
+        "a decoration",
+        "a frontispiece",
+        "an illustration",
+        "frontispiece",
+    ]
+
+    for phrase in frontispiece_phrases:
+        if f"/{phrase}/" in content:
+            print(f"/{phrase}/ found in content. Converting to page link.")
+            content = content.replace(f"/{phrase}/", f"[[{mainspace_work_title}#frontis|{phrase}]]")
+    
+    page["content"] = content
+    
     if string_not_in_content(content.lower(), "/page ", "Converting /page / to page links in transcription") and string_not_in_content(content.lower(), "/pg. ", "Converting /pg. / to page links in transcription") and string_not_in_content(content.lower(), "/pages ", "Converting /pages / to page links in transcription") and string_not_in_content(content.lower(), "/pp. ", "Converting /pp. / to page links in transcription"):
         return page
 
@@ -1706,7 +1732,7 @@ def convert_page_links(page, chapters, mainspace_work_title):
         page_link = f"[[{chapter_link}|{text_in_page_link} {page_number_to_parse}]]"
 
         content = re.sub(page_links_pattern, page_link, content, count=1)
-
+    
     page["content"] = content
 
     return page
@@ -1975,7 +2001,7 @@ def convert_poems(page, poem_continuations, convert_fqms):
     content = re.sub(italic_pattern, italic_replacement, content)
 
     lang_in_poem = re.findall(r"\|(..)\n", content)
-    
+
     if len(lang_in_poem) > 0:
         for lang in lang_in_poem:
             content = content.replace(f"|{lang}\n", f"|lang={lang}|\n")
@@ -2186,6 +2212,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = convert_smallcaps(page)
         page = convert_degrees(page)
         page = convert_right(page)
+        page = convert_language_tags(page)
         page, inline_continuations = convert_wikilinks(page, inline_continuations, page_data)
         page = convert_author_links(page)
 

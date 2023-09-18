@@ -124,7 +124,6 @@ hanced
 # Related author FOR subwork
 
 # THE BLIND BOW-BOY
-# Dedications: Detect the author link
 # Parse: /a decoration/ /frontispiece/ /an illustration/ etc. - link to frontispiece
 # Parse: /l/fr/ //l/
 # Parse: poem language /po/fr/
@@ -261,6 +260,7 @@ common_publishers = {
     "Little": "Q552959",
     "McClurg": "Q4647618",
     "Small": "Q7542583",
+    "Stokes": "Q19443780",
 }
 
 # get and define the necessary data
