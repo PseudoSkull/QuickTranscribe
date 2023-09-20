@@ -123,14 +123,10 @@ hanced
 # Igor Strawinsky: A New Composer - Get subtitle from title
 # Related author FOR subwork
 
-# THE BLIND BOW-BOY
-# Parse: /a decoration/ /frontispiece/ /an illustration/ etc. - link to frontispiece
-# Parse: /l/fr/ //l/
-# Parse: poem language /po/fr/
 
 
 
-
+# WATCH OUT FOR TWO BLOCK CONTINUATIONS on the same page
 # For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)
 # For signature images, /sign/ and default name to author of work
 # /dedic/i=Q121811188/
