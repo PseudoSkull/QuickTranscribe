@@ -79,6 +79,7 @@ def initial_text_cleanup(text):
     text = text.replace("{{hr|", "{{rule|")
     text = text.replace("{{hr}}", "{{rule}}")
     text = text.replace("/oe/", "œ")
+    text = text.replace("/OE/", "Œ")
     text = text.replace("\nd\n", "\n/d/\n")
     text = text.replace("\ns\n", "\n\n/sec/\n\n")
     text = re.sub(r"\n\n-\n\nn\n\n", r"\n/n/\n\n-\n\n", text)

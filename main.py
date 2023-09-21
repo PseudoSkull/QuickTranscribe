@@ -122,7 +122,13 @@ hanced
 # Music After the Great War, and Other Studies
 # Igor Strawinsky: A New Composer - Get subtitle from title
 # Related author FOR subwork
+# Music After the Great War, disambiguation page for collection and essay
 
+
+
+# THE TATTOOED COUNTESS
+# Parse: /OE/ rather than /oe/
+# Parse: /r1//fl//r1/ and then the rest of the /r1/s
 
 
 
