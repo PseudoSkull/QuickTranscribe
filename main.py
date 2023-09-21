@@ -126,6 +126,7 @@ hanced
 
 
 
+# Try and work on short story collections by multiple authors
 # WATCH OUT FOR TWO BLOCK CONTINUATIONS on the same page
 # For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)
 # For signature images, /sign/ and default name to author of work
