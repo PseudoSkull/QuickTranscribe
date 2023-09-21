@@ -1426,7 +1426,7 @@ def handle_references(page, reference_continuations):
     content = page["content"]
     footer = page["footer"]
 
-    if string_not_in_content(content, "/r/", "Handling references") and string_not_in_content(content, "/rc/", "Handling reference continuations") and string_not_in_content(content, "/ua/", "Handling Wikisource contributor notes"):
+    if string_not_in_content(content, "/r/", "Handling references") and string_not_in_content(content, "/rc/", "Handling reference continuations") and string_not_in_content(content, "/ua/", "Handling Wikisource contributor notes") and string_not_in_content(content, "/r1/", "Handling references"):
         return page, reference_continuations
     
     if "/rt/" in content:
@@ -1444,6 +1444,14 @@ def handle_references(page, reference_continuations):
         for reference in references:
             reference_text = f"<ref>{reference}</ref>"
             content = content.replace(f"/r//{reference}//r/", reference_text)
+
+    if "/r1/" in content:
+        # numbered_reference_begin_tags like /r1//, /r2//, etc.
+        content = re.sub(r"\/r([0-9])\//", r"<ref name=\"ref\1\">", content)
+        content = re.sub(r"\//r([0-9])\/", "</ref>", content)
+
+        content = re.sub(r"\/r([0-9])\/", r"<ref name=\"ref\1\" \/>", content)
+    
 
     if "/ua//" in content:
         references = re.findall(r"\/ua\//(.+?)\//ua\/", content)

@@ -129,9 +129,10 @@ hanced
 # THE TATTOOED COUNTESS
 # Parse: /OE/ rather than /oe/
 # Parse: /r1//fl//r1/ and then the rest of the /r1/s
+# Transclusion: Build functionality for smallrefs on front matter
 
 
-
+# Ready for export functionality after transclusion
 # Try and work on short story collections by multiple authors
 # WATCH OUT FOR TWO BLOCK CONTINUATIONS on the same page
 # For poems, FIRST LINE IN WIKIDATA ITEMS (version only because different versions might have different first lines)

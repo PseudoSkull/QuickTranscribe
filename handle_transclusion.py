@@ -529,7 +529,14 @@ def check_if_advertising_transcluded(page_data):
             return False
     return True
 
-
+def determine_if_refs_in_front_matter(page_data):
+    for page in page_data:
+        footer = page["footer"]
+        content = page["content"]
+        if "/begin/" in content:
+            return False
+        if "{{smallrefs}}" in footer:
+            return True
 # def is_PD_old(death_year, current_year):
 
 def generate_copyright_template(year, author_death_year, current_year):
@@ -702,18 +709,25 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         if has_digits(parentheses_contents):
             categories_text = ""
 
+    
+
+    
+    if len(chapters) == 0 and "</ref>" in transcription_text:
+        smallrefs = "\n{{smallrefs}}"
+    else:
+        refs_are_in_front_matter = determine_if_refs_in_front_matter(page_data)
+        if refs_are_in_front_matter:
+            smallrefs = "\n{{smallrefs}}"
+        else:
+            smallrefs = ""
+
     front_matter_footer = f"""
 
-
+{smallrefs}
 {{{{authority control}}}}
 {{{{{copyright_template}}}}}{categories_text}"""
 
-    smallrefs = ""
-    
-    if len(chapters) == 0 and "</ref>" in transcription_text:
-        smallrefs = "\n\n{{smallrefs}}"
-
-    front_matter_text = front_matter_header + page_tags + aux_toc + hidden_export_toc + smallrefs + front_matter_footer
+    front_matter_text = front_matter_header + page_tags + aux_toc + hidden_export_toc + front_matter_footer
 
     print(front_matter_text)
 
