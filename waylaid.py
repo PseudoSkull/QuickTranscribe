@@ -1358,10 +1358,17 @@ def correct_text(text_file):
 
     # dotdotdots fixed
     x = x.replace(", . . .", ". . . .")
-    x = re.sub(r"([a-z])\. \.\n\n", "\1. . . .\n\n", x)
-    x = re.sub(r"([a-z])\. \. \.\n\n", "\1. . . .\n\n", x)
-    x = re.sub(r"([a-z]) \. \. ([a-z])", "\1 . . . \2", x)
-    x = re.sub(r"([a-z])\.\. \. ", "\1. . . . ", x)
+    x = x.replace("..?", " . . . ?")
+    x = x.replace("..\n", ". . . .\n")
+    x = re.sub(r"([a-z])\. \.\n\n", r"\1\. \. \. \.\n\n", x)
+    x = re.sub(r"([a-z])\. \. \.\n\n", r"\1\. \. \. \.\n\n", x)
+    x = re.sub(r"([a-z]) \. \. ([a-z])", r"\1 \. \. \. \2", x)
+    x = re.sub(r"([a-z])\.\. \. ", r"\1\. \. \. \. ", x)
+    x = re.sub(r"([a-z])\.\. \. ", r"\1\. \. \. \. ", x)
+
+
+    x = re.sub(r"([a-zA-Z])\.([a-zA-Z])", r"\1 \2", x)
+    x = re.sub(r"([a-zA-Z]):([a-zA-Z])", r"\1 \2", x)
 
     # Correct stuff like this:
     # When I said that, he said this: 'Love is love." And that was that.
@@ -1371,6 +1378,12 @@ def correct_text(text_file):
     
 
     x = re.sub(r"Q([a-t])", r"G\1", x)
+    x = x.replace(".;\n", ".\n")
+    x = x.replace("?;\n", "?\n")
+    x = x.replace("?:\n", "?\n")
+    x = x.replace(".:\n", ".\n")
+    x = x.replace("?.", "?")
+
 
 
     # Q followed by any word that's not u > G.

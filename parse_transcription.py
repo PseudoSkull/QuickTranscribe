@@ -1447,10 +1447,10 @@ def handle_references(page, reference_continuations):
 
     if "/r1/" in content:
         # numbered_reference_begin_tags like /r1//, /r2//, etc.
-        content = re.sub(r"\/r([0-9])\//", r"<ref name=\"ref\1\">", content)
+        content = re.sub(r"\/r([0-9])\//", r"<ref name=ref\1>", content)
         content = re.sub(r"\//r([0-9])\/", "</ref>", content)
 
-        content = re.sub(r"\/r([0-9])\/", r"<ref name=\"ref\1\" \/>", content)
+        content = re.sub(r"\/r([0-9])\/", r"<ref name=ref\1 \/>", content)
     
 
     if "/ua//" in content:

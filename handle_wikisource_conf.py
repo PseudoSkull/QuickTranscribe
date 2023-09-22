@@ -48,6 +48,7 @@ variables_with_descriptions = {
         "rel": "related author",
         "ser": "series",
         "edno": "edition number",
+        "set": "narrative location",
         "progress": "QT progress flag",
     }
 

@@ -126,10 +126,9 @@ hanced
 
 
 
-# THE TATTOOED COUNTESS
-# Parse: /OE/ rather than /oe/
-# Parse: /r1//fl//r1/ and then the rest of the /r1/s
-# Transclusion: Build functionality for smallrefs on front matter
+# RHAMON
+# Wikidata: set -> narrative location, parse from Wikipedia articles or Wikidata items
+# Parse: Make sure chapter data works for aux at the end of the book. If aux: name only by default in display
 
 
 # Ready for export functionality after transclusion
@@ -446,6 +445,9 @@ author_surname = get_surname_from_author(author_item)
 
 dedications = get_dedications(page_data, author_item)
 
+narrative_location = get_work_data(work_data, "narrative location")
+
+
 # transcription_page.text
 
 transcription_text = transcription_page.text
@@ -453,7 +455,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
