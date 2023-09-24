@@ -15,7 +15,7 @@ from handle_index import extract_file_extension, create_index_page, create_index
 from handle_pages import get_page_data, create_pages
 from handle_transclusion import transclude_pages, check_if_advertising_transcluded, check_if_parts_exist
 from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file
-from handle_projectfiles import compare_image_counts, get_data_from_xml
+from handle_projectfiles import compare_image_counts, get_data_from_xml, archive_projectfiles_folders
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
@@ -778,6 +778,17 @@ if not at_expected_progress:
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription backlink scan templates have been removed...")
+
+
+transcription_text = transcription_page.text
+expected_progress = "projectfiles_folders_archived"
+at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+if not at_expected_progress:
+    archive_projectfiles_folders()
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that projectfiles folders have been archived locally...")
 
 exit()
 

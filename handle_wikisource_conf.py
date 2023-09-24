@@ -89,6 +89,7 @@ statuses = [
     "subwork_data_items_created",
     "subworks_disambiguated",
     "subworks_listed_at_author",
+    "projectfiles_folders_archived",
     "done",
 ]
 

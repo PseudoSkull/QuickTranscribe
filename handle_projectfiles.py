@@ -191,3 +191,27 @@ def get_data_from_xml(tag_name):
                     return None
     print_in_red("No XML file found in the folder.")
     return None
+
+def archive_projectfiles_folders():
+    # Define the source and destination directories
+    source_directory = "projectfiles"
+    destination_directory = "projectfiles archives"
+
+    # Move 'projectfiles' folder itself into 'projectfiles_archives'
+    shutil.move(source_directory, os.path.join(destination_directory, source_directory))
+
+    # List the folders inside 'projectfiles_archives'
+    archive_folders = [folder for folder in os.listdir(destination_directory) if os.path.isdir(os.path.join(destination_directory, folder))]
+
+    # Find the folder with the highest numeric suffix
+    highest_suffix = 0
+    for folder in archive_folders:
+        try:
+            suffix = int(folder.replace("projectfiles", ""))
+            highest_suffix = max(highest_suffix, suffix)
+        except ValueError:
+            pass
+
+    # Rename 'projectfiles' to 'projectfiles35' based on the highest_suffix + 1
+    new_folder_name = f"projectfiles{highest_suffix + 1}"
+    os.rename(os.path.join(destination_directory, source_directory), os.path.join(destination_directory, new_folder_name))
