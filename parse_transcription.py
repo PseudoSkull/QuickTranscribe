@@ -606,9 +606,13 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if "title" in chapter_settings:
                             chapter["title"] = chapter_settings["title"]
                     
+                    if chapter["auxiliary"]:
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                    
                     if chapter_title:
                         chapter["title"] = convert_to_title_case(chapter["title"])
-                        # chapter["display_title"] = convert_to_title_case(chapter["display_title"])
+                        chapter["display_title"] = convert_to_title_case(chapter["display_title"])
 
                     splice_chapter = False
                     if chapter_splice_points:
@@ -664,6 +668,7 @@ def get_chapters_with_refs(chapters, page_data):
     return chapters_with_refs
 
 def get_chapter_from_page_num(chapters, page_num, for_sections=False):
+    print(page_num)
     try:
         page_num = int(page_num)
         # print(f"WELL WE GOT HERE??? {page_num}")
@@ -978,14 +983,15 @@ def determine_illustration_page_number(image, page_data):
     if page_marker.isdigit():
         return page_marker
     else:
-        previous_page_number = image_page_number - 1
+        previous_page_number = image_page_number + 1
         while 1:
             previous_page = page_data[previous_page_number]
             previous_page_marker = previous_page["marker"]
             previous_page_quality = previous_page["page_quality"]
             if previous_page_marker.isdigit() and previous_page_quality != "0":
+                print(previous_page_marker)
                 return previous_page_marker
-            previous_page_number -= 1
+            previous_page_number += 1
         # previous_page_number -= 1
     # image_type = image["type"]
     # if image_type == "sequential":
@@ -1010,7 +1016,7 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
             page_number_parameter = "''Frontispiece''"
             page_number_to_parse = "fro"
             illustration_page_number = "fro"
-        elif image_type == "sequential":
+        elif image_type == "sequential" and image_caption:
             illustration_page_number = determine_illustration_page_number(image, page_data)
             if first_sequential_image_done:
                 page_word = "{{ditto|page}} "
@@ -2064,6 +2070,7 @@ def convert_images(page, image_data, img_num):
             image = image_data[int(image_number) - 1]
         else:
             image = image_data[img_num]
+            img_num += 1
         image_filename = get_image_filename(image)
         image_caption = image["caption"]
         if image_caption:
@@ -2079,7 +2086,6 @@ def convert_images(page, image_data, img_num):
 
         content = replace_line(content, image_text, line_num)
 
-        img_num += 1
 
     # content = re.sub(pattern, r"{{img|\1}}", content)
 

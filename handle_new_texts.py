@@ -23,6 +23,10 @@ from handle_wikisource_conf import get_regex_match
 
 "<!--MOVE OLDER ENTRIES BELOW HERE-->"
 
+words_to_reject = [
+    "nigger",
+]
+
 def get_entries(new_texts_page_text):
     onlyinclude = get_regex_match(new_texts_page_text, r"\<onlyinclude\>\n(.+?)\n\<\/onlyinclude\>", "onlyinclude text", dotall=True)
     new_texts_entries = onlyinclude.splitlines()
@@ -54,6 +58,11 @@ def generate_new_texts_item(mainspace_work_title, author, year):
 def add_to_new_texts(mainspace_work_title, title, author, year):
     print("Adding finished transcription to new texts...")
 
+    for word in words_to_reject:
+        if word in title.lower():
+            print_in_yellow(f"Title \"{title}\" contains rejected word \"{word}\". Not adding to new texts.")
+            return
+    
     site = pywikibot.Site("en", "wikisource")
     new_texts_pagename = "Template:New texts"
     new_texts_page = pywikibot.Page(site, new_texts_pagename)
