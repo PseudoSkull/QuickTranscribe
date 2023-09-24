@@ -69,6 +69,12 @@ def add_to_new_texts(mainspace_work_title, title, author, year):
     new_texts_page_text = new_texts_page.text
 
     new_texts_entries = get_entries(new_texts_page_text)
+
+    for entry in new_texts_entries:
+        if author in entry and entry != new_texts_entries[-1]:
+            print_in_yellow(f"Author \"{author}\" already exists in new texts. Not adding to new texts.")
+            return
+    
     last_entry = "\n" + new_texts_entries[-1]
 
     new_texts_page_text = move_last_entry_to_old_texts(new_texts_page_text, last_entry)
