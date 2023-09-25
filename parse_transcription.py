@@ -84,6 +84,7 @@ chapter_tags = [
     "fwd",
     "intr",
     "pref",
+    "prol",
     "pt",
     "refch",
 ]
