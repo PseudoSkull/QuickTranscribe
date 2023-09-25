@@ -1221,6 +1221,7 @@ def correct_text(text_file):
     x = x.replace(" ina ", " in a ")
     x = x.replace(" ata ", " at a ")
     x = x.replace("Iam", "I am")
+    x = x.replace(" inthe ", " in the ")
     x = x.replace("Whata ", "What a ")
     x = x.replace("whata ", "what a ")
     x = x.replace("Ido", "I do")

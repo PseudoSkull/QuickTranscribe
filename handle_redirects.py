@@ -292,6 +292,8 @@ def generate_variant_titles(page_title_to_parse):
         print(title_with_variants)
         combinations = generate_combinations(title_with_variants, defaultsort_prefix)
         combinations.remove(page_title_to_parse)
+    if combinations == "":
+        combinations = []
     combination_length = len(combinations)
     print_in_green(f"Successfully generated {combination_length} variant titles.")
     return combinations
@@ -321,8 +323,8 @@ def create_redirects(page_title_to_parse, subtitle, redirect_target=None):
     if subtitle:
         colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
         comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
-        variant_titles += colon_subtitle_form
-        variant_titles += comma_subtitle_form
+        variant_titles.append(colon_subtitle_form)
+        variant_titles.append(comma_subtitle_form)
     
     number_of_variants = len(variant_titles)
     if number_of_variants == 0 and not redirect_target:
@@ -330,6 +332,7 @@ def create_redirects(page_title_to_parse, subtitle, redirect_target=None):
     
     print(f"Creating redirects to {redirect_target}...")
     site = pywikibot.Site("en", "wikisource")
+    print(variant_titles)
     for title_num, title in enumerate(variant_titles):
         title_num += 1
         print(f"Redirect {title_num} (of {number_of_variants}): {title}")
