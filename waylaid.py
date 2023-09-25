@@ -874,7 +874,8 @@ def correct_text(text_file):
     x = re.sub(r"([a-z]) So ", r"\1\. So ", x)
     x = re.sub(r"([a-z]) So,", r"\1\. So,", x)
     x = re.sub(r"([a-z]) Why", r"\1\. Why", x)
-    x = re.sub(r"([a-z]) What", r"\1\s. What", x)
+    x = re.sub(r"([a-z]) What", r"\1\. What", x)
+    x = re.sub(r"([a-z][a-z])I", r"\1 I", x)
     x = x.replace("/'", ".\"")
     x = x.replace("AU ", "All ")
     x = x.replace(" I\"", "!\"")
@@ -1368,6 +1369,9 @@ def correct_text(text_file):
     x = re.sub(r"([a-z]) \. \. ([a-z])", r"\1 \. \. \. \2", x)
     x = re.sub(r"([a-z])\.\. \. ", r"\1\. \. \. \. ", x)
     x = re.sub(r"([a-z])\.\. \. ", r"\1\. \. \. \. ", x)
+    x = re.sub(r"([a-z])\.\. ", r"\1 \. \. \. ", x)
+    x = re.sub(r" \.\.([a-z])", r" \. \. \. \1", x)
+    x = re.sub(r"([a-z]) \. \.\n", r"\1 \. \. \.\n", x)
 
 
     x = re.sub(r"([a-zA-Z])\.([a-zA-Z])", r"\1 \2", x)
@@ -1385,6 +1389,7 @@ def correct_text(text_file):
     x = x.replace("?;\n", "?\n")
     x = x.replace("?:\n", "?\n")
     x = x.replace(".:\n", ".\n")
+    x = x.replace("!.\n", "!\n")
     x = x.replace("?.", "?")
 
 

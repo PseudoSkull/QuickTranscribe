@@ -126,9 +126,13 @@ hanced
 
 
 
-# RHAMON
-# Wikidata: set -> narrative location, parse from Wikipedia articles or Wikidata items
-# Parse: Make sure chapter data works for aux at the end of the book. If aux: name only by default in display
+# FIRECRACKERS
+# Redirects: Generate redirects for subtitles in multiple forms: "Firecrackers, a Realistic Novel" and "Firecrackers: A Realistic Novel"
+
+
+
+
+
 
 
 # Ready for export functionality after transclusion

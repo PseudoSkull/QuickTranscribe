@@ -50,7 +50,7 @@ import itertools
 import pywikibot
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
-
+from handle_title_case import convert_to_title_case
 
 defaultsort_prefixes = [
     # English
@@ -302,8 +302,8 @@ def create_redirect(redirect_title, redirect_target, site, edit_summary):
     print(redirect_text)
     save_page(redirect_page, site, redirect_text, edit_summary)
 
-def create_redirects(page_title_to_parse, redirect_target=None):
-    if "(" in page_title_to_parse:
+def create_redirects(page_title_to_parse, subtitle, redirect_target=None):
+    if "(" in page_title_to_parse and not subtitle:
         if not redirect_target:
             print("Page title contains parentheses. Skipping redirects...")
             return
@@ -317,6 +317,12 @@ def create_redirects(page_title_to_parse, redirect_target=None):
             variant_titles += [page_title_to_parse]
     else:
         redirect_target = page_title_to_parse
+    
+    if subtitle:
+        colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
+        comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
+        variant_titles += colon_subtitle_form
+        variant_titles += comma_subtitle_form
     
     number_of_variants = len(variant_titles)
     if number_of_variants == 0 and not redirect_target:

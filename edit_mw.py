@@ -130,6 +130,9 @@ def is_even(number):
 
 
 def get_category_items(site, category_name):
+    if category_name.startswith("Category:"):
+        category_name = category_name[9:]
+    
     category = pywikibot.Category(site, f'Category:{category_name}')
 
     # Get the page generator for all items in the category
@@ -142,6 +145,7 @@ def get_category_items(site, category_name):
     for item in item_generator:
         category_items.append(item.title())
 
+    print(category_items)
     return category_items
 
 def get_backlinks(site, page_title):
@@ -198,6 +202,21 @@ def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
             save_page(page, site, new_page_text, f"Removing [[Template:{found_template}]] template for completed work, [[{mainspace_work_title}]]")
 
 
+def fix_backlinks(site, page_title, new_page_title):
+    backlinks = get_backlinks(site, page_title)
+    if page_title.startswith("Category:"):
+        backlinks += get_category_items(site, page_title)
+
+    print(backlinks)
+    for backlink in backlinks:
+        print(f"Fixing page {backlink}")
+        page = pywikibot.Page(site, backlink)
+        page_text = page.text
+
+        page_text = page_text.replace(f"[[{page_title}", f"[[{new_page_title}")
+        page_text = page_text.replace(f"[[:{page_title}", f"[[:{new_page_title}")
+    
+        save_page(page, site, page_text, f"Removing link to deleted/moved page")
 
 
 def get_title_hierarchy(page_title):
