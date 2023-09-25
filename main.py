@@ -127,8 +127,6 @@ hanced
 
 
 
-# FIRECRACKERS
-# Redirects: Generate redirects for subtitles in multiple forms: "Firecrackers, a Realistic Novel" and "Firecrackers: A Realistic Novel"
 
 
 
@@ -438,17 +436,30 @@ if base_work and author_item:
 else:
     author_item = get_wikidata_item_from_wikisource(author_page_title)
 
+
 illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
+print("Am I getting past illustrator????")
 editor_item = get_wikidata_item_from_wikisource(editor_page_title)
 related_author_item = get_wikidata_item_from_wikisource(related_author_page_title)
+
 
 author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
 base_work_conf_variable = "base"
 
+print("Am I getting here????")
+
 author_surname = get_surname_from_author(author_item)
 
 dedications = get_dedications(page_data, author_item)
+
+if not dedications:
+    dedications = []
+
+dedications_from_variable = get_work_data(work_data, "dedication")
+if dedications_from_variable:
+    dedications += [dedications_from_variable,]
+
 
 narrative_location = get_work_data(work_data, "narrative location")
 

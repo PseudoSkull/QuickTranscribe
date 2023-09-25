@@ -8,7 +8,7 @@ from edit_mw import save_page
 # https://ws-export.wmcloud.org/?format=pdf&lang=en&page=Firecrackers
 
 def test_pdf_export(mainspace_work_title):
-    # THE DOWNLOAD PART OF THIS CURRENTLY DOESN'T ACTUALLY WORK, but it does remind me to click the link in my browser at least.
+    # THE DOWNLOAD PART OF THIS CURRENTLY DOESN'T ACTUALLY WORK, but it does remind me to click the link in my browser at least, and makes adding the category easy.
     print("Testing PDF export...")
 
     pdf_export_prefix = "http://ws-export.wmcloud.org/?format=pdf&lang=en&page="
@@ -38,6 +38,3 @@ def test_pdf_export(mainspace_work_title):
         mainspace_work_page_text += "\n[[Category:Ready for export]]"
 
         save_page(mainspace_work_page, site, mainspace_work_page_text, "Export tested: adding category [[Category:Ready for export]] to mainspace work page...")
-
-
-test_pdf_export("Firecrackers")

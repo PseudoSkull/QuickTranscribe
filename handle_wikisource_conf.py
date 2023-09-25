@@ -47,6 +47,7 @@ variables_with_descriptions = {
         "ed": "editor",
         "rel": "related author",
         "ser": "series",
+        "ded": "dedication",
         "edno": "edition number",
         "set": "narrative location",
         "progress": "QT progress flag",
@@ -161,7 +162,7 @@ def get_regex_match(text, regex_pattern, regex_name, dotall=False, important=Fal
         return None
 
 def get_conf_variable_regex(variable_name):
-    return rf'{variable_name}=(.*)\n'
+    return rf'\n{variable_name}=(.*)\n'
 
 def get_conf_value(conf_text, variable_name):
     variable_regex = get_conf_variable_regex(variable_name)
