@@ -23,6 +23,7 @@ from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, plac
 from handle_dedications import get_dedications
 from handle_subworks import get_subwork_data, create_subwork_wikidata_items, redirect_and_disambiguate_subworks
 from handle_author import add_individual_works_to_author_page
+from handle_wikisource_export import test_pdf_export
 import datetime
 
 
@@ -783,6 +784,16 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that transcription backlink scan templates have been removed...")
 
+
+transcription_text = transcription_page.text
+expected_progress = "export_tested"
+at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+if not at_expected_progress:
+    test_pdf_export(mainspace_work_title)
+
+    transcription_text = update_QT_progress(transcription_text, expected_progress)
+    save_page(transcription_page, site, transcription_text, "Noting that export of the work has been tested...")
 
 transcription_text = transcription_page.text
 expected_progress = "projectfiles_folders_archived"

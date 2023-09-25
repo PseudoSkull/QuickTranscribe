@@ -86,6 +86,7 @@ statuses = [
     "added_to_new_texts",
     "archived",
     "removed_scan_links_from_backlinks",
+    "export_tested",
     "subwork_data_items_created",
     "subworks_disambiguated",
     "subworks_listed_at_author",
