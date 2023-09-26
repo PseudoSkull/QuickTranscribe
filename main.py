@@ -127,11 +127,18 @@ hanced
 
 
 
+# WORDS FOR THE CHISEL
+# Parse: /ri/ in a poem does something with ppoem, what?
 
 
 
 
 
+# So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
+# Conf: Conf variables saving without \n
+# Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
+# Transclusion: ../ is only going one level down for parts
+# 
 
 
 # Ready for export functionality after transclusion

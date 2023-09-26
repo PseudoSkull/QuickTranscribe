@@ -1988,6 +1988,7 @@ def convert_poems(page, poem_continuations, convert_fqms):
         else:
             content += "\n}}"
             if "{{nop}}" in content or "/n/" in content:
+                print("WE GOT TO STANZA")
                 content = content.replace("\n{{nop}}", "")
                 content = content.replace("\n/n/", "")
                 end_continuation = "stanza"
@@ -1995,6 +1996,7 @@ def convert_poems(page, poem_continuations, convert_fqms):
                 content = content.replace("\n/f/", "")
                 end_continuation = "same-line"
             else:
+                print("WE DIDNT GET TO STANZA :(")
                 end_continuation = "follow"
             
             poem_continuations.append(end_continuation)

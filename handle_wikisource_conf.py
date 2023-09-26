@@ -162,10 +162,10 @@ def get_regex_match(text, regex_pattern, regex_name, dotall=False, important=Fal
         return None
 
 def get_conf_variable_regex(variable_name):
-    return rf'\n{variable_name}=(.*)\n'
+    return rf'{variable_name}=(.*)\n'
 
 def get_conf_value(conf_text, variable_name):
-    variable_regex = get_conf_variable_regex(variable_name)
+    variable_regex = "\n" + get_conf_variable_regex(variable_name)
     variable_description = get_conf_value_description(variable_name)
     return get_regex_match(conf_text, variable_regex, variable_description)
 

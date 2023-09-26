@@ -51,6 +51,7 @@ hathitrust_catalog_id = get_work_data(work_data, "HathiTrust catalog ID")
 hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
 GB_id = get_work_data(work_data, "Google Books ID")
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
+work_type = get_work_data(work_data, "work type")
 
 transcription_text = transcription_page.text
 expected_progress = "ia_files_downloaded"
@@ -100,7 +101,7 @@ generate_ocr()
 
 ocr_file = open(ocr_file_path, "r")
 
-corrected_ocr = correct_text(ocr_file_path)
+corrected_ocr = correct_text(ocr_file_path, work_type)
 
 # print(corrected_ocr)
 
