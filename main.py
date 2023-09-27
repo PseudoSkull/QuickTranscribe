@@ -272,6 +272,7 @@ common_publishers = {
     "Knopf": "Q1431868",
     "Little": "Q552959",
     "McClurg": "Q4647618",
+    "Putnam": "Q3093062",
     "Small": "Q7542583",
     "Stokes": "Q19443780",
 }
@@ -813,6 +814,56 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that export of the work has been tested...")
 
+
+# exit()
+
+
+
+
+
+
+subworks = get_subwork_data(chapters, mainspace_work_title)
+
+if subworks:
+
+    transcription_text = transcription_page.text
+    expected_progress = "subwork_data_items_created"
+    at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+    if not at_expected_progress:
+        create_subwork_wikidata_items(subworks, version_item, transcription_page_title, year, original_year, author_WD_alias, author_item, pub_date, country, genre, original_pub_date)
+
+        process_break()
+
+        transcription_text = update_QT_progress(transcription_text, expected_progress)
+        save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")
+
+
+    transcription_text = transcription_page.text
+    expected_progress = "subworks_disambiguated"
+    at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+    if not at_expected_progress:
+        redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author)
+
+        process_break()
+
+        transcription_text = update_QT_progress(transcription_text, expected_progress)
+        save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")
+
+
+    transcription_text = transcription_page.text
+    expected_progress = "subworks_listed_at_author"
+    at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+    if not at_expected_progress:
+        add_individual_works_to_author_page(subworks, author, work_type_name, original_year)
+
+        process_break()
+
+        transcription_text = update_QT_progress(transcription_text, expected_progress)
+        save_page(transcription_page, site, transcription_text, "Noting that the subworks have been listed at the author page...")
+
 transcription_text = transcription_page.text
 expected_progress = "projectfiles_folders_archived"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
@@ -822,51 +873,3 @@ if not at_expected_progress:
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that projectfiles folders have been archived locally...")
-
-exit()
-
-
-
-
-
-
-
-subworks = get_subwork_data(chapters, mainspace_work_title)
-
-transcription_text = transcription_page.text
-expected_progress = "subwork_data_items_created"
-at_expected_progress = check_QT_progress(transcription_text, expected_progress)
-
-if not at_expected_progress:
-    create_subwork_wikidata_items(subworks, version_item, transcription_page_title, year, original_year, author_WD_alias, author_item, pub_date, country, genre, original_pub_date)
-
-    process_break()
-
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")
-
-
-transcription_text = transcription_page.text
-expected_progress = "subworks_disambiguated"
-at_expected_progress = check_QT_progress(transcription_text, expected_progress)
-
-if not at_expected_progress:
-    redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author)
-
-    process_break()
-
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that the subwork Wikidata items have all been created...")
-
-
-transcription_text = transcription_page.text
-expected_progress = "subworks_listed_at_author"
-at_expected_progress = check_QT_progress(transcription_text, expected_progress)
-
-if not at_expected_progress:
-    add_individual_works_to_author_page(subworks, author, work_type_name, original_year)
-
-    process_break()
-
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that the subworks have been listed at the author page...")
