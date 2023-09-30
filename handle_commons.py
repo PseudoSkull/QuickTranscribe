@@ -12,8 +12,14 @@ import time
 import os
 import io
 from pywikibot.data.api import Request
+from timeout_decorator import timeout
 # from pywikibot.upload import UploadRobot
 # from pywikibot import upload
+
+# Set a longer timeout (e.g., 60 seconds)
+pywikibot.config.timeout = 60
+
+# Your API request code here
 
 
 def get_image_filename(image):
@@ -86,6 +92,7 @@ def append_existing_file_text(file_text, original_file_text):
     return file_text
         # file_text += "\n" + "{{DEFAULTSORT" + original_file_text_end
 
+@timeout(12000)  # Set a timeout of 12000 seconds (200 minutes)
 def upload_file_to_commons(filename, file_text, file_path, transcription_page_title):
     # filename = "Test upload with batch upload.pdf"
 
@@ -110,6 +117,7 @@ def upload_file_to_commons(filename, file_text, file_path, transcription_page_ti
             chunk_size = convert_to_megabytes(3)
             file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         else:
+            print("Pywikibot Version:", pywikibot.__version__)
             file_page.upload(source=file_path, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         print_in_green("File uploaded successfully!")
     else:
