@@ -4,6 +4,16 @@
 
 # https://www.wikidata.org/w/index.php?title=Q118876318&curid=113382411&diff=1912734568&oldid=1912670071
 
+import sys
+import os
+
+# Path to the pywikibot package within core_stable_2
+pywikibot_path = os.path.join("/Users/bobbybumps/Downloads/code_folder/core_stable_2", "pywikibot")
+
+# Prepend the pywikibot path to sys.path to force the import
+sys.path.insert(0, pywikibot_path)
+
+
 import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page, get_author_page_title, remove_esl_and_ssl_from_backlinks
@@ -197,9 +207,6 @@ CRITICAL: Exiting due to uncaught exception <class 'TypeError'>"""
 # ITALICIZE NUMBERS WITH /I/ TAG
 
 
-
-
-
 # Index: handle double location
 # Index styles: IF NO STYLE IS SPECIFIED, USE THIS
     # """	text-align: center;
@@ -279,9 +286,19 @@ common_publishers = {
 
 # get and define the necessary data
 
+pywikibot.config.base_dir = ('/Users/bobbybumps/Downloads/code_folder/core_stable_2/pywikibot')
+
+
 site = pywikibot.Site('en', 'wikisource')
+
+for attr, value in site.__dict__.items():
+    print(f"{attr}: {value}")
+# exit()
+
 commons_site = pywikibot.Site('commons', 'commons')
+
 wikidata_site = pywikibot.Site('wikidata', 'wikidata')
+
 transcription_page = pywikibot.Page(site, transcription_page_title)
 current_year = int(datetime.datetime.now().year)
 title = get_bare_title(mainspace_work_title)

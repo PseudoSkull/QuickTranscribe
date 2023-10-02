@@ -1,5 +1,15 @@
 # WS_collection
 
+import os
+
+import sys
+
+# Path to the pywikibot package within core_stable_2
+pywikibot_path = os.path.join("/Users/bobbybumps/Downloads/code_folder/core_stable_2", "pywikibot")
+
+# Prepend the pywikibot path to sys.path to force the import
+sys.path.insert(0, pywikibot_path)
+
 import pywikibot
 from config import username, mainspace_work_title, transcription_page_title
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break

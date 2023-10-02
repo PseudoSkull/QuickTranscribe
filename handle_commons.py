@@ -5,19 +5,28 @@ from handle_wikidata import get_commons_category_from_wikidata
 from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
 from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item
+import sys
+import os
+
+# Path to the pywikibot package within core_stable_2
+pywikibot_path = os.path.join("/Users/bobbybumps/Downloads/code_folder/core_stable_2", "pywikibot")
+
+# Prepend the pywikibot path to sys.path to force the import
+sys.path.insert(0, pywikibot_path)
+
+
 import pywikibot
 import re
 import math
 import time
 import os
 import io
-from pywikibot.data.api import Request
-from timeout_decorator import timeout
+import inspect
 # from pywikibot.upload import UploadRobot
 # from pywikibot import upload
 
 # Set a longer timeout (e.g., 60 seconds)
-pywikibot.config.timeout = 60
+
 
 # Your API request code here
 
@@ -92,7 +101,7 @@ def append_existing_file_text(file_text, original_file_text):
     return file_text
         # file_text += "\n" + "{{DEFAULTSORT" + original_file_text_end
 
-@timeout(12000)  # Set a timeout of 12000 seconds (200 minutes)
+
 def upload_file_to_commons(filename, file_text, file_path, transcription_page_title):
     # filename = "Test upload with batch upload.pdf"
 
@@ -117,7 +126,18 @@ def upload_file_to_commons(filename, file_text, file_path, transcription_page_ti
             chunk_size = convert_to_megabytes(3)
             file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         else:
-            print("Pywikibot Version:", pywikibot.__version__)
+            # print("Pywikibot Version:", pywikibot.__version__)
+            # pywikibot.config.base_dir = ('/Users/bobbybumps/Downloads/code_folder/core_stable_2/pywikibot/user-config.py')
+            
+            # user_config_path = pywikibot.config.base_dir
+            # user = site.user()
+            # print(f"You are logged in as: {user}")
+            # print(f"Using user-config.py file at: {user_config_path}")
+            # print(f"Using user-config.py from : {pywikibot.config.user_config_file}")
+            # for attr, value in site.__dict__.items():
+            #     print(f"{attr}: {value}")
+            # pywikibot_path = inspect.getfile(pywikibot)
+            # print(f"Pywikibot is running from: {pywikibot_path}")
             file_page.upload(source=file_path, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
         print_in_green("File uploaded successfully!")
     else:
