@@ -1448,6 +1448,7 @@ def correct_text(text_file, work_type):
     x = x.replace("\"ust ", "\"Just ")
     x = x.replace(" ery", " cry") # cry, crystal ©
     x = x.replace(" © ", " ")
+    x = x.replace(" ©", "")
 
     # "I am very drunk, said Johnny, adding politely, "And you?"
     # "I am very drunk," said Johnny, adding politely, "And you?"
