@@ -85,7 +85,7 @@ def append_subwork_data(subwork, subworks):
 def get_work_type_item(work_type_name):
     return work_types[work_type_name]
 
-def create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year):
+def create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location):
     work_item = subwork["work_item"]
     work_type_name = subwork["type"]
     work_type = get_work_type_item(work_type_name)
@@ -111,6 +111,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
+    add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
 
     return subworks, work_item
 
@@ -142,12 +143,12 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
 
     return subworks, version_item
 
-def create_subwork_wikidata_items(subworks, collection_version_item, transcription_page_title, year, original_year, author_name, author, pub_date, country, genre, original_pub_date):
+def create_subwork_wikidata_items(subworks, collection_version_item, transcription_page_title, year, original_year, author_name, author, pub_date, country, genre, original_pub_date, narrative_location):
     site = pywikibot.Site("wikidata", "wikidata")
     for subwork in subworks:
         subwork_title = subwork["title"]
         print(f"Creating Wikidata items for {subwork_title}...")
-        subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year)
+        subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location)
         print(f"Work item is {work_item} AFTER SUBWORK ITEM IS CREATED")
         subworks, version_item = create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item)
 

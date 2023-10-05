@@ -407,7 +407,8 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P179', series, 'part of the series', transcription_page_title)
     add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
-    add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
+    if "collection" not in work_type_name:
+        add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     # UNLESS IT'S A TRANSLATION, IN WHICH CASE WE NEED TO ADD THE ORIGINAL LANGUAGE, add this functionality later
