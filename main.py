@@ -142,6 +142,10 @@ hanced
 
 
 
+# PEAK AND PRAIRIE
+# Wikidata: Do not add SETTING in collections. Add those to the individual works.
+# Parse: Find {{Qmfd}}/{{qmfd}} and associate it with /ua/
+
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
