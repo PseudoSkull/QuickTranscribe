@@ -31,6 +31,7 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
         work_links.append(work_link)
     
     work_links = sorted(work_links, key=lambda x: x['defaultsort'])
+    print(work_links)
 
     individual_work_entries = []
     for work_link in work_links:
@@ -51,6 +52,8 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
     else:
         if "\n\n\n{{PD" in author_page_text:
             author_page_text = author_page_text.replace("\n\n\n{{PD", f"{individual_works}\n\n\n{{{{PD")
+        elif "\n\n\n{{authority" in author_page_text:
+            author_page_text = author_page_text.replace("\n\n\n{{authority", f"{individual_works}\n\n\n{{{{authority")
         else:
             author_page_text = author_page_text.replace("\n\n{{PD", f"{individual_works}\n\n\n{{{{PD")
     

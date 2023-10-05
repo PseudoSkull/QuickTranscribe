@@ -304,7 +304,7 @@ def create_redirect(redirect_title, redirect_target, site, edit_summary):
     print(redirect_text)
     save_page(redirect_page, site, redirect_text, edit_summary)
 
-def create_redirects(page_title_to_parse, subtitle, redirect_target=None):
+def create_redirects(page_title_to_parse, subtitle=None, redirect_target=None):
     if "(" in page_title_to_parse and not subtitle:
         if not redirect_target:
             print("Page title contains parentheses. Skipping redirects...")
