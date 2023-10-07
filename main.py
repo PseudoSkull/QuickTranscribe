@@ -142,9 +142,9 @@ hanced
 
 
 
-# PEAK AND PRAIRIE
-# Wikidata: Do not add SETTING in collections. Add those to the individual works.
-# Parse: Find {{Qmfd}}/{{qmfd}} and associate it with /ua/
+# THE VENETIAN JUNE
+# Check on "the east", "the west" capitalization instances
+# Parse: make sure /bpt/6/ makes it
 
 
 
