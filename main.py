@@ -142,9 +142,8 @@ hanced
 
 
 
-# THE VENETIAN JUNE
-# Check on "the east", "the west" capitalization instances
-# Parse: make sure /bpt/6/ makes it
+# ONE OF THE PILGRIMS
+# Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
 
