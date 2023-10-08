@@ -915,6 +915,8 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         page_num = chapter["page_num"]
         page_num = convert_page_num_to_roman_if_roman(page_num, page_data)
         chapter_title = chapter["title"]
+        if chapter_title == "Advertisements":
+            continue
         chapter_prefix = chapter["prefix"]
         chapter_type = chapter["type"]
         splice = chapter["splice"]

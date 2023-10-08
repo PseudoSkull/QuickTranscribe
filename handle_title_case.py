@@ -26,6 +26,12 @@ title_case_exceptions = ['and', 'as', 'but', 'for', 'if', 'nor', 'or', 'so', 'ye
                   'etc', 'cf', 'c.f', 'e.g', 'i.e', 'ie', 'vs', 'v', 'viz',
                   # pronunciation spelling
                   'an\'', 'o\'', '\'n\'', '\'n', 'n\'', 'fer',
+                  # Latin
+                  'et', 'ad', 'sic', 'cum',
+                  # French
+                  'au', 'aux', 'de', 'des', 'du', 'le', 'la', 'les', 'un', 'une',
+                  # Spanish
+                  'de', 'del', 'el', 'la', 'las', 'los',
 ]
 
 conditional_exceptions = [
