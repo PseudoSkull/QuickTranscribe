@@ -72,6 +72,10 @@ def initial_text_cleanup(text):
 # do regex replacements on page.text. Make sure it replaces all instances of string pattern.
     # text = page.text
     print("Doing some initial text cleanup...")
+
+    # Replace instances of —t3 with "—\n\n—\n\n—" for example, shorthand for multiple non-proofreadable pages
+    text = re.sub(r'—t(\d+?)\n', lambda m: '—\n\n' * int(m.group(1)), text)
+
     text = remove_triple_newlines(text)
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
