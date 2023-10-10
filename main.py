@@ -143,8 +143,8 @@ hanced
 
 
 # ONE OF THE PILGRIMS
-# Cleanup: —t5 -> —\n\n— 5 times
 # After pages: Check on earlier instance of Morning Trumpeter for iinc
+# Commons: CHANGE TO FLEURON rather than vignette
 # Commons: Figure out a way to throw in image filenames that already exist, and then go through these and categorize them in Commons
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
