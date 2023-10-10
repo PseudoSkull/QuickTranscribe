@@ -1517,6 +1517,8 @@ def correct_text(text_file, work_type):
     x = x.replace(".:\n", ".\n")
     x = x.replace("!.\n", "!\n")
     x = x.replace("?.", "?")
+    x = x.replace("*?", "\"")
+    x = x.replace("\n* ", "\"")
 
 
 
