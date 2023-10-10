@@ -582,6 +582,7 @@ def correct_text(text_file, work_type):
     x = x.replace("! \"\n", "!\"\n")
     x = x.replace("!\".", "!\"")
     x = x.replace("?\".", "?\"")
+    
 
 
     # A WILD-GOOSE CHASE
@@ -1518,7 +1519,21 @@ def correct_text(text_file, work_type):
     x = x.replace("!.\n", "!\n")
     x = x.replace("?.", "?")
     x = x.replace("*?", "\"")
-    x = x.replace("\n* ", "\"")
+    x = x.replace("\n* ", "\n\"")
+    x = x.replace("\n*", "\n\"")
+    x = x.replace(" itll ", " it'll ")
+    x = x.replace(" gness", " guess")
+    x = x.replace("\"TJ", "\"I")
+    x = x.replace("\"J ", "\"I ")
+    x = x.replace("\"Td ", "\"I'd ")
+    x = x.replace("\"T ", "\"I ")
+    x = x.replace(" oem ", " 'em ")
+    x = re.sub(r"in\? ([a-z])", r"in' \1", x)
+    x = re.sub(r"in'\? ([a-z])", r"in' \1", x)
+
+    # Fix all instances of short quotes not beginning in "
+    x = re.sub(r"(..\n\n)([A-Z][^\"|\n]+?)\"\n\n", r"\1\"\2\"\n\n", x)
+
 
 
 
