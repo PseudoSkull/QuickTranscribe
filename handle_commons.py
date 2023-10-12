@@ -370,14 +370,14 @@ def determine_image_type(marker, settings, overall_page_num):
     return image_type
         # image_type = image_types[marker]
 
-def generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num):
+def generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num):
     work_title_with_year = f"{work_title} ({year})"
     if image_type == "sequential":
         image_title = f"{work_title_with_year} {seq_num}"
     elif image_type == "drop initial":
         image_title = f"{work_title_with_year} {image_type} letter {letter}"
-    elif image_type == "vignette":
-        image_title = f"{work_title_with_year} {image_type} {vignette_num}"
+    elif image_type == "fleuron":
+        image_title = f"{work_title_with_year} {image_type} {fleuron_num}"
     else:
         image_title = f"{work_title_with_year} {image_type}"
     return image_title
@@ -436,21 +436,21 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
     image_data = []
     seq_num = 0
     img_num = 0
-    vignette_num = 0
+    fleuron_num = 0
     image_files_folder = "projectfiles/processed_files"
 
     for overall_page_num, page in enumerate(page_data):
         image_tag = "/img/"
         dii_tag = "/dii/"
-        vign_tag = "/vign/"
+        fle_tag = "/fle/"
         content = page["content"]
         marker = page["marker"]
         # print(f"Generating image data for page {overall_page_num}, {marker}...")
         page_num = page["page_num"]
-        if content != "" and (image_tag in content or dii_tag in content or vign_tag in content):
+        if content != "" and (image_tag in content or dii_tag in content or fle_tag in content):
             content_lines = content.split("\n")
             for line in content_lines:
-                if image_tag in line or dii_tag in line or vign_tag in line:
+                if image_tag in line or dii_tag in line or fle_tag in line:
                     if "/n=" in line:
                         continue
                     image = {}
@@ -464,10 +464,10 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                         image_type = "drop initial"
                         letter = get_letter_from_initial_image(line)
                     else:
-                        if vign_tag in line:
-                            image_type = "vignette"
+                        if fle_tag in line:
+                            image_type = "fleuron"
                             expected_image_tag_length = 6
-                            vignette_num += 1
+                            fleuron_num += 1
                         if len(line) > expected_image_tag_length:
                             print(line)
                             img_suffix = line[expected_image_tag_length:]
@@ -481,19 +481,19 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                             # settings, caption = "/" + "/".join(img_suffix.split("/")[:2])
                             if "," in settings:
                                 settings = settings.split(",")
-                        if not image_type == "vignette":
+                        if not image_type == "fleuron":
                             image_type = determine_image_type(marker, settings, overall_page_num)
                         if image_type == "sequential":
                             seq_num += 1
                         img_num += 1
                         print(img_num)
                         image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
-                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num)
+                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num)
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
-                    if image_type == "vignette":
-                        image["seq_num"] = vignette_num
+                    if image_type == "fleuron":
+                        image["seq_num"] = fleuron_num
                     else:
                         image["seq_num"] = seq_num
                     image["page_num"] = page_num
@@ -521,7 +521,7 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
             page_num = int(drop_initial["pages"][0])
             image_type = "drop initial"
 
-            image_title = generate_image_title(image_type, seq_num, work_title, year, letter, vignette_num)
+            image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num)
             image_path, extension = get_file_path_and_extension(image_files_folder, letter)
             image_size = 75
 
@@ -633,7 +633,7 @@ def generate_file_description(caption, image_type, page_num, work_title, year, i
 
     return file_description
 
-def generate_image_file_categories(image_type, country_name, main_commons_category, image_letter):
+def generate_image_file_categories(image_type, country_name, main_commons_category, image_letter, year):
     category_prefix = "Category:"
     categories = []
     country_name = add_country_prefix(country_name)
@@ -645,8 +645,8 @@ def generate_image_file_categories(image_type, country_name, main_commons_catego
         categories.append(linkify(f"{category_prefix}Frontispieces from {country_name}"))
     elif image_type == "drop initial":
         categories.append(linkify(f"{category_prefix}Decorative letters/{image_letter}"))
-    elif image_type == "vignette":
-        categories.append(linkify(f"{category_prefix}Vignette"))
+    elif image_type == "fleuron":
+        categories.append(linkify(f"{category_prefix}{year} Fleurons"))
     categories.append(linkify(main_commons_category)) # already has category prefix
     categories.sort()
 
@@ -673,7 +673,7 @@ def generate_image_text(scan_filename, author_item, author, transcription_page_t
     print("Generating image text...")
     file_description = generate_file_description(caption, image_type, page_num, work_title, year, image_letter)
     # commons_file_date = generate_commons_file_date()
-    image_file_categories = generate_image_file_categories(image_type, country_name, main_commons_category, image_letter)
+    image_file_categories = generate_image_file_categories(image_type, country_name, main_commons_category, image_letter, year)
     illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator)
     copyright_template = generate_commons_copyright_template(year)
 

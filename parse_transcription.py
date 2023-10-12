@@ -1723,9 +1723,11 @@ def convert_page_links(page, chapters, mainspace_work_title):
     ]
 
     for phrase in frontispiece_phrases:
-        if f"/{phrase}/" in content:
+        if f"/{phrase}/" in content.lower():
             print(f"/{phrase}/ found in content. Converting to page link.")
             content = content.replace(f"/{phrase}/", f"[[{mainspace_work_title}#frontis|{phrase}]]")
+            content = content.replace(f"/{phrase.capitalize()}/", f"[[{mainspace_work_title}#frontis|{phrase}]]")
+
     
     page["content"] = content
     
@@ -2051,14 +2053,14 @@ def convert_images(page, image_data, img_num):
     content = page["content"]
 
     img_tag = get_plain_tag("img")
-    vign_tag = get_plain_tag("vign")
+    fle_tag = get_plain_tag("fle")
 
-    if string_not_in_content(content, img_tag, "Converting images") and string_not_in_content(content, vign_tag, "Converting vignette images"):
+    if string_not_in_content(content, img_tag, "Converting images") and string_not_in_content(content, fle_tag, "Converting fleuron images"):
         return img_num, page
     
     image_tags = [
         "img",
-        "vign",
+        "fle",
         "plt",
         "fig",
     ]
