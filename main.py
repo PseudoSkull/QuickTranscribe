@@ -149,6 +149,11 @@ hanced
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
+# THE BARON OF DIAMOND TAIL
+# Commons: /fle/ tag, fleuron
+# Parse: /fle/ tag
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
