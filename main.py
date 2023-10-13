@@ -149,6 +149,13 @@ hanced
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
+
+# BY SANCTION OF LAW
+# Make sure you make it so you can get OCLC, etc. from Google Books
+# Parse: Elvin raised his head. Father Buntin held the Crucifix before him. "Wherever you go, hereafter, whatever be your fate, remember this symbol, and recall the words of Him who died for you, when he said, /i//'Love ye one another.'"//i/
+# Above might cause some issues
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -470,7 +477,6 @@ else:
 
 
 illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
-print("Am I getting past illustrator????")
 editor_item = get_wikidata_item_from_wikisource(editor_page_title)
 related_author_item = get_wikidata_item_from_wikisource(related_author_page_title)
 
@@ -478,8 +484,6 @@ related_author_item = get_wikidata_item_from_wikisource(related_author_page_titl
 author_WD_alias = get_label(author_item)
 author_death_year = get_author_death_year(author_item)
 base_work_conf_variable = "base"
-
-print("Am I getting here????")
 
 author_surname = get_surname_from_author(author_item)
 
