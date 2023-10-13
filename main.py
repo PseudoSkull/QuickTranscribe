@@ -149,18 +149,15 @@ hanced
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
-# THE BARON OF DIAMOND TAIL
-# Commons: /fle/ tag, fleuron
-# Parse: /fle/ tag
-
-
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
 # Transclusion: ../ is only going one level down for parts
 # 
 
-
+# LibraryThing work ID and OpenLibrary ID for work: https://www.wikidata.org/wiki/Q122961437
+# https://www.wikidata.org/wiki/Q123007471 Create Gutenberg e-book edition data items, with this layout
+# Figure out what to do about film transcriptions
 # Ready for export functionality after transclusion
 # Try and work on short story collections by multiple authors
 # WATCH OUT FOR TWO BLOCK CONTINUATIONS on the same page

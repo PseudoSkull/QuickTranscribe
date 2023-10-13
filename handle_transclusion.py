@@ -47,6 +47,8 @@ def generate_genre_categories(genre_name, work_type_name):
                 category = f"Historical {work_type_plural}"
         elif genre == "Christian":
             category = "Christian literature"
+        elif genre == "western":
+            category = "Western fiction"
         categories.append(category)
     return categories
 
