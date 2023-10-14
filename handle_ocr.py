@@ -16,8 +16,13 @@ def generate_ocr():
     elif "hathi.pdf" in os.listdir("projectfiles"):
         pdf_path = 'projectfiles/hathi.pdf'
     else:
-        pdf_path = input("Enter the name of the PDF file: ")
-        pdf_path = f"projectfiles/{pdf_path}"
+        # pdf_path = input("Enter the name of the PDF file: ")
+        # pdf_path = f"projectfiles/{pdf_path}"
+        print("Got here specifically")
+        text_path = "projectfiles/text_original.txt"
+        with open(text_path, "r") as file:
+            original_ocr = file.read()
+        return original_ocr
     original_ocr_file_path = "projectfiles/original_ocr.txt"
     # qt_page_separator = "\n\n-\n\n"
     qt_page_separator = "\n\n\n\n"

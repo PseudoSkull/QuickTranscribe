@@ -109,7 +109,11 @@ ocr_file_path = "projectfiles/original_ocr.txt"
 
 generate_ocr()
 
-ocr_file = open(ocr_file_path, "r")
+try:
+    ocr_file = open(ocr_file_path, "r")
+except FileNotFoundError:
+    ocr_file_path = "projectfiles/text_original.txt"
+    ocr_file = open(ocr_file_path, "r")
 
 corrected_ocr = correct_text(ocr_file_path, work_type)
 

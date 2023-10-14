@@ -299,8 +299,8 @@ def generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
 
 def generate_scan_filename(title, year, scan_file_path):
     extension = scan_file_path.split(".")[-1]
-    # scan_filename = f"{title} ({year}).{extension}"
-    scan_filename = f"{title}.{extension}"
+    scan_filename = f"{title} ({year}).{extension}"
+    # scan_filename = f"{title}.{extension}"
     return scan_filename
 
 def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id, year):

@@ -391,7 +391,7 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
     
 
 
-def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, variable_name=None):
+def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
@@ -414,6 +414,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     # UNLESS IT'S A TRANSLATION, IN WHICH CASE WE NEED TO ADD THE ORIGINAL LANGUAGE, add this functionality later
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
+    add_property(repo, item, 'P648', openlibrary_work_id, 'OpenLibrary work ID', transcription_page_title)
 
     
     return item_id
@@ -422,7 +423,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_id, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -451,7 +452,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P1144', lccn, 'LCCN (Library of Congress Catalog Number) ID', transcription_page_title)
     add_property(repo, item, 'P243', oclc, 'OCLC (WorldCat) ID', transcription_page_title)
     add_property(repo, item, 'P8091', ark_identifier, 'ARK ID', transcription_page_title)
-    add_property(repo, item, 'P648', openlibrary_id, 'OpenLibrary ID', transcription_page_title)
+    add_property(repo, item, 'P648', openlibrary_version_id, 'OpenLibrary version ID', transcription_page_title)
 
     if filename:
         add_scan_file_to_version_item(repo, item, filename, transcription_page_title)
@@ -641,8 +642,6 @@ def get_ark_identifier(hathitrust_full_text_id):
     return ark_identifier
 
 def get_openlibrary_id():
-    openlibrary_id = get_data_from_xml("openlibrary_edition")
-    # WORK SHOULD BE RETRIEVED SEPARATELY
-    # if not openlibrary_id:
-    #     openlibrary_id = get_data_from_xml("openlibrary_work")
-    return openlibrary_id
+    openlibrary_version_id = get_data_from_xml("openlibrary_edition")
+    openlibrary_work_id = get_data_from_xml("openlibrary_work")
+    return openlibrary_version_id, openlibrary_work_id

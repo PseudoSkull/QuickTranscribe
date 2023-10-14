@@ -1537,6 +1537,11 @@ def correct_text(text_file, work_type):
     x = x.replace("Gh,", "Oh,")
     x = x.replace("\n\"Bout ", "\n\"'Bout")
     x = x.replace(" Tain't", " 'Tain't")
+    x = x.replace("\"Til ", "\"I'll ")
+    x = x.replace("\nn ", "\n\"")
+    x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
+    x = re.sub(r"([a-z])hearted", r"\1-hearted", x)
+    x = re.sub(r" \.([a-z])", r" \1", x)
     x = re.sub(r"in\? ([a-z])", r"in' \1", x)
     x = re.sub(r"in'\? ([a-z])", r"in' \1", x)
 

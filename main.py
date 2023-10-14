@@ -150,12 +150,6 @@ hanced
 
 
 
-# BY SANCTION OF LAW
-# Make sure you make it so you can get OCLC, etc. from Google Books
-# Parse: Elvin raised his head. Father Buntin held the Crucifix before him. "Wherever you go, hereafter, whatever be your fate, remember this symbol, and recall the words of Him who died for you, when he said, /i//'Love ye one another.'"//i/
-# Above might cause some issues
-
-
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -499,6 +493,8 @@ if dedications_from_variable:
 
 narrative_location = get_work_data(work_data, "narrative location")
 
+openlibrary_version_id, openlibrary_work_id = get_openlibrary_id()
+
 
 # transcription_page.text
 
@@ -507,7 +503,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -542,7 +538,6 @@ elif hathitrust_id and not hathitrust_full_text_id:
     save_page(transcription_page, site, transcription_text, "Adding HathiTrust full text ID value...")
 
 ark_identifier = get_ark_identifier(hathitrust_full_text_id)
-openlibrary_id = get_openlibrary_id()
 
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
@@ -553,7 +548,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_id, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     print_in_yellow("Add progress 'version_item_created' manually. Restart to mitigate ver= problem (temporary).")
