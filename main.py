@@ -541,12 +541,12 @@ elif hathitrust_id and not hathitrust_full_text_id:
     transcription_text = update_conf_value(transcription_text, "htt", hathitrust_full_text_id)
     save_page(transcription_page, site, transcription_text, "Adding HathiTrust full text ID value...")
 
-oclc = get_oclc(hathitrust_id)
 ark_identifier = get_ark_identifier(hathitrust_full_text_id)
 openlibrary_id = get_openlibrary_id()
 
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
+oclc = get_oclc(hathitrust_id, GB_id)
 
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"

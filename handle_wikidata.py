@@ -10,6 +10,7 @@ from hathi import get_hathitrust_id_from_commons_page, get_hathitrust_catalog_id
 from handle_projectfiles import get_data_from_xml
 from handle_wikisource_conf import update_conf_value
 from edit_mw import save_page
+import requests
 import re
     
 def handle_date(pub_date_unparsed):
@@ -593,7 +594,26 @@ def get_surname_from_author(author_item):
     print_in_yellow(f"Couldn't get surname from author using property. Using label instead: {author_surname}")
     return author_surname
 
-def get_oclc(hathitrust_id):
+def get_oclc_from_gb(gb_id):
+    url = f"https://books.google.com/books?id={gb_id}"
+    print("Attempting to get the OCLC link from:", url)
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        print_in_green("Response code 200. Parsing the HTML...")
+        page_content = str(response.content)
+        
+        if "/oclc/" in page_content:
+            oclc = re.findall(r'\/oclc\/([0-9]+?)&amp', page_content)[0]
+            print_in_green(f"Success. OCLC: {oclc}")
+            return oclc
+        print_in_red("OCLC link not found.")
+        return None
+
+    print_in_red(f"Response code not 200. Was: {response.status_code}")
+    return None
+
+def get_oclc(hathitrust_id, gb_id):
     if hathitrust_id and hathitrust_id != "None":
         return get_oclc_from_hathi(hathitrust_id)
     else:
@@ -607,8 +627,8 @@ def get_oclc(hathitrust_id):
                 # get everything after the last colon
                 oclc = external_identifier.split(":")[-1]
                 return oclc
-            else:
-                return None
+    if gb_id:
+        return get_oclc_from_gb(gb_id)
 
 def get_ark_identifier(hathitrust_full_text_id):
     ark_identifier = None
@@ -622,6 +642,7 @@ def get_ark_identifier(hathitrust_full_text_id):
 
 def get_openlibrary_id():
     openlibrary_id = get_data_from_xml("openlibrary_edition")
-    if not openlibrary_id:
-        openlibrary_id = get_data_from_xml("openlibrary_work")
+    # WORK SHOULD BE RETRIEVED SEPARATELY
+    # if not openlibrary_id:
+    #     openlibrary_id = get_data_from_xml("openlibrary_work")
     return openlibrary_id
