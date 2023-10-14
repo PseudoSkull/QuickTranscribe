@@ -1630,6 +1630,10 @@ def convert_italics(page):
 
         content = re.sub(italics_pattern, rf"''{match}''", content, count=1)
 
+    # to fix instances of this
+    content = content.replace("{{\" <nowiki>'</nowiki>}}", "{{\" '}}")
+    content = content.replace("{{<nowiki>'</nowiki> \"}}", "{{' \"}}")
+
     page["content"] = content
 
     return page
