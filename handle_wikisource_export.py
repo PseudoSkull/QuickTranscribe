@@ -4,6 +4,7 @@ import pywikibot
 from handle_web_downloads import download_file
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
+import webbrowser
 
 # https://ws-export.wmcloud.org/?format=pdf&lang=en&page=Firecrackers
 
@@ -20,8 +21,11 @@ def test_pdf_export(mainspace_work_title):
     folder = "projectfiles"
     filename = "export_test.pdf"
 
-    download_file(pdf_export_url, folder, filename)
+    # download_file(pdf_export_url, folder, filename)
 
+
+    # Open the URL in the default web browser
+    webbrowser.open(pdf_export_url)
 
     print_in_green("Download successful!")
     export_status = input("Did the export work? ")
