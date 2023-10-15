@@ -639,7 +639,7 @@ def generate_image_file_categories(image_type, country_name, main_commons_catego
     categories = []
     country_name = add_country_prefix(country_name)
     if image_type == "front cover":
-        categories.append(linkify(f"{category_prefix}Front cover of books"))
+        categories.append(linkify(f"{category_prefix}{year} book covers"))
     if image_type == "back cover":
         categories.append(linkify(f"{category_prefix}Back covers of books"))
     elif image_type == "frontispiece":

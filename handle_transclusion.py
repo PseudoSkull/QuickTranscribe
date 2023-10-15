@@ -527,7 +527,7 @@ def check_if_advertising_transcluded(page_data):
     for page in page_data:
         page_quality = page["page_quality"]
         page_marker = page["marker"]
-        if page_quality == "i" and (page_marker == "ad" or page_marker == "adv"):
+        if (page_quality == "i" or page_quality == "1" or page_quality == "0") and (page_marker == "ad" or page_marker == "adv"):
             return False
     return True
 

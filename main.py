@@ -293,6 +293,7 @@ common_publishers = {
     "Houghton": "Q390074",
     "Knopf": "Q1431868",
     "Little": "Q552959",
+    "Macmillan": "Q2108217",
     "McClurg": "Q4647618",
     "Putnam": "Q3093062",
     "Small": "Q7542583",

@@ -114,7 +114,7 @@ def get_page_data(transcription_text, page_break_string=None):
                 marker, page_format = get_page_format(marker, page_format)
                 read_page = False
                 page_quality = "0"
-                if page_num == "ad":
+                if page_num == "adv":
                     page_quality = "1"
                 content_as_string = ""
                 header = ""
