@@ -1539,16 +1539,49 @@ def correct_text(text_file, work_type):
     x = x.replace(" Tain't", " 'Tain't")
     x = x.replace("\"Til ", "\"I'll ")
     x = x.replace("\nn ", "\n\"")
+    x = x.replace(".\";\n", ".\"\n")
+    x = x.replace(".\":\n", ".\"\n")
+    x = x.replace(",\" i\n", ".\"\n")
+    x = x.replace(" 'I'll", "'ll")
+    x = x.replace("n\"t", "n't")
+    x = x.replace(" em ", " 'em ")
+    x = x.replace(" aman ", " a man ")
+    x = x.replace(" ofa ", " of a ")
+    x = x.replace(" aman.", " a man.")
+    x = x.replace("T\"d", "I'd")
+    x = x.replace(" hnny", " Jinny")
+    x = x.replace("—hnny", "—Jinny")
+    x = x.replace("—hm ", "—Jim ")
+    x = x.replace("\nhnny", "\nJinny")
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-z])hearted", r"\1-hearted", x)
+    x = re.sub(r"([a-z])humored", r"\1-humored", x)
+    x = re.sub(r"([a-z])humoured", r"\1-humoured", x)
+    x = re.sub(r"([a-z])\"I'll", r"\1'll", x)
+    x = re.sub(r"twenty([a-z])", r"twenty-\1", x)
+    x = re.sub(r"thirty([a-z])", r"thirty-\1", x)
+    x = re.sub(r"forty([a-z])", r"forty-\1", x)
+    x = re.sub(r"fifty([a-z])", r"fifty-\1", x)
+    x = re.sub(r"sixty([a-z])", r"sixty-\1", x)
+    x = re.sub(r"seventy([a-z])", r"seventy-\1", x)
+    x = re.sub(r"eighty([a-z])", r"eighty-\1", x)
+    x = re.sub(r"ninety([a-z])", r"ninety-\1", x)
     x = re.sub(r" \.([a-z])", r" \1", x)
     x = re.sub(r"in\? ([a-z])", r"in' \1", x)
     x = re.sub(r"in'\? ([a-z])", r"in' \1", x)
+    x = re.sub(r" the'([a-z])", r" the \1", x)
+    x = re.sub(r"([a-z])\n\n([a-z])", r"\1 \2", x)
 
     # Fix all instances of short quotes not beginning in "
     x = re.sub(r"(..\n\n)([A-Z][^\"|\n]+?)\"\n\n", r"\1\"\2\"\n\n", x)
     x = re.sub(r"\n\n\"(.+?)\" (.+?)\. '", r"\n\n\"\1\" \2. \"", x)
+    x = re.sub(r"\"(.+?)\" ([^\"]+?)\" (.)", r"\"\1\" \2 \"\3", x)
+    x = re.sub(r"([^\"]+?)([! , \? \.])' ([^\"]+?)\" ", r"\"\1\2\" \3 \"", x)
+
     
+    x = re.sub(r"\"(.+?)' Mr", r"\"\1\" Mr", x)
+    
+    x = x.replace("\\", "")
 
 
 
@@ -1583,6 +1616,46 @@ def correct_text(text_file, work_type):
         exit()
     print_in_green("OCR has been corrected!")
     return x
+
+"""
+" \n" -> "\n"
+"\nGoogle\n" -> "\n\n-\n\n"
+" Google\n" -> "\n\n-\n\n"
+
+
+"\n[0-9]+?...............\n" -> "\n\n-\n\n" etc.
+"\n........[0-9]+?\n" -> "\n\n-\n\n" etc.
+
+\n...................................................[0-9]+?\n where I stopped
+
+\n\n\n -> \n\n
+
+
+" [0-9]+?\n\n-\n" -> "\n\n-\n"
+
+
+
+
+"\nCHAPTER .+?\n\n" -> "\n\n-\n\n/ch//"
+
+
+\n\n\n -> \n\n
+
+
+"\n-\n\n-\n" -> "\n-\n"
+
+
+"([a-z])\.\n\n-\n\n([a-z])" -> "\1,\n\n-\n\n\2"
+
+"\.\n\n"([a-z])" -> ", \1"
+
+"""
+
+
+
+
+
+
 
 ## Clark only!
 

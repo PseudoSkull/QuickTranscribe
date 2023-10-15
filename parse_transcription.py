@@ -896,12 +896,12 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         smallcaps = "yes"
     else:
         smallcaps = "no"
-    if header:
-        header = f"\n{{{{TOC row 1-1-1|{{{{x-smaller|CHAPTER}}}}||{{{{x-smaller|PAGE}}}}}}"
-    else:
-        header = ""
+    # if header:
+    header = f"\n{{{{TOC row 1-1-1|{{{{asc|Chapter}}}}||{{{{x-smaller|Page}}}}}}"
+    # else:
+    #     header = ""
     # WHY DOES
-    toc_beginning = f"""{{{{c|{{{{larger|CONTENTS}}}}}}}}
+    toc_beginning = f"""{{{{c|{{{{larger|{{{{uc|Contents}}}}}}}}}}}}
 {{{{TOC begin}}}}{header}
 """
     print(f"TOC BEGINNING IS {toc_beginning} BEFORE")

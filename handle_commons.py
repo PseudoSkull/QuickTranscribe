@@ -124,7 +124,7 @@ def upload_file_to_commons(filename, file_text, file_path, transcription_page_ti
             #  upload_file_chunks(file_path, filename, transcription_page_title)
             print("File size greater than 3 MB. Uploading in chunks...")
             chunk_size = convert_to_megabytes(3)
-            file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False, ignore_warnings=True)
+            file_page.upload(source=file_path, chunk_size=chunk_size, comment=edit_summary(summary, transcription_page_title), report_success=False)
         else:
             # print("Pywikibot Version:", pywikibot.__version__)
             # pywikibot.config.base_dir = ('/Users/bobbybumps/Downloads/code_folder/core_stable_2/pywikibot/user-config.py')
