@@ -42,6 +42,7 @@ variables_with_descriptions = {
         "secpre": "prefix for subsection names",
         "firstsec": "first section is automatically after chapter",
         "gut": "Gutenberg ID",
+        "gutver": "Gutenberg version item",
         "rel": "related author",
         "ill": "illustrator",
         "ed": "editor",

@@ -4,6 +4,7 @@ import os
 import requests
 from handle_web_downloads import download_file
 from bs4 import BeautifulSoup
+from handle_wikisource_conf import get_year_from_date
 import copy
 
 def download_gutenberg_directory(directory_url, base_folder, new_folder=None):
@@ -210,10 +211,23 @@ def parse_gutenberg_text(gutenberg_id, base_folder):
         html_file.close()
     # print(html_data)
     
-base_folder = "projectfiles/gutenberg"
 
-gutenberg_id = "5172"
+def get_date_from_gutenberg(gutenberg_id):
+    gutenberg_url = f"https://www.gutenberg.org/ebooks/{gutenberg_id}"
+    print(f"Retrieving year and date from Gutenberg url {gutenberg_url}...")
+    response = requests.get(gutenberg_url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # <td itemprop="datePublished">Sep 1, 1997</td> find the element with "itemprop" value of datePublished, and get the text within it
+    date = soup.find("td", {"itemprop": "datePublished"}).get_text()
+    year = get_year_from_date(date)
 
-# download_gutenberg_files(gutenberg_id, base_folder)
-# download_gutenberg_ebooks(gutenberg_id, base_folder)
-parse_gutenberg_text(gutenberg_id, base_folder)
+    return year, date
+
+# base_folder = "projectfiles/gutenberg"
+
+# gutenberg_id = "5172"
+
+# # download_gutenberg_files(gutenberg_id, base_folder)
+# # download_gutenberg_ebooks(gutenberg_id, base_folder)
+# parse_gutenberg_text(gutenberg_id, base_folder)

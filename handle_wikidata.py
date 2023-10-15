@@ -8,6 +8,7 @@ from pywikibot.page import ItemPage
 from pywikibot import WbTime, SiteLink
 from hathi import get_hathitrust_id_from_commons_page, get_hathitrust_catalog_id, get_oclc_from_hathi, get_ark_identifier_from_hathi
 from handle_projectfiles import get_data_from_xml
+from handle_gutenberg import get_date_from_gutenberg
 from handle_wikisource_conf import update_conf_value
 from edit_mw import save_page
 import requests
@@ -422,6 +423,33 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 # def fill_base_work_item():
 
 
+def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, base_work, transcription_page_title, variable_name=None):
+    item, repo, item_id = create_wikidata_item(gutenberg_version_item, title, transcription_page_title, variable_name)
+    gutenberg_year, gutenberg_date = get_date_from_gutenberg(gutenberg_id)
+    add_description(item, f'{gutenberg_year} Gutenberg edition of work')
+
+    version_edition_or_translation = 'Q3331189'
+    english = 'Q1860'
+    digital_edition = 'Q1224889'
+    project_gutenberg = 'Q22673'
+
+    add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
+    add_property(repo, item, 'P407', english, 'language', transcription_page_title)
+    add_property(repo, item, 'P437', digital_edition, 'distribution format (digital edition)', transcription_page_title)
+    add_property(repo, item, 'P123', project_gutenberg, 'publisher (Project Gutenberg)', transcription_page_title)
+
+    add_property(repo, item, 'P629', base_work, 'edition of work', transcription_page_title)
+    add_property(repo, item, 'P50', author_item, 'author', transcription_page_title)
+    add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    if subtitle:
+        add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
+    add_property(repo, item, 'P577', handle_date(gutenberg_date), 'publication date', transcription_page_title)
+    add_property(repo, item, 'P2034', gutenberg_id, 'Gutenberg ebook ID', transcription_page_title)
+    
+    return item_id
+
+
+
 
 def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
@@ -430,9 +458,11 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     # item names for readability
     version_edition_or_translation = 'Q3331189'
     english = 'Q1860'
+    printed_matter = 'Q1261026'
 
     add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
+    add_property(repo, item, 'P437', printed_matter, 'distribution format (printed matter)', transcription_page_title)
     add_property(repo, item, 'P50', author_item, 'author', transcription_page_title)
     add_property(repo, item, 'P110', illustrator_item, 'illustrator', transcription_page_title)
     add_property(repo, item, 'P98', editor_item, 'editor', transcription_page_title)
