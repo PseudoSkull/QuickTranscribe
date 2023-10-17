@@ -149,6 +149,14 @@ hanced
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
+# MISTRESS MADCAP
+#  once more and spoke into the shadow's.
+# 'Jersey Blues'."
+# of fellow's.
+# [a-z]"\n
+# CHARITY nooded speechlessly.
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...

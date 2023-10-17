@@ -86,6 +86,7 @@ def initial_text_cleanup(text):
     text = text.replace("/brp/", "£")
     text = text.replace("/OE/", "Œ")
     text = text.replace("\nd\n", "\n/d/\n")
+    text = text.replace("\n/d/\n-", "\n/d/\n\n-")
     text = text.replace("\ns\n", "\n\n/sec/\n\n")
     text = re.sub(r"\n\n-\n\nn\n\n", r"\n/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)

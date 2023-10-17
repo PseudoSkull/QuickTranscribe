@@ -897,7 +897,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
     else:
         smallcaps = "no"
     # if header:
-    header = f"\n{{{{TOC row 1-1-1|{{{{asc|Chapter}}}}||{{{{x-smaller|Page}}}}}}"
+    header = f"\n{{{{TOC row 1-1-1|{{{{asc|Chapter}}}}||{{{{asc|Page}}}}}}}}"
     # else:
     #     header = ""
     # WHY DOES

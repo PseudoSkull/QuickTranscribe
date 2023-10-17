@@ -1546,17 +1546,59 @@ def correct_text(text_file, work_type):
     x = x.replace("n\"t", "n't")
     x = x.replace(" em ", " 'em ")
     x = x.replace(" aman ", " a man ")
+    x = x.replace(" wasonce ", " was once ")
+    x = x.replace(" whowas ", " who was ")
+    x = x.replace(" asthey ", " as they ")
     x = x.replace(" ofa ", " of a ")
+    x = x.replace(" the: ", " the ")
+    x = x.replace("The: ", "The ")
     x = x.replace(" aman.", " a man.")
     x = x.replace("T\"d", "I'd")
     x = x.replace(" hnny", " Jinny")
     x = x.replace("—hnny", "—Jinny")
     x = x.replace("—hm ", "—Jim ")
+    x = x.replace("\"\"", "\"")
     x = x.replace("\nhnny", "\nJinny")
+    x = x.replace("manceuvre", "man/oe/uvre")
+    x = x.replace("\"Tis ", "\"'Tis ")
+    x = x.replace("\"tis ", "'tis ")
+    x = x.replace(" Tis ", " 'Tis ")
+    x = x.replace(",*", ",'")
+    x = x.replace(" * ", " '")
+    x = x.replace(" f\"", "?\"")
+    x = x.replace(".?\"", "?\"")
+    x = x.replace("Vh", "Wh")
+    x = x.replace("\"ril ", "\"I'll ")
+    x = x.replace("—ril ", "—I'll ")
+    x = x.replace(" f' ", "? ")
+    x = x.replace(" w'hat", " what")
+    x = x.replace("—w'hat", "—what")
+    x = x.replace(" w'ith", " with")
+    x = x.replace("—w'ith", "—with")
+    x = x.replace(" w'hen", " when")
+    x = x.replace("—w'hen", " when")
+    x = x.replace(" aw'ay", " away")
+    x = x.replace(" w'as ", " was ")
+    x = x.replace(" w'ell", " well")
+    x = x.replace(" w'ere", " were")
+    x = x.replace(" w'ord", " word")
+    x = x.replace(" overthe ", " over the ")
+    x = x.replace("Hng", "ling")
+    x = x.replace(">'", "y")
+    x = x.replace("\n ,", "\n")
+    x = x.replace(" Hft", " lift")
+    x = x.replace("cHmb", "climb")
+    x = x.replace("Hght", "light")
+    x = x.replace(" intothe ", " into the ")
+    x = x.replace(" Twas", " 'Twas")
+    x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
+    x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
+
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-z])hearted", r"\1-hearted", x)
     x = re.sub(r"([a-z])humored", r"\1-humored", x)
     x = re.sub(r"([a-z])humoured", r"\1-humoured", x)
+    x = re.sub(r"([a-z])looking", r"\1-looking", x)
     x = re.sub(r"([a-z])\"I'll", r"\1'll", x)
     x = re.sub(r"twenty([a-z])", r"twenty-\1", x)
     x = re.sub(r"thirty([a-z])", r"thirty-\1", x)
@@ -1580,7 +1622,7 @@ def correct_text(text_file, work_type):
 
     
     x = re.sub(r"\"(.+?)' Mr", r"\"\1\" Mr", x)
-    
+    x = x.replace("  ", " ")
     x = x.replace("\\", "")
 
 
@@ -1619,9 +1661,16 @@ def correct_text(text_file, work_type):
 
 """
 " \n" -> "\n"
+"\nDigitized by\n" -> "\n\n-\n\n"
+"\nOriginal from\n" -> "\n\n-\n\n"
 "\nGoogle\n" -> "\n\n-\n\n"
 " Google\n" -> "\n\n-\n\n"
+"\n{title}\n" -> "\n\n-\n\n"
+"\n{title} " -> "\n\n-\n\n"
+"\n{title}—" -> "\n\n-\n\n"
+"\n{title}" -> "\n\n-\n\n"
 
+"\nDigitized by .+?\n" -> "\n\n-\n\n"
 
 "\n[0-9]+?...............\n" -> "\n\n-\n\n" etc.
 "\n........[0-9]+?\n" -> "\n\n-\n\n" etc.
@@ -1648,6 +1697,8 @@ def correct_text(text_file, work_type):
 "([a-z])\.\n\n-\n\n([a-z])" -> "\1,\n\n-\n\n\2"
 
 "\.\n\n"([a-z])" -> ", \1"
+
+"——" -> "/b2/"
 
 """
 
