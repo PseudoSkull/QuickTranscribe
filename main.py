@@ -149,12 +149,21 @@ hanced
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
 
 
-# MISTRESS MADCAP
-#  once more and spoke into the shadow's.
-# 'Jersey Blues'."
-# of fellow's.
-# [a-z]"\n
-# CHARITY nooded speechlessly.
+# AROUND THE WORLD IN EIGHTY DAYS
+# https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
+# Wikidata: oloc -> Original location
+# Wikidata: Make translator a thing
+# Wikidata: Make editor a global thing, just from having an introduction by a person (not having to label it in transclusion)
+# Commons: If Wikidata item has a Commons category already use that one
+# Parse: /img/f=/caption
+# Parse: TOC, Think of a way to make titles library case or just do it yourself
+## .lower().capitalize() then proofread
+# Parse: Make sure more than two pages of TOC works
+# Index: Editor goes here from global
+# Transclusion: Make Translator a thing in the header
+# Transclusion: Make sure to include contribution by introducer
+# Transclusion: Chapter None -> Actual title
+
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
@@ -815,7 +824,7 @@ expected_progress = "added_to_new_texts"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    add_to_new_texts(mainspace_work_title, title, author, year)
+    add_to_new_texts(mainspace_work_title, title, author, original_year)
 
     process_break()
 

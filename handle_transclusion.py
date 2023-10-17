@@ -674,7 +674,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
 }}"""
 
 
-    copyright_template = generate_copyright_template(year, author_death_year, current_year) # for now, some logic later
+    copyright_template = generate_copyright_template(original_year, author_death_year, current_year) # for now, some logic later
     # additional_copyright_parameters = f"|{author_death_year}" # for now, some logic later
 
     # categories = ["Ready for export"] # for now, some logic later
