@@ -151,6 +151,8 @@ hanced
 
 # AROUND THE WORLD IN EIGHTY DAYS
 # https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
+# Why is the /Page 26/ and /Page 20/ illustration together?
+# 4,000l. vs. 1000
 # Wikidata: oloc -> Original location
 # Wikidata: Make translator a thing
 # Wikidata: Make editor a global thing, just from having an introduction by a person (not having to label it in transclusion)
