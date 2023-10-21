@@ -156,6 +156,7 @@ hanced
 # Wikidata: oloc -> Original location
 # Wikidata: Make translator a thing
 # Wikidata: Make editor a global thing, just from having an introduction by a person (not having to label it in transclusion)
+# Wikidata: Translator in Gutenberg item
 # Commons: If Wikidata item has a Commons category already use that one
 # Parse: /img/f=/caption
 # Parse: TOC, Think of a way to make titles library case or just do it yourself
@@ -177,6 +178,7 @@ hanced
 # OpenLibrary work often has Library Thing ID and Goodreads ID
 # For example: https://openlibrary.org/works/OL144822W for goodreads
 
+# Index chapters of work: /ibid/ tag
 # Figure out what to do about film transcriptions
 # Ready for export functionality after transclusion
 # Try and work on short story collections by multiple authors
