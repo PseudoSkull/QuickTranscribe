@@ -35,6 +35,8 @@ british_english_words = {
 
 ise_ize_variants = {
     "analyse": "analyze",
+    "anglicise": "anglicize",
+    "apologise": "apologize",
     "catechise": "catechize",
     "civilisation": "civilization",
     "civilise": "civilize",
@@ -47,7 +49,15 @@ ise_ize_variants = {
     "galvanise": "galvanize",
     "generalise": "generalize",
     "harmonise": "harmonize",
+    "idealise": "idealize",
     "idolise": "idolize",
+    "immobilise": "immobilize",
+    "immortalise": "immortalize",
+    "improvise": "improvize",
+    "immunise": "immunize",
+    "individualise": "individualize",
+    "industrialise": "industrialize",
+    "initialise": "initialize",
     "itemise": "itemize",
     "legalise": "legalize",
     "localise": "localize",
@@ -60,10 +70,13 @@ ise_ize_variants = {
     "oxidise": "oxidize",
     "patronise": "patronize",
     "realise": "realize",
+    "realising": "realizing",
     "recognise": "recognize",
+    "recognising": "recognizing",
     "scrutinise": "scrutinize",
     "specialise": "specialize",
     "stigmatise": "stigmatize",
+    "symbolise": "symbolize",
     "sympathise": "sympathize",
     "utilise": "utilize",
 }
@@ -76,5 +89,8 @@ transcription_text = transcription_page.text
 
 for key,value in ise_ize_variants.items():
     transcription_text = transcription_text.replace(key, value)
+    root = key[:-2]
+    transcription_text = transcription_text.replace(f"{root}sing", f"{root}zing")
+    transcription_text = transcription_text.replace(f"{root}sation", f"{root}zation")
 
 save_page(transcription_page, site, transcription_text, "Replacing certain British English words with American English in Gutenberg-based transcription layer...")

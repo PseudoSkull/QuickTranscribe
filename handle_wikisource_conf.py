@@ -317,3 +317,23 @@ def find_form_section(page_text, tag):
     form = get_regex_match(page_text, rf"/{tag}form//\n<nowiki>\n(.*?)\n</nowiki>\n//{tag}form/", "form text", dotall=True)
 
     return form
+
+def get_editor(work_data, transcription_text):
+    print("Getting editor...")
+    workless_chapters = [
+        "concl",
+        "fwd",
+        "int",
+        "intr",
+        "pref",
+        "prol",
+    ]
+    
+    editor = get_work_data(work_data, "editor")
+    
+    if not editor:
+        for type_of_chapter in workless_chapters:
+            editor = get_regex_match(transcription_text, rf"/{type_of_chapter}/con=(.+?)/", "editor")
+            if editor:
+                break
+    return editor

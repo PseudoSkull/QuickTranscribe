@@ -434,6 +434,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         "chrn": "Chronology",
         "concl": "Conclusion",
         "fwd": "Foreword",
+        "int": "Introduction",
         "intr": "Introduction",
         "pref": "Preface",
         "prol": "Prologue",

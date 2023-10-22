@@ -19,7 +19,7 @@ from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, 
 from edit_mw import save_page, get_author_page_title, remove_esl_and_ssl_from_backlinks
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier, get_openlibrary_id, create_gutenberg_version_item
-from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section
+from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section, get_editor
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
@@ -96,7 +96,6 @@ hanced
 # Parse: /ix4/ tag
 # Parse: Section linking within chapter?
 # Parse: \ symbol to escape the / symbol
-# Parse: /brp/ British Pound symbol
 # /cr/ - cross symbol
 # /ast/ - * symbol
 # Parse: fine block continuation across pages
@@ -292,6 +291,7 @@ common_locations = {
     "London": "Q84",
     "New York": "Q60",
     "New York City": "Q60",
+    "Paris": "Q90",
     "Philadelphia": "Q1345",
     "San Francisco": "Q62",
     "Toronto": "Q172",
@@ -442,8 +442,11 @@ author_page_title = get_author_page_title(author)
 illustrator = get_work_data(work_data, "illustrator")
 illustrator_page_title = get_author_page_title(illustrator)
 
-editor = get_work_data(work_data, "editor")
+editor = get_editor(work_data, transcription_text)
 editor_page_title = get_author_page_title(editor)
+
+translator = get_work_data(work_data, "translator")
+translator_page_title = get_author_page_title(translator)
 
 related_author = get_work_data(work_data, "related author")
 related_author_page_title = get_author_page_title(related_author)
@@ -455,7 +458,10 @@ else:
     series_name = None
 
 location = get_work_data(work_data, "location of publication", common_locations)
-country = get_value_from_property(location, "P17")
+original_location = get_work_data(work_data, "original location", common_locations)
+if not original_location:
+    original_location = location
+country = get_value_from_property(original_location, "P17")
 country_name = get_country_name(country)
 
 work_type = get_work_data(work_data, "work type", common_work_types)
@@ -493,6 +499,7 @@ else:
 
 illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
 editor_item = get_wikidata_item_from_wikisource(editor_page_title)
+translator_item = get_wikidata_item_from_wikisource(translator_page_title)
 related_author_item = get_wikidata_item_from_wikisource(related_author_page_title)
 
 
@@ -572,12 +579,12 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     if gutenberg_id:
         print("Gutenberg ID found! Creating Gutenberg version item...")
-        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, base_work, transcription_page_title, variable_name="gutver")
+        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name="gutver")
         add_version_to_base_work_item(base_work, gutenberg_version_item)
 
     

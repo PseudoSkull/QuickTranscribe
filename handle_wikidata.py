@@ -423,7 +423,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 # def fill_base_work_item():
 
 
-def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, base_work, transcription_page_title, variable_name=None):
+def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name=None):
     item, repo, item_id = create_wikidata_item(gutenberg_version_item, title, transcription_page_title, variable_name)
     gutenberg_year, gutenberg_date = get_date_from_gutenberg(gutenberg_id)
     add_description(item, f'{gutenberg_year} Gutenberg edition of work')
@@ -440,6 +440,7 @@ def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, s
 
     add_property(repo, item, 'P629', base_work, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P50', author_item, 'author', transcription_page_title)
+    add_property(repo, item, 'P655', translator_item, 'translator', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
@@ -451,7 +452,7 @@ def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, s
 
 
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
 
@@ -465,6 +466,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P437', printed_matter, 'distribution format (printed matter)', transcription_page_title)
     add_property(repo, item, 'P50', author_item, 'author', transcription_page_title)
     add_property(repo, item, 'P110', illustrator_item, 'illustrator', transcription_page_title)
+    add_property(repo, item, 'P655', translator_item, 'translator', transcription_page_title)
     add_property(repo, item, 'P98', editor_item, 'editor', transcription_page_title)
     add_property(repo, item, 'P629', base_work, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P393', edition_number, 'edition number', transcription_page_title)
