@@ -18,6 +18,7 @@ variables_with_descriptions = {
         "y": "date of publication",
         "oy": "original date of publication",
         "loc": "location of publication",
+        "oloc": "original location",
         "pub": wikidata_item_of("publisher"),
         "f": "filename",
         "au": "author",
@@ -45,6 +46,7 @@ variables_with_descriptions = {
         "gutver": "Gutenberg version item",
         "rel": "related author",
         "ill": "illustrator",
+        "tr": "translator",
         "ed": "editor",
         "rel": "related author",
         "ser": "series",
@@ -111,7 +113,6 @@ gen=
 ia=
 htt=
 dl=
-dlt=
 
 beg=sc
 ch=rom

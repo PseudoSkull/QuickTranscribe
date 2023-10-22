@@ -151,7 +151,7 @@ hanced
 
 # AROUND THE WORLD IN EIGHTY DAYS
 # https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
-# Why is the /Page 26/ and /Page 20/ illustration together? Going to fix that.s
+# Why is the /Page 26/ and /Page 20/ illustration together? Going to fix that.
 # 4,000l. vs. 1000
 # Wikidata: oloc -> Original location
 # Wikidata: Make translator a thing
@@ -177,8 +177,7 @@ hanced
 
 # OpenLibrary work often has Library Thing ID and Goodreads ID
 # For example: https://openlibrary.org/works/OL144822W for goodreads
-
-# Index chapters of work: /ibid/ tag
+# Index chapters of work and elsewhere: /ibid/ tag
 # Figure out what to do about film transcriptions
 # Ready for export functionality after transclusion
 # Try and work on short story collections by multiple authors
