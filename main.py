@@ -150,12 +150,6 @@ hanced
 
 # AROUND THE WORLD IN EIGHTY DAYS
 # https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
-# Why is the /Page 26/ and /Page 20/ illustration together? Going to fix that.
-# 4,000l. vs. 1000
-# Wikidata: oloc -> Original location
-# Wikidata: Make translator a thing
-# Wikidata: Make editor a global thing, just from having an introduction by a person (not having to label it in transclusion)
-# Wikidata: Translator in Gutenberg item
 # Commons: If Wikidata item has a Commons category already use that one
 # Parse: /img/f=/caption
 # Parse: TOC, Think of a way to make titles library case or just do it yourself
@@ -174,6 +168,7 @@ hanced
 # Transclusion: ../ is only going one level down for parts
 # 
 
+# Make it so that filename is checked specifically for the mentioned IA source
 # OpenLibrary work often has Library Thing ID and Goodreads ID
 # For example: https://openlibrary.org/works/OL144822W for goodreads
 # Index chapters of work and elsewhere: /ibid/ tag
@@ -607,7 +602,7 @@ expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title, author_surname)
+    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title, author_surname, base_work, translator)
 
     commons_category_page = pywikibot.Page(commons_site, commons_category)
     save_page(commons_category_page, commons_site, commons_category_text, f"Creating Commons category for book {title} that will be filled shortly...", transcription_page_title)

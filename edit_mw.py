@@ -219,10 +219,11 @@ def fix_backlinks(site, page_title, new_page_title):
         save_page(page, site, page_text, f"Removing link to deleted/moved page")
 
 
-def get_title_hierarchy(page_title):
+def get_title_hierarchy(page_title, translator):
+    translator_surname = translator.split(" ")[-1]
     if "(" in page_title:
         parens = page_title.split("(")[1][:-1]
-        if "," in parens or "." in parens or "&" in parens or "Company" in parens or parens.isdigit():
+        if "," in parens or "." in parens or "&" in parens or "Company" in parens or parens.isdigit() or translator_surname in parens:
             return "version"
         return "disambig"
     return "work"

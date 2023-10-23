@@ -4,7 +4,7 @@ from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
 from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
-from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item
+from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item, get_wikidata_item_from_page
 import sys
 import os
 
@@ -241,8 +241,8 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
 
     return categories
 
-def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname):
-    title_hierarchy = get_title_hierarchy(mainspace_work_title)
+def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator):
+    title_hierarchy = get_title_hierarchy(mainspace_work_title, translator)
     if title_hierarchy == "disambig":
         category_title = mainspace_work_title
     else:
@@ -256,14 +256,23 @@ def generate_commons_category_title(category_namespace_prefix, title, mainspace_
 
     if page_exists(category_title, commons_site):
         # either title hierarchy is "work" or "version"
-        print_in_yellow(f"Commons page for {category_title} already exists. Adding author surname to category title to disambiguate...")
-        category_title += f" ({author_surname})"
+        category_page = pywikibot.Page(commons_site, category_title)
+        category_data_item = get_wikidata_item_from_page(category_page)
+        # print(category_data_item)
+        # print(base_work_item)
+        if category_data_item != base_work_item:
+            category_main_topic_property = "P301"
+            category_data_item = get_value_from_property(category_data_item, category_main_topic_property)
+        if category_data_item != base_work_item:
+            print_in_yellow(f"Commons page for {category_title} already exists and not connected to base work item. Adding author surname to category title to disambiguate...")
+
+            category_title += f" ({author_surname})"
 
     return category_title, category_title_no_prefix
 
 
-def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title, author_surname):
-    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname)
+def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title, author_surname, base_work_item, translator):
+    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator)
     print(f"Generating Commons category {category_page_title}...")
 
     # create subcategories

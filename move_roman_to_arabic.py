@@ -19,12 +19,12 @@ wikidata_site = pywikibot.Site('wikidata', 'wikidata')
 
 # transcription_text = transcription_page.text
 
-chapter_num = 3
+chapter_num = 1
 
 # Print the titles of the subpages
 while 1:
     roman_chapter_num = roman.toRoman(chapter_num)
-    subpage_title = f"{mainspace_work_title}/Chapter {roman_chapter_num}"
+    subpage_title = f"{mainspace_work_title}/{roman_chapter_num}"
     subpage = pywikibot.Page(site, subpage_title)
     move_summary = edit_summary(f"Migrating roman chapter nums to arabic, to modernize titles and prepare for transclusion")
     if subpage.exists():

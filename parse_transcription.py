@@ -82,6 +82,7 @@ chapter_tags = [
     "concl",
     "contch",
     "fwd",
+    "int",
     "intr",
     "pref",
     "prol",
@@ -1706,6 +1707,8 @@ def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
             page_anchor = "frontis"
         elif page_number_to_parse == "cov":
             page_anchor = "cover"
+        else:
+            page_anchor = "x"
     else:
         internal_chapter_name = get_internal_chapter_name(chapter)
         chapter_link = f"{mainspace_work_title}/{internal_chapter_name}"

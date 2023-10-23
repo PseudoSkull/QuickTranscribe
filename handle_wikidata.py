@@ -516,6 +516,9 @@ def add_version_to_base_work_item(base_work, version_item):
 
 # add_to_works_item(base_work, version_item)
 
+def get_wikidata_item_from_page(page):
+    return page.data_item().title()
+
 def get_wikidata_item_from_wikisource(page_title):
     print(f"Getting Wikidata item of Wikisource page \"{page_title}\"...")
 
