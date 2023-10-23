@@ -416,6 +416,8 @@ def parse_chapter_settings(chapter_settings):
             chapter_settings_data["auxiliary"] = True
         if "t=" in setting:
             chapter_settings_data["title"] = setting.split("=")[1]
+        if "con=" in setting:
+            chapter_settings_data["contributor"] = setting.split("=")[1]
 
     return chapter_settings_data
 
@@ -496,6 +498,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["title"] = "Advertisements"
             chapter["display_title"] = "Advertisements"
             chapter["auxiliary"] = False
+            chapter["contributor"] = None
             chapter["page_num"] = page_num
             chapter["hidden"] = True # the important bit
             chapter["refs"] = False # for now
@@ -530,6 +533,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     
                     chapter_tag = chapter_tag_without_slashes
                     chapter_settings = chapter_parameters["chapter_settings"]
+
                     chapter_settings = parse_chapter_settings(chapter_settings)
 
                     chapter_title = chapter_parameters["chapter_title"]
@@ -597,6 +601,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
                     chapter["hidden"] = False
                     chapter["auxiliary"] = False
+                    chapter["contributor"] = None
                     chapter["refs"] = False # for now
                     chapter["part_num"] = part_num
                     chapter["has_sections"] = False
@@ -609,6 +614,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["auxiliary"] = True
                         if "title" in chapter_settings:
                             chapter["title"] = chapter_settings["title"]
+                        if "contributor" in chapter_settings:
+                            chapter["contributor"] = chapter_settings["contributor"]
                     
                     if chapter["auxiliary"]:
                         chapter["prefix"] = None
@@ -716,7 +723,7 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         #     front_matter["part_num"] = 0
         #     front_matter["page_num"] = 0
         # print(f"Type of chapter page num: {type(chapter_page_num)}. Type of page num: {type(page_num)} Type of next chapter page num: {type(next_chapter_page_num)}")
-        if chapter_page_num < page_num and next_chapter_page_num > page_num:
+        if chapter_page_num <= page_num and next_chapter_page_num > page_num:
             return chapter
 
 def get_actual_page_num(chapter_page_num, page_data):

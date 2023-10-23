@@ -150,7 +150,7 @@ hanced
 
 # AROUND THE WORLD IN EIGHTY DAYS
 # https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
-# Parse: NEW WORKFLOW: Multiple images in a chapter with page # "img" get iterated per chapter. img2, img3 etc.
+# Parse: Getting chapter data, contributor column
 # Parse: /img/f=/caption
 # Parse: TOC, Think of a way to make titles library case or just do it yourself
 ## .lower().capitalize() then proofread
@@ -168,6 +168,7 @@ hanced
 # Transclusion: ../ is only going one level down for parts
 # 
 
+# Parse: NEW WORKFLOW: Multiple images in a chapter with page # "img" get iterated per chapter. img2, img3 etc.
 # Make it so that filename is checked specifically for the mentioned IA source
 # OpenLibrary work often has Library Thing ID and Goodreads ID
 # For example: https://openlibrary.org/works/OL144822W for goodreads
@@ -778,7 +779,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 print(f"Outside function: editor WS name: {editor}, publisher name: {publisher_name}")
 
 if not at_expected_progress:
-    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, illustrator, editor, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
+    create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, illustrator, editor, translator, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
 
     process_break()
 

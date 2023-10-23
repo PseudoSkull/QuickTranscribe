@@ -299,7 +299,7 @@ def get_title_page(page_data):
     print_in_red("ERROR: No title page found. Please insert /title/ somewhere in the transcription to indicate which page is the title page.")
     exit()
 
-def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, editor_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
+def create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author_WS_name, illustrator_WS_name, editor_WS_name, translator_WS_name, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc):
     print(f"In function: editor WS name: {editor_WS_name}, publisher name: {publisher_name}")
     # exit()
     summary = "Creating index page..."
@@ -319,6 +319,11 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
     else:
         editor_display = ""
 
+    if translator_WS_name:
+        translator_display = f"[[Author:{translator_WS_name}|]]"
+    else:
+        translator_display = ""
+
     title_page = get_title_page(page_data)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book
@@ -326,7 +331,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Language=en
 |Volume=
 |Author=[[Author:{author_WS_name}|]]
-|Translator=
+|Translator={translator_display}
 |Editor={editor_display}
 |Illustrator={illustrator_display}
 |School=
