@@ -150,7 +150,7 @@ hanced
 
 # AROUND THE WORLD IN EIGHTY DAYS
 # https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
-# Commons: If Wikidata item has a Commons category already use that one
+# Parse: NEW WORKFLOW: Multiple images in a chapter with page # "img" get iterated per chapter. img2, img3 etc.
 # Parse: /img/f=/caption
 # Parse: TOC, Think of a way to make titles library case or just do it yourself
 ## .lower().capitalize() then proofread
