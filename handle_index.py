@@ -19,6 +19,8 @@ marker_definitions = {
     "fro": "frontis",
     "ha": "half",
     "i": "img",
+    "i2": "img2", # add functionality for iteration later
+    "i3": "img3",
     "ill": "illus",
     "not": "note",
     "po": "poem",

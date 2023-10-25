@@ -79,6 +79,7 @@ def generate_type_category(work_type_name, country):
             demonym = demonym_text
         else:
             print_in_red(f"Demonym found for {country}, but it wasn't in English.")
+            demonym = "French"
             process_break()
     else:
         print_in_red(f"No demonym found for {country}.")
@@ -411,7 +412,7 @@ def generate_chapter_categories(chapter):
     return categories
 
 
-def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts):
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts):
     number_of_chapters = len(chapters)
     part_prefix = None
     for overall_chapter_num, chapter in enumerate(chapters):
@@ -465,11 +466,14 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 
         chapter_categories = generate_chapter_categories(chapter)
 
+        if chapter_internal_name == "Chapter None":
+            chapter_internal_name = chapter_name
+
         chapter_page_title = f"{mainspace_work_title}/{chapter_internal_name}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
         chapter_text = f"""{{{{header
  | title      = {title_display}
- | author     = {author_header_display}
+ | author     = {author_header_display}{translator_display}
  | section    = {chapter_name}
  | previous   = {previous_chapter_display}
  | next       = {next_chapter_display}{editor_display}
@@ -488,6 +492,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             continue
         else:
             edit_summary = f"Transcluding {chapter_name} ({chapter_internal_name})..."
+        
         print(chapter_page_title)
         print(chapter_text)
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
@@ -555,7 +560,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, transcription_text, chapters_are_subpages_of_parts):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, transcription_text, chapters_are_subpages_of_parts):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -594,7 +599,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         author_header_display = author_WS_name # for now. There will be logic here later.
     defaultsort = generate_defaultsort_tag(mainspace_work_title, mainspace_work_title=True)
     # disambiguation_pointer = f"{{{{other versions|{title}}}}}\n" # for now. There will be logic here later.
-    title_hierarchy = get_title_hierarchy(mainspace_work_title)
+    title_hierarchy = get_title_hierarchy(mainspace_work_title, translator)
     print(title_hierarchy)
     if title_hierarchy == "disambig":
         disambiguation_pointer = f"{{{{similar|{title}}}}}\n"
@@ -637,11 +642,17 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     else:
         editor_display = ""
 
+    if translator:
+        translator_display = f"""
+ | translator = {translator}"""
+    else:
+        translator_display = ""
+
 
 
     front_matter_header = f"""{disambiguation_pointer}{{{{header
  | title      = {title}
- | author     = {author_header_display}
+ | author     = {author_header_display}{translator_display}
  | section    = 
  | previous   = 
  | next       = {first_chapter_display}
@@ -736,4 +747,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
-        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts)
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts)

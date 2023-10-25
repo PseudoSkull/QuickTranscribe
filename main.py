@@ -116,8 +116,6 @@ hanced
 # NATHAN HALE (JOHNSTON)
 # Parse: dii - automatically
 # Parse: If dii and /di/ is arbitrary, do not count that as a dii. Just convert it.
-# Parse: /intr/ tag = introduction, and allow // for name
-# Parse: /vign/ - img type
 # Parse: /cap// - image caption of previous or next image
 # Parse: /bc/ is automatically styled as fine block and width 20em
 # Parse: /cap/ty=2/ Type = num settings -> add class of what the normal class is + "2". And add that to the CSS as well.
@@ -146,19 +144,6 @@ hanced
 # Commons: CHANGE TO FLEURON rather than vignette
 # Commons: Figure out a way to throw in image filenames that already exist, and then go through these and categorize them in Commons
 # Parse: MAKE SURE {{nop}} in POEMS IS MAKING IT BECOME STANZA
-
-
-# AROUND THE WORLD IN EIGHTY DAYS
-# https://commons.wikimedia.org/wiki/Category:Illustrations_from_Around_the_World_in_Eighty_Days_by_Neuville_and_Benett
-# Parse: Getting chapter data, contributor column
-# Parse: /img/f=/caption
-# Parse: TOC, Think of a way to make titles library case or just do it yourself
-## .lower().capitalize() then proofread
-# Parse: Make sure more than two pages of TOC works
-# Index: Editor goes here from global
-# Transclusion: Make Translator a thing in the header
-# Transclusion: Make sure to include contribution by introducer
-# Transclusion: Chapter None -> Actual title
 
 
 
@@ -284,6 +269,7 @@ common_locations = {
     "Atlanta": "Q23556",
     "Boston": "Q100",
     "Chicago": "Q1297",
+    "Honolulu": "Q18094",
     "London": "Q84",
     "New York": "Q60",
     "New York City": "Q60",
@@ -776,7 +762,6 @@ first_page = get_first_page(index_pagelist)
 transcription_text = transcription_page.text
 expected_progress = "index_page_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
-print(f"Outside function: editor WS name: {editor}, publisher name: {publisher_name}")
 
 if not at_expected_progress:
     create_index_page(index_page_title, index_pagelist, transcription_text, mainspace_work_title, title, author, illustrator, editor, translator, publisher_name, year, file_extension, location_name, version_item, transcription_page_title, page_data, filename, toc_is_auxiliary, toc)
@@ -811,7 +796,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, transcription_text, chapters_are_subpages_of_parts)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, transcription_text, chapters_are_subpages_of_parts)
 
     create_redirects(mainspace_work_title, subtitle)
 

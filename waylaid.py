@@ -1592,6 +1592,7 @@ def correct_text(text_file, work_type):
     x = x.replace("Hght", "light")
     x = x.replace(" intothe ", " into the ")
     x = x.replace(" Twas", " 'Twas")
+    x = x.replace("\"m ", "I'm ")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
 
