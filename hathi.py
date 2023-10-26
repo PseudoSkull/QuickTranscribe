@@ -1,17 +1,12 @@
 # WS_collection
 import mwparserfromhell
 import pywikibot
-# print("pywikibot is imported from:", pywikibot.__file__)
 import re
 import requests
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break, save_html_to_file
 from bs4 import BeautifulSoup
 import os
 
-# REMINDER: Get the Hathi ORC and download them into text files
-
-# Perform further processing or download the image using the obtained source URL
-# ...
 
 """
 Pywikibot: From the Commons page of the PDF file, get the HathiTrust ID from the Book template using mwparserfromhell to parse this template. The HathiTrust ID is in the second parameter: "uc1.b3834650":
