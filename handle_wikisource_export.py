@@ -21,8 +21,6 @@ def test_pdf_export(mainspace_work_title):
     folder = "projectfiles"
     filename = "export_test.pdf"
 
-    # download_file(pdf_export_url, folder, filename)
-
 
     # Open the URL in the default web browser
     webbrowser.open(pdf_export_url)
@@ -34,7 +32,7 @@ def test_pdf_export(mainspace_work_title):
         print_in_yellow("Export failed. Skipping step...")
         return
     else:
-        print_in_green("Export successful! Adding category [[Category:Ready for export]] to mainspace work page...s")
+        print_in_green("Export successful! Adding category [[Category:Ready for export]] to mainspace work page...")
 
         site = pywikibot.Site("en", "wikisource")
         mainspace_work_page = pywikibot.Page(site, mainspace_work_title)
