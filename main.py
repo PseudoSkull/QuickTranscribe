@@ -62,21 +62,6 @@ import datetime
 #: <div class="index-chapter"></div>, formatting_continuations
 #: Make the lines hang indent?
 # IN A SIMILAR VEIN, do the /pl// (pagelink) tags.
-# Parse: Hyphenation template for, specifically, instances of this:
-"""
-en-
-
--i
-
-/img//WHITESIDE MOUNTAIN
-
-—
-
--
-
-hanced
-"""
-
 
 
 
