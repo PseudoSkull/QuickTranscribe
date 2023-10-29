@@ -132,6 +132,10 @@ import datetime
 
 
 
+# WHEN THE SLEEPER WAKES
+# Wikidata: gutia
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -270,6 +274,7 @@ common_publishers = {
     "Dodd": "Q5287721",
     "Doubleday": "Q1251563",
     "Grosset": "Q3117078",
+    "Harper": "Q3127696",
     "Houghton": "Q390074",
     "Knopf": "Q1431868",
     "Little": "Q552959",
