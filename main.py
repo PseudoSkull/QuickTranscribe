@@ -699,6 +699,8 @@ if chapters_are_subpages_of_parts == None and parts_exist:
 if chapter_prefix == "Book" or chapter_prefix == "Part":
     chapters_are_subpages_of_parts = False
 
+if chapters_are_subpages_of_parts == "n":
+    chapters_are_subpages_of_parts = False
 
 
 chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name)

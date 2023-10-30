@@ -220,7 +220,10 @@ def fix_backlinks(site, page_title, new_page_title):
 
 
 def get_title_hierarchy(page_title, translator):
-    translator_surname = translator.split(" ")[-1]
+    if translator:
+        translator_surname = translator.split(" ")[-1]
+    else:
+        translator_surname = "No surname"
     if "(" in page_title:
         parens = page_title.split("(")[1][:-1]
         if "," in parens or "." in parens or "&" in parens or "Company" in parens or parens.isdigit() or translator_surname in parens:

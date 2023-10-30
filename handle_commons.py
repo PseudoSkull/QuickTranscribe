@@ -257,13 +257,16 @@ def generate_commons_category_title(category_namespace_prefix, title, mainspace_
     if page_exists(category_title, commons_site):
         # either title hierarchy is "work" or "version"
         category_page = pywikibot.Page(commons_site, category_title)
-        category_data_item = get_wikidata_item_from_page(category_page)
+        try:
+            category_data_item = get_wikidata_item_from_page(category_page)
+        except:
+            category_data_item = None
         # print(category_data_item)
         # print(base_work_item)
         if category_data_item != base_work_item:
             category_main_topic_property = "P301"
-            category_data_item = get_value_from_property(category_data_item, category_main_topic_property)
-        if category_data_item != base_work_item:
+            if category_data_item:
+                category_data_item = get_value_from_property(category_data_item, category_main_topic_property)
             print_in_yellow(f"Commons page for {category_title} already exists and not connected to base work item. Adding author surname to category title to disambiguate...")
 
             category_title += f" ({author_surname})"
