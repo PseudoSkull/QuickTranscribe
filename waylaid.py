@@ -1595,6 +1595,9 @@ def correct_text(text_file, work_type):
     x = x.replace("\"m ", "I'm ")
     x = x.replace("\"\"", "\"")
     x = x.replace("Anda ", "And a ")
+    x = x.replace(" zs ", " ''is'' ")
+    x = x.replace(" anda ", " and a ")
+    x = x.replace(" 'with ", " with ")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
 
