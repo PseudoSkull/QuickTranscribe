@@ -99,9 +99,18 @@ def get_english_plural(word):
         "z",
     ]
 
+    ies_endings = [
+        "y",
+    ]
+
     for ending in es_endings:
         if word.endswith(ending):
             return f"{word}es"
+    
+    for ending in ies_endings:
+        if word.endswith(ending):
+            return f"{word[:-1]}ies"
+    
     return f"{word}s"
 
 

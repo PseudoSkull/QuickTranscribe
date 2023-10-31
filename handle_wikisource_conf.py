@@ -53,6 +53,7 @@ variables_with_descriptions = {
         "ded": "dedication",
         "edno": "edition number",
         "set": "narrative location",
+        "alt": "alternative title",
         "progress": "QT progress flag",
     }
 

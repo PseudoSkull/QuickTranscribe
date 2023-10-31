@@ -144,6 +144,18 @@ import datetime
 # fol=Mistress Madcap
 
 
+
+
+
+# DIARY OF ONE MONTH IN HONOLULU
+# Commons: scan=y
+# ch=card -> completely different setup
+# pre=Day
+# type=diary
+# nonfiction
+# Wikidata/Redirects: alt=
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -253,6 +265,7 @@ common_genres = {
 }
 
 common_work_types = {
+    "diary": "Q185598",
     "novel": "Q8261",
     "play": "Q25379",
     "poetry collection": "Q7010019",
@@ -455,6 +468,7 @@ elif work_type_name == "pc":
 if not work_type_name:
     work_type_name = "work"
 genre_name = get_work_data(work_data, "genre")
+alternative_title = get_work_data(work_data, "alternative title")
 subtitle = get_work_data(work_data, "subtitle")
 pub_date = get_work_data(work_data, "date of publication")
 year = get_year_from_date(pub_date)
@@ -512,7 +526,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -560,7 +574,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     if gutenberg_id:

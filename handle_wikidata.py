@@ -209,6 +209,22 @@ def get_description(item):
         print_in_yellow(f"Description not found for {item}.")
         return None
 
+def get_alias(item):
+    print(f"Retrieving (existing) alias for Wikidata item {item}.")
+    site = pywikibot.Site("wikidata", "wikidata")
+    page = item_page(site, item)  # Create an ItemPage for the author
+
+    # Retrieve the label of the author item in English
+    page.get()
+    alias = page.aliases.get("en")
+
+    if alias:
+        print_in_green(f"Alias retrieved for {item}: {alias}.")
+        return description
+    else:
+        print_in_yellow(f"Alias not found for {item}.")
+        return None
+
 def add_description(item, description):
     print(f"Adding description \"{description}\" to {item}...")
     
@@ -219,6 +235,20 @@ def add_description(item, description):
         return
     item.editDescriptions(descriptions={'en': description})
     print_in_green("Description added successfully.")
+
+def add_alias(item, alternative_title):
+    if alternative_title:
+        print(f"Adding alias \"{alternative_title}\" to {item}...")
+        
+        # Check if the label already exists
+        existing_alias = get_alias(item)
+        if existing_alias == alternative_title:
+            print_in_yellow("Alias already exists. No action taken.")
+            return
+        item.editAliases(aliases={'en': [alternative_title]})
+        print_in_green("Alias added successfully.")
+    else:
+        print_in_yellow("No alternative title found. No action taken.")
 
 def add_label(item, label):
     print(f"Adding label \"{label}\" to {item}...")
@@ -392,10 +422,11 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
     
 
 
-def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=None):
+def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
+    add_alias(item, alternative_title)
 
     literary_work = 'Q7725634'
     english = 'Q1860'
@@ -404,7 +435,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
     add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
-    add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    add_title_to_item(repo, item, title, alternative_title, transcription_page_title)
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P179', series, 'part of the series', transcription_page_title)
@@ -451,10 +482,15 @@ def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, s
 
 
 
+def add_title_to_item(repo, item, title, alternative_title, transcription_page_title):
+    add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    if alternative_title:
+        add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=alternative_title, language='en'), 'title', transcription_page_title)
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
+    add_alias(item, alternative_title)
 
     # item names for readability
     version_edition_or_translation = 'Q3331189'
@@ -470,7 +506,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P98', editor_item, 'editor', transcription_page_title)
     add_property(repo, item, 'P629', base_work, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P393', edition_number, 'edition number', transcription_page_title)
-    add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    add_title_to_item(repo, item, title, alternative_title, transcription_page_title)
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
