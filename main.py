@@ -136,6 +136,14 @@ import datetime
 # Wikidata: gutia
 
 
+
+
+# MISTRESS MADCAP SURRENDERS
+# scan=y
+# oclc=
+# fol=Mistress Madcap
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -258,6 +266,7 @@ common_locations = {
     "Atlanta": "Q23556",
     "Boston": "Q100",
     "Chicago": "Q1297",
+    "Garden City": "Q739452",
     "Honolulu": "Q18094",
     "London": "Q84",
     "New York": "Q60",
