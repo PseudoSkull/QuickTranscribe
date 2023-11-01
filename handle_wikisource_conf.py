@@ -55,6 +55,7 @@ variables_with_descriptions = {
         "set": "narrative location",
         "alt": "alternative title",
         "scan": "personal scan",
+        "oclc": "OCLC control number",
         "progress": "QT progress flag",
     }
 

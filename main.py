@@ -567,7 +567,9 @@ ark_identifier = get_ark_identifier(hathitrust_full_text_id)
 
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
-oclc = get_oclc(hathitrust_id, GB_id)
+oclc = get_work_data(work_data, "OCLC control number")
+if not oclc:
+    oclc = get_oclc(hathitrust_id, GB_id)
 
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"

@@ -555,7 +555,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter_title = None
                         chapter["type"] = "part"
 
-                        if chapters_are_subpages_of_parts == "y" or not chapters_are_subpages_of_parts:
+                        if chapters_are_subpages_of_parts == "y" or chapters_are_subpages_of_parts == None:
                             chapter_num = 0
                     
                     elif chapter_tag == "contch":
