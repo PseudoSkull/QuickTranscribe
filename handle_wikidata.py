@@ -106,7 +106,7 @@ def add_property(repo, item, property, values, descriptor, transcription_page_ti
         print_in_green(f"{descriptor} claim added successfully.")
 
 
-def get_value_from_property(item, property):
+def get_value_from_property(item, property, get_last_item=False):
     print(f"Retrieving value {property} for Wikidata item {item}.")
     site = pywikibot.Site("wikidata", "wikidata")
 
@@ -124,22 +124,35 @@ def get_value_from_property(item, property):
         # Retrieve the author item (P50) from the base_work item
         page.get()
         claim = page.claims.get(property)
+        # print(claim)
+        # exit()
+        # if get_last_item: # This is for when you want to get the last item in a list of items
+        #     return item_page(site, claim)
+        
         try:
             result = claim[0].target.id
+            if get_last_item:
+                result = claim[-1].target.id
+                return result
         except AttributeError:
             try:
                 result = claim[0].target.toTimestr()
             except AttributeError:
                 result = claim[0].target
+                if get_last_item:
+                    result = claim[-1].target
+                    return result
         except TypeError:
             result = None
+        
         if result:
             print_in_green(f"Value retrieved for {property} in {item}: {result}.")
             results.append(result)
         else:
             print_in_red(f"Value not found for {property} in {item}.")
             return None
-    
+
+
     if len(results) == 1:
         return results[0]
     else:
@@ -438,7 +451,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     add_title_to_item(repo, item, title, alternative_title, transcription_page_title)
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
-    add_property(repo, item, 'P179', series, 'part of the series', transcription_page_title)
+    handle_series(repo, item, series, transcription_page_title)
     add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
     if "collection" not in work_type_name:
         add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
@@ -716,3 +729,64 @@ def get_openlibrary_id():
     openlibrary_version_id = get_data_from_xml("openlibrary_edition")
     openlibrary_work_id = get_data_from_xml("openlibrary_work")
     return openlibrary_version_id, openlibrary_work_id
+
+
+def add_qualifier(repo, item_with_qualifier_in_it, claim_to_add_qualifier_to, series_item, transcription_page_title, qualifier_property, qualifier_item):
+    print(f"Adding qualifier {qualifier_property} to {claim_to_add_qualifier_to} in {item_with_qualifier_in_it}...")
+    site = pywikibot.Site('wikidata', 'wikidata')
+
+    qualifier_item = item_page(site, qualifier_item)
+    
+    # Retrieve the Wikidata item
+    item = item_page(site, item_with_qualifier_in_it)
+    item.get()
+
+    # Retrieve the claim
+    claim = item.claims.get(claim_to_add_qualifier_to)
+
+    # Add the qualifier
+    qualifier = pywikibot.Claim(repo, qualifier_property)
+    qualifier.setTarget(qualifier_item)
+    claim[0].addQualifier(qualifier)
+
+    print_in_green(f"Qualifier {qualifier_property} added to {claim_to_add_qualifier_to} in {item_with_qualifier_in_it}.")
+
+
+def handle_series(repo, base_work_item, series_item, transcription_page_title):
+    part_of_the_series = 'P179'
+    has_parts = "P527"
+    follows = "P155"
+    followed_by = "P156"
+
+    if series_item:
+        print("Handling series...")
+        add_property(repo, base_work_item, part_of_the_series, series_item, 'part of the series', transcription_page_title)
+
+        previous_item_in_series = get_previous_item_in_series(series_item)
+        if previous_item_in_series:
+
+
+            # add qualifier to the part of the series property of the previous item
+            print("Adding follows qualifier to the current item in the series...")
+            add_qualifier(repo, base_work_item, part_of_the_series, series_item, transcription_page_title, follows, previous_item_in_series)
+
+            # add_property(repo, base_work_item, part_of_the_series, series_item, 'follows', transcription_page_title, qualifier=follows, qualifier_value=previous_item_in_series)
+
+            print("Adding followed by qualifier to the previous item in the series...")
+            add_qualifier(repo, previous_item_in_series, part_of_the_series, series_item, transcription_page_title, followed_by, base_work_item)
+            # add_property(repo, previous_item_in_series, part_of_the_series, series_item, 'followed by', transcription_page_title, qualifier=followed_by, qualifier_value=base_work_item)
+
+        print("Adding to the end of the series...")
+        add_property(repo, series_item, has_parts, base_work_item, 'has parts (work currently transcribed)', transcription_page_title)
+        # add_property(repo, series_item, has_parts, base_work_item, 'has parts', transcription_page_title)
+
+
+
+
+
+def get_previous_item_in_series(series_item):
+    print("Getting previous item in series...")
+    previous_item_property = "P527"
+    previous_item = get_value_from_property(series_item, previous_item_property, get_last_item=True)
+    print(previous_item)
+    return previous_item
