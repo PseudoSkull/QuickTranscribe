@@ -22,6 +22,7 @@ marker_definitions = {
     "i2": "img2", # add functionality for iteration later
     "i3": "img3",
     "ill": "illus",
+    "no": "note",
     "not": "note",
     "po": "poem",
     "quo": "quote",

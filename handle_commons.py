@@ -40,6 +40,25 @@ def get_image_filename(image):
 def convert_to_megabytes(size):
     return size * (1024 * 1024)
 
+def get_user_who_scanned_file(filename):
+    print("Getting user who scanned file...")
+    site = pywikibot.Site("commons", "commons")
+    image_page = pywikibot.FilePage(site, f"File:{filename}")
+
+    version_history = image_page.getFileVersionHistoryTable()
+
+    # Use a regular expression to find the last instance of "Z || .+? ||"
+    pattern = r"Z \|\| (.+?) \|\|"
+    matches = re.findall(pattern, version_history)
+
+    if matches:
+        # The last match in the list is the uploader of the first version.
+        initial_uploader = matches[-1]
+        print_in_green(f"Got user who scanned file: {initial_uploader}")
+        return initial_uploader
+    else:
+        print_in_red("Could not find uploader.")
+        return None
 
 def is_file_size_greater_than_3mb(file_path):
     three_mb = convert_to_megabytes(3)
@@ -299,7 +318,7 @@ def create_commons_category(title, category_namespace_prefix, author_item, work_
 [[{commons_category}]]"""
 
 
-def generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id):
+def generate_source_template(scan_source, scanner, IA_id, hathitrust_full_text_id, GB_id):
     if scan_source == "ia":
         return f"{{{{Internet Archive link|{IA_id}}}}}"
     elif scan_source == "ht":
@@ -308,6 +327,8 @@ def generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
         return f"{{{{HathiTrust link|{hathitrust_full_text_id}}}}}"
     elif scan_source == "gb":
         return f"{{{{Google Books link|{GB_id}}}}}"
+    elif scan_source == "scan":
+        return f"Personal scan by [[User:{scanner}|{scanner}]]"
 
 def generate_scan_filename(title, year, scan_file_path):
     extension = scan_file_path.split(".")[-1]
@@ -315,8 +336,8 @@ def generate_scan_filename(title, year, scan_file_path):
     # scan_filename = f"{title}.{extension}"
     return scan_filename
 
-def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id, year):
-    source_template = generate_source_template(scan_source, IA_id, hathitrust_full_text_id, GB_id)
+def generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year):
+    source_template = generate_source_template(scan_source, scanner, IA_id, hathitrust_full_text_id, GB_id)
     copyright_template = generate_commons_copyright_template(year)
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
@@ -333,7 +354,7 @@ def generate_scan_file_text(version_item, scan_source, commons_category, IA_id, 
     return commons_file_text
 
 
-def upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id):
+def upload_scan_file(title, year, version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id):
     print("Generating scan file data...")
     if filename:
         scan_file_path = None
@@ -342,7 +363,7 @@ def upload_scan_file(title, year, version_item, scan_source, commons_category, I
         scan_file_path = find_scan_file_to_upload(scan_source)
         scan_filename = generate_scan_filename(title, year, scan_file_path)
 
-    scan_file_text = generate_scan_file_text(version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, GB_id, year)
+    scan_file_text = generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 

@@ -24,7 +24,7 @@ from parse_transcription import get_chapter_data, get_section_data, generate_toc
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
 from handle_pages import get_page_data, create_pages
 from handle_transclusion import transclude_pages, check_if_advertising_transcluded, check_if_parts_exist
-from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file
+from handle_commons import create_commons_category, upload_scan_file, generate_image_data, upload_images_to_commons, get_cover_image_file, get_user_who_scanned_file
 from handle_projectfiles import compare_image_counts, get_data_from_xml, archive_projectfiles_folders
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
@@ -621,6 +621,13 @@ if not at_expected_progress:
 
 filename_conf_variable = "f"
 scan_source = get_work_data(work_data, "site to download scan from")
+is_personal_scan = get_work_data(work_data, "personal scan")
+
+if is_personal_scan:
+    scan_source = "scan"
+    scanner = get_user_who_scanned_file(filename)
+else:
+    scanner = None
 
 transcription_text = transcription_page.text
 expected_progress = "scan_file_uploaded"
@@ -628,7 +635,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     # if not filename:
-    filename = upload_scan_file(title, year, version_item, scan_source, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id)
+    filename = upload_scan_file(title, year, version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, transcription_page_title, filename, GB_id)
 
     add_scan_file_to_version_item(wikidata_site, version_item, filename, transcription_page_title)
 

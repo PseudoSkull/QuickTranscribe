@@ -418,6 +418,8 @@ def parse_chapter_settings(chapter_settings):
             chapter_settings_data["title"] = setting.split("=")[1]
         if "con=" in setting:
             chapter_settings_data["contributor"] = setting.split("=")[1]
+        if "ty=" in setting:
+            chapter_settings_data["type"] = "non-work chapter"
 
     return chapter_settings_data
 
@@ -590,11 +592,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["page_num"] = int(page_num)
                     else:
                         chapter["page_num"] = page_num
-
-                    if chapter_type == "nam":
-                        chapter["prefix"] = None
-                        chapter["chapter_num"] = None
-                        chapter["type"] = "non-work chapter"
                     
                     # if not chapter["title"]:
                     chapter["title"] = chapter_title
@@ -616,6 +613,13 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["title"] = chapter_settings["title"]
                         if "contributor" in chapter_settings:
                             chapter["contributor"] = chapter_settings["contributor"]
+                        if "type" in chapter_settings:
+                            chapter["type"] = chapter_settings["type"]
+                        
+                    if chapter_type == "nam" or chapter["type"] == "non-work chapter":
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                        chapter["type"] = "non-work chapter"
                     
                     if chapter["auxiliary"]:
                         chapter["prefix"] = None
@@ -835,7 +839,7 @@ def get_aux_toc_items(chapters, mainspace_work_title, chapters_are_subpages_of_p
             chapter_num = chapter["chapter_num"]
             if is_subchapter:
                 spacing = ":"
-        else:
+        elif chapter_prefix == "Book " or chapter_prefix == "Part ":
             spacing = ""
             is_subchapter = True
             part_prefix = chapter_prefix
@@ -1281,10 +1285,13 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 roman_chapter_num = roman.toRoman(real_chapter_num)
                 inflect_engine = inflect.engine()
                 chapter_num_as_word = inflect_engine.number_to_words(real_chapter_num).capitalize()
+                chapter_num_as_ordinal = inflect_engine.ordinal(chapter_num_as_word.lower()).capitalize()
                 if chapter_type == "num":
                     displayed_section_num = real_chapter_num
                 elif chapter_type == "word":
                     displayed_section_num = chapter_num_as_word
+                elif chapter_type == "ord":
+                    displayed_section_num = chapter_num_as_ordinal
                 else:
                     displayed_section_num = roman_chapter_num
             else:
@@ -1303,7 +1310,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 # if len(chapters_in_page) == 1:
                 replacements = {
                     "cnam": chapter_title,
-                    "cnum": roman_chapter_num,
+                    "cnum": displayed_section_num,
                     "cpre": chapter_prefix,
                 }
 
@@ -1327,6 +1334,8 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                     # print(type(chapter_title))
                     # print(chapter_title)
                     chapter_text = f"{{{{ph|class=chapter num|{chapter_prefix}{displayed_section_num}}}}}\n{{{{ph|class=chapter title|{chapter_title}|level=2}}}}"
+            if ". . ." not in chapter_text:
+                chapter_text = chapter_text.replace(" .", ".")
             
             if "/chh/" in ch_tag:
                 chapter_text = chapter_text.replace("class=chapter ", "class=chapter-half ")

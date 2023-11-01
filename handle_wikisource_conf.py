@@ -54,6 +54,7 @@ variables_with_descriptions = {
         "edno": "edition number",
         "set": "narrative location",
         "alt": "alternative title",
+        "scan": "personal scan",
         "progress": "QT progress flag",
     }
 
