@@ -97,6 +97,8 @@ def generate_type_category(work_type_name, country):
         type_category = "Collections of poetry"
     elif work_type_name == "ec" or work_type_name == "essay collection":
         type_category = "Collections of essays"
+    elif work_type_name == "diary":
+        type_category = "Journals"
     
     return type_category
 
