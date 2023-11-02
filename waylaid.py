@@ -233,6 +233,7 @@ def correct_text(text_file, work_type):
     "cold-blooded",
     "co-oper",
     "counter-charge",
+    "crimson-lake",
     "crimson-striped",
     "dagger-knife",
     "dark-skinned",

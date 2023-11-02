@@ -295,6 +295,7 @@ common_publishers = {
     "Century": "Q7721960",
     "Dodd": "Q5287721",
     "Doubleday": "Q1251563",
+    "Duffield": "Q60220388",
     "Grosset": "Q3117078",
     "Harper": "Q3127696",
     "Houghton": "Q390074",
