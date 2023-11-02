@@ -200,6 +200,7 @@ def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
                         # Remove everything after " {{esl|"
 
                         line = re.sub(rf" {{{{{template}\|.*?}}}}", "", line, flags=re.IGNORECASE)
+                        line = re.sub(rf" {{{{{template}}}}}", "", line, flags=re.IGNORECASE)
                         found_template = template
                         break
 
