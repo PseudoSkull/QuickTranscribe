@@ -284,6 +284,7 @@ common_locations = {
     "London": "Q84",
     "New York": "Q60",
     "New York City": "Q60",
+    "NY": "Q60",
     "Paris": "Q90",
     "Philadelphia": "Q1345",
     "San Francisco": "Q62",
@@ -452,6 +453,8 @@ if series:
 else:
     series_name = None
 
+previous_work = get_work_data(work_data, "previous work")
+
 location = get_work_data(work_data, "location of publication", common_locations)
 original_location = get_work_data(work_data, "original location", common_locations)
 if not original_location:
@@ -527,7 +530,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_work, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -625,10 +628,14 @@ if not at_expected_progress:
 filename_conf_variable = "f"
 scan_source = get_work_data(work_data, "site to download scan from")
 is_personal_scan = get_work_data(work_data, "personal scan")
+scanner = get_work_data(work_data, "user who produced scan")
 
 if is_personal_scan:
     scan_source = "scan"
-    scanner = get_user_who_scanned_file(filename)
+    if not scanner:
+        scanner = get_user_who_scanned_file(filename)
+        if not scanner:
+            scanner = username
 else:
     scanner = None
 

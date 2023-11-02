@@ -435,7 +435,7 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
     
 
 
-def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, variable_name=None):
+def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_item, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
@@ -452,6 +452,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     handle_series(repo, item, series, transcription_page_title)
+    handle_sequence(repo, item, previous_item, transcription_page_title)
     add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
     if "collection" not in work_type_name:
         add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
@@ -790,3 +791,16 @@ def get_previous_item_in_series(series_item):
     previous_item = get_value_from_property(series_item, previous_item_property, get_last_item=True)
     print(previous_item)
     return previous_item
+
+
+def handle_sequence(repo, base_work_item, previous_item, transcription_page_title):
+    follows = "P155"
+    followed_by = "P156"
+    if previous_item:
+        print("Previous item in sequence of works found. Handling sequence...")
+        
+        # add previous work to base work item
+        add_property(repo, base_work_item, follows, previous_item, 'follows (comes after previous work)', transcription_page_title)
+
+        # add base work to previous work item
+        add_property(repo, previous_item, followed_by, base_work_item, 'followed by (comes before next work)', transcription_page_title)

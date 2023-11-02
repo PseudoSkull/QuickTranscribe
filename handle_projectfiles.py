@@ -48,6 +48,10 @@ def find_scan_file_to_upload(scan_source):
             scan_file_path = os.path.join(folder_path, file)
             print_in_green(f"Google Books PDF file {file} was found!")
             return scan_file_path
+        elif "scan.pdf" in file and scan_source == "scan":
+            scan_file_path = os.path.join(folder_path, file)
+            print_in_green(f"Scan PDF file {file} was found!")
+            return scan_file_path
     
     for file in os.listdir(folder_path): # because DJVU is superior, we do it again
         if scan_source == "ia" and file.endswith(".pdf") and "_bw" not in file and file != "hathi.pdf":

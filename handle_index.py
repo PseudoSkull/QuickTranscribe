@@ -104,6 +104,7 @@ style_defaults = {
     "title-header":
     """	text-align: center;
  	font-size: 144%;
+    margin-bottom: 1.5em;
 	text-transform: uppercase;""",
 
     "toc-block":

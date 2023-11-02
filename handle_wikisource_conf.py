@@ -56,6 +56,9 @@ variables_with_descriptions = {
         "alt": "alternative title",
         "scan": "personal scan",
         "oclc": "OCLC control number",
+        "fol": "previous work",
+        "prev": "previous work",
+        "scanner": "user who produced scan",
         "progress": "QT progress flag",
     }
 
