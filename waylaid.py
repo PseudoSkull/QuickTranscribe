@@ -1618,6 +1618,13 @@ def correct_text(text_file, work_type):
     x = x.replace("manceuv", "man/oe/uv")
     x = x.replace("\"Fe ", "\"He ")
     x = x.replace("\"Fe's", "\"He's")
+    x = x.replace("soiree", "soirée")
+    x = x.replace(" vear ", " year ")
+    x = x.replace(" vears", " years")
+    x = x.replace(" thev ", " they ")
+    x = x.replace("Y r ou", "You")
+    x = x.replace("Bv ", "By ")
+    x = x.replace("\n44 ", "\n\"")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
 
@@ -1632,6 +1639,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])mannered", r"\1-mannered", x)
     x = re.sub(r"([a-z])tempered", r"\1-tempered", x)
     x = re.sub(r"([a-z])uniformed", r"\1-uniformed", x)
+    x = re.sub(r"([a-z])in-law", r"\1-in-law", x)
     x = re.sub(r"([a-z])\"I'll", r"\1'll", x)
     x = re.sub(r"twenty([a-z])", r"twenty-\1", x)
     x = re.sub(r"thirty([a-z])", r"thirty-\1", x)
@@ -1651,7 +1659,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"(..\n\n)([A-Z][^\"|\n]+?)\"\n\n", r"\1\"\2\"\n\n", x)
     x = re.sub(r"\n\n\"(.+?)\" (.+?)\. '", r"\n\n\"\1\" \2. \"", x)
     x = re.sub(r"\"(.+?)\" ([^\"]+?)\" (.)", r"\"\1\" \2 \"\3", x)
-    x = re.sub(r"([^\"]+?)([! , \? \.])' ([^\"]+?)\" ", r"\"\1\2\" \3 \"", x)
+    # THIS WAS FREEZING UP FOR SOME REASON ON A WORK! FIGURE OUT WHY
+    # x = re.sub(r"([^\"]+?)([! , \? \.])' ([^\"]+?)\" ", r"\"\1\2\" \3 \"", x)
 
     
     x = re.sub(r"\"(.+?)' Mr", r"\"\1\" Mr", x)

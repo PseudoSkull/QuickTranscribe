@@ -136,24 +136,13 @@ import datetime
 # Wikidata: gutia
 
 
+# THE ROAD TO MONTEREY
+# ol tag: parse OpenLibrary data
+#: https://openlibrary.org/developers/api
 
+# THE WAY OF THE WILD
+# Parse: /intr/ty=fm/
 
-# MISTRESS MADCAP SURRENDERS
-# scan=y
-# oclc=
-# fol=Mistress Madcap
-
-
-
-
-
-# DIARY OF ONE MONTH IN HONOLULU
-# Commons: scan=y
-# ch=card -> completely different setup
-# pre=Day
-# type=diary
-# nonfiction
-# Wikidata/Redirects: alt=
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
@@ -300,6 +289,7 @@ common_publishers = {
     "Grosset": "Q3117078",
     "Harper": "Q3127696",
     "Houghton": "Q390074",
+    "Jacobs": "Q63986176",
     "Knopf": "Q1431868",
     "Little": "Q552959",
     "Macmillan": "Q2108217",

@@ -419,7 +419,11 @@ def parse_chapter_settings(chapter_settings):
         if "con=" in setting:
             chapter_settings_data["contributor"] = setting.split("=")[1]
         if "ty=" in setting:
-            chapter_settings_data["type"] = "non-work chapter"
+            chapter_settings_data["type"] = setting.split("=")[1]
+            if chapter_settings_data["type"] == "nam":
+                chapter_settings_data["type"] = "non-work chapter"
+            elif chapter_settings_data["type"] == "fm":
+                chapter_settings_data["type"] = "front-matter chapter"
 
     return chapter_settings_data
 
@@ -572,7 +576,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if chapter_prefix == "n":
                             chapter["prefix"] = None
                         elif work_type_name == "scc" or work_type_name == "short story collection":
-                            chapter["prefix"] = None
+                            if chapter_prefix == "y":
+                                chapter["prefix"] = "Chapter"
+                            else:
+                                chapter["prefix"] = None
                             chapter["type"] = "short story"
                         elif work_type_name == "pc" or work_type_name == "poetry collection":
                             chapter["prefix"] = None
@@ -615,11 +622,19 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["contributor"] = chapter_settings["contributor"]
                         if "type" in chapter_settings:
                             chapter["type"] = chapter_settings["type"]
+                        if "front-matter" in chapter_settings:
+                            chapter["type"] = "front-matter chapter"
                         
                     if chapter_type == "nam" or chapter["type"] == "non-work chapter":
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
-                        chapter["type"] = "non-work chapter"
+                        chapter_num -= 1
+                        # chapter["type"] = "non-work chapter"
+                    
+                    if chapter_type == "fm" or chapter["type"] == "front-matter chapter":
+                        chapter["prefix"] = None
+                        chapter["chapter_num"] = None
+                        # chapter["type"] = "front-matter chapter"
                     
                     if chapter["auxiliary"]:
                         chapter["prefix"] = None

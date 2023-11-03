@@ -434,6 +434,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
         chapter_type = chapter["type"]
+        if chapter_type == "front-matter chapter":
+            continue
         chapter_has_references = chapter["refs"]
         
     
