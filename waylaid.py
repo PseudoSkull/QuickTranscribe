@@ -1624,6 +1624,7 @@ def correct_text(text_file, work_type):
     x = x.replace(" thev ", " they ")
     x = x.replace("Y r ou", "You")
     x = x.replace("Bv ", "By ")
+    x = x.replace(" Plis ", " His ")
     x = x.replace("\n44 ", "\n\"")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)

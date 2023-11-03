@@ -315,8 +315,9 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 
     starting_page_num = chapter_start
     for page_num in range(chapter_start, chapter_end+1):
-        if front_matter:
-            page_num -= 1
+        print(f"We're at {page_num}")
+        # if front_matter:
+        page_num -= 1
         page = page_data[page_num]
         page_quality = page["page_quality"]
         if chapter_start == chapter_end:
@@ -501,7 +502,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         print(chapter_text)
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
-def generate_defaultsort_tag(title, mainspace_work_title=False):
+def generate_defaultsort_tag(title, mainspace_work_title=False, for_logic=False):
     bad_prefixes = [
         "A ",
         "An ",
@@ -520,9 +521,9 @@ def generate_defaultsort_tag(title, mainspace_work_title=False):
             defaultsort = f"{{{{DEFAULTSORT:{defaultsort_title}}}}}"
             return defaultsort
         
-    if title[:-1].isdigit() and mainspace_work_title: # if it's a chapter number
+    if title[:-1].isdigit() and mainspace_work_title and not for_logic: # if it's a chapter number
         return ""
-    elif mainspace_work_title:
+    elif mainspace_work_title or for_logic:
         return f"{{{{DEFAULTSORT:{title}}}}}"
     return ""
 

@@ -129,6 +129,7 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     version_edition_or_translation = 'Q3331189'
     english = 'Q1860'
     # work_item = subwork["work_item"]
+    printed_matter = 'Q1261026'
     wikisource_link = subwork["wikisource_link"]
 
     add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
@@ -138,6 +139,7 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P1433', collection_version_item, 'published in (version item of collection)', transcription_page_title)
+    add_property(repo, item, 'P437', printed_matter, 'distribution format (printed matter)', transcription_page_title)
 
     add_wikisource_page_to_item(item, wikisource_link)
 

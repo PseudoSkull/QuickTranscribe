@@ -26,7 +26,7 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
     unsorted_work_links = [{"work_link": i["work_link"]} for i in subworks]
     work_links = []
     for work_link in unsorted_work_links:
-        defaultsort_tag = generate_defaultsort_tag(work_link["work_link"])
+        defaultsort_tag = generate_defaultsort_tag(work_link["work_link"], for_logic=True)
         work_link["defaultsort"] = defaultsort_tag
         work_links.append(work_link)
     

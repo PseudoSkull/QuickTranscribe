@@ -51,6 +51,7 @@ import pywikibot
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
 from handle_title_case import convert_to_title_case
+import inflect
 
 defaultsort_prefixes = [
     # English
@@ -206,6 +207,15 @@ def generate_title_with_variants(words):
             if word in redirect_combo:
                 variants_of_word += redirect_combo
 
+        # turn sixth into 6th
+
+        p = inflect.engine()
+
+        word = "sixth"
+        ordinal = p.ordinal(int(word[:-2]))
+        new_word = ordinal + word[-2:]
+
+        print(new_word)  # Output: 6th
         if word_num == last_word_index:
             # ending symbols
             for symbol in ending_symbols:
@@ -304,7 +314,7 @@ def create_redirect(redirect_title, redirect_target, site, edit_summary):
     print(redirect_text)
     save_page(redirect_page, site, redirect_text, edit_summary)
 
-def create_redirects(page_title_to_parse, alternative_title, subtitle=None, redirect_target=None):
+def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None, redirect_target=None):
     if "(" in page_title_to_parse and not subtitle:
         if not redirect_target:
             print("Page title contains parentheses. Skipping redirects...")
