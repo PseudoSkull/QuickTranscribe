@@ -886,7 +886,7 @@ if not at_expected_progress:
 
 
 
-subworks = get_subwork_data(chapters, mainspace_work_title)
+subworks = get_subwork_data(chapters, page_data, image_data, mainspace_work_title)
 
 if subworks:
 

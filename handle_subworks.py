@@ -6,7 +6,7 @@ from handle_wikidata import add_property, create_wikidata_item, add_description,
 from handle_pages import get_marker_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
-from parse_transcription import get_chapter_from_title
+from parse_transcription import get_chapter_from_title, get_chapter_from_page_num
 import pywikibot
 import os
 import json
@@ -32,13 +32,28 @@ filename = "subwork_data.json"
 file_path = os.path.join(folder_path, filename)
 
 def get_subwork_image(expected_title, page_data, chapter_data, image_data):
+    unaccepted_image_types = [
+        "vignette",
+        "fleuron",
+        "drop initial",
+        "back cover",
+        "front cover",
+        "title illustration",
+    ]
     for image in image_data:
+        image_type = image["type"]
+        if image_type in unaccepted_image_types:
+            continue
         overall_page_num = image["page_num"]
         page_num = get_marker_from_page_num(overall_page_num, page_data)
-        chapter = get_chapter_from_page_num(page_num, chapter_data)
+        try:
+            page_num = int(page_num)
+        except ValueError:
+            continue
+        chapter = get_chapter_from_page_num(chapter_data, page_num)
         chapter_title = chapter["title"]
-        if expected_title == title:
-            return image["title"] + image["extension"]
+        if expected_title == chapter_title:
+            return image["title"] + "." + image["extension"]
 
 def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
     if os.path.exists(file_path):
@@ -117,7 +132,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
 
 
     add_property(repo, item, 'P31', literary_work, 'instance of', transcription_page_title)
-    add_property(site, item, image_property, handle_file(main_image_filename), 'base work main image', transcription_page_title)
+    add_property(repo, item, 'P18', handle_file(main_image_filename), 'base work main image', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
     add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
@@ -148,7 +163,7 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     wikisource_link = subwork["wikisource_link"]
 
     add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
-    add_property(site, item, image_property, handle_file(main_image_filename), 'version main image', transcription_page_title)
+    add_property(repo, item, 'P18', handle_file(main_image_filename), 'version main image', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P629', work_item, 'edition of work', transcription_page_title)
