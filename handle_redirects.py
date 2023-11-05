@@ -167,6 +167,107 @@ ending_symbols = [
     "—",
 ]
 
+ordinals = {
+    'First': '1st',
+    'Second': '2nd',
+    'Third': '3rd',
+    'Fourth': '4th',
+    'Fifth': '5th',
+    'Sixth': '6th',
+    'Seventh': '7th',
+    'Eighth': '8th',
+    'Ninth': '9th',
+    'Tenth': '10th',
+    'Eleventh': '11th',
+    'Twelfth': '12th',
+    'Thirteenth': '13th',
+    'Fourteenth': '14th',
+    'Fifteenth': '15th',
+    'Sixteenth': '16th',
+    'Seventeenth': '17th',
+    'Eighteenth': '18th',
+    'Nineteenth': '19th',
+    'Twentieth': '20th',
+    'Twenty-first': '21st',
+    'Twenty-second': '22nd',
+    'Twenty-third': '23rd',
+    'Twenty-fourth': '24th',
+    'Twenty-fifth': '25th',
+    'Twenty-sixth': '26th',
+    'Twenty-seventh': '27th',
+    'Twenty-eighth': '28th',
+    'Twenty-ninth': '29th',
+    'Thirtieth': '30th',
+    'Thirty-first': '31st',
+    'Thirty-second': '32nd',
+    'Thirty-third': '33rd',
+    'Thirty-fourth': '34th',
+    'Thirty-fifth': '35th',
+    'Thirty-sixth': '36th',
+    'Thirty-seventh': '37th',
+    'Thirty-eighth': '38th',
+    'Thirty-ninth': '39th',
+    'Fortieth': '40th',
+    'Forty-first': '41st',
+    'Forty-second': '42nd',
+    'Forty-third': '43rd',
+    'Forty-fourth': '44th',
+    'Forty-fifth': '45th',
+    'Forty-sixth': '46th',
+    'Forty-seventh': '47th',
+    'Forty-eighth': '48th',
+    'Forty-ninth': '49th',
+    'Fiftieth': '50th',
+    'Fifty-first': '51st',
+    'Fifty-second': '52nd',
+    'Fifty-third': '53rd',
+    'Fifty-fourth': '54th',
+    'Fifty-fifth': '55th',
+    'Fifty-sixth': '56th',
+    'Fifty-seventh': '57th',
+    'Fifty-eighth': '58th',
+    'Fifty-ninth': '59th',
+    'Sixtieth': '60th',
+    'Sixty-first': '61st',
+    'Sixty-second': '62nd',
+    'Sixty-third': '63rd',
+    'Sixty-fourth': '64th',
+    'Sixty-fifth': '65th',
+    'Sixty-sixth': '66th',
+    'Sixty-seventh': '67th',
+    'Sixty-eighth': '68th',
+    'Sixty-ninth': '69th',
+    'Seventieth': '70th',
+    'Seventy-first': '71st',
+    'Seventy-second': '72nd',
+    'Seventy-third': '73rd',
+    'Seventy-fourth': '74th',
+    'Seventy-fifth': '75th',
+    'Seventy-sixth': '76th',
+    'Seventy-seventh': '77th',
+    'Seventy-eighth': '78th',
+    'Seventy-ninth': '79th',
+    'Eightieth': '80th',
+    'Eighty-first': '81st',
+    'Eighty-second': '82nd',
+    'Eighty-third': '83rd',
+    'Eighty-fourth': '84th',
+    'Eighty-fifth': '85th',
+    'Eighty-sixth': '86th',
+    'Eighty-seventh': '87th',
+    'Eighty-eighth': '88th',
+    'Eighty-ninth': '89th',
+    'Ninetieth': '90th',
+    'Ninety-first': '91st',
+    'Ninety-second': '92nd',
+    'Ninety-third': '93rd',
+    'Ninety-fourth': '94th',
+    'Ninety-fifth': '95th',
+    'Ninety-sixth': '96th',
+    'Ninety-seventh': '97th',
+    'Ninety-eighth': '98th',
+    'Ninety-ninth': '99th',
+}
 
 
 
@@ -191,6 +292,7 @@ def generate_title_with_variants(words):
 
     # handle defaultsort prefixes
     
+    inflect_engine = inflect.engine()
 
     for word_num, word in enumerate(words):
         variants_of_word = []
@@ -208,14 +310,19 @@ def generate_title_with_variants(words):
                 variants_of_word += redirect_combo
 
         # turn sixth into 6th
+        for ordinal, cardinal in ordinals.items():
+            if word == ordinal:
+                variants_of_word.append(cardinal)
 
-        p = inflect.engine()
+        # try:
+        #     chapter_num_as_cardinal = inflect_engine.ordinal(word.lower()).capitalize()
+        # except:
+        #     chapter_num_as_cardinal = None
 
-        word = "sixth"
-        ordinal = p.ordinal(int(word[:-2]))
-        new_word = ordinal + word[-2:]
+        # if chapter_num_as_cardinal:
+        #     variants_of_word.append(chapter_num_as_cardinal)
 
-        print(new_word)  # Output: 6th
+        # print(new_word)  # Output: 6th
         if word_num == last_word_index:
             # ending symbols
             for symbol in ending_symbols:

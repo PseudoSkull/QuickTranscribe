@@ -697,6 +697,12 @@ def get_chapters_with_refs(chapters, page_data):
     
     return chapters_with_refs
 
+def get_chapter_from_title(title, chapters):
+    for chapter in chapters:
+        chapter_title = chapter["title"]
+        if chapter_title == title:
+            return chapter
+
 def get_chapter_from_page_num(chapters, page_num, for_sections=False):
     print(page_num)
     try:
@@ -1734,7 +1740,7 @@ def get_internal_chapter_name(chapter):
 def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
     if chapter == "Front matter":
         chapter_link = mainspace_work_title
-        if page_number_to_parse == "fro":
+        if page_numberget_chapter_from_title_to_parse == "fro":
             page_anchor = "frontis"
         elif page_number_to_parse == "cov":
             page_anchor = "cover"

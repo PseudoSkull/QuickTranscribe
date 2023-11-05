@@ -3,8 +3,10 @@
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import page_exists, save_page
 from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item
+from handle_pages import get_marker_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
+from parse_transcription import get_chapter_from_title
 import pywikibot
 import os
 import json
@@ -29,7 +31,17 @@ folder_path = "projectfiles/json_data"
 filename = "subwork_data.json"
 file_path = os.path.join(folder_path, filename)
 
-def get_subwork_data(chapters, mainspace_work_title):
+def get_subwork_image(expected_title, page_data, chapter_data, image_data):
+
+    for image in image_data:
+        overall_page_num = image["page_num"]
+        page_num = get_marker_from_page_num(overall_page_num, page_data)
+        chapter = get_chapter_from_page_num(page_num, chapter_data)
+        chapter_title = chapter["title"]
+        if expected_title == title:
+            return image["title"]
+
+def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
     if os.path.exists(file_path):
         with open(file_path, 'r') as file:
             subworks = json.load(file)
@@ -40,7 +52,7 @@ def get_subwork_data(chapters, mainspace_work_title):
             title = chapter["title"]
             chapter_type = chapter["type"]
             if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
-                image = None # for now
+                image = get_subwork_image(title, page_data, chapters, image_data)
                 status = "proofread" # for now
                 wikisource_link = f"{mainspace_work_title}/{title}"
 

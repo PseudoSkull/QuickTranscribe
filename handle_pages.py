@@ -16,6 +16,13 @@ from edit_mw import save_page
 
 # get the content and data of pages in the transcription
 
+def get_marker_from_page_num(expected_page_num, page_data):
+    for page_num, page in enumerate(page_data):
+        page_num += 1
+        if page_num == expected_page_num:
+            return page["marker"]
+
+
 def add_data_item(page_data, page_num, header, footer, content, page_quality, marker, page_type, page_format):
     data_item = {}
     data_item["page_num"] = page_num

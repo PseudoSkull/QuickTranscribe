@@ -455,7 +455,7 @@ def find_possible_bad_quotation_spacing(text):
     return bad_quotation_spacing
 
 def find_repeated_characters(text):
-    repeated_characters_pattern = r'(.)\1{3,}'  # Matches any character (.) repeated three or more times (\1{3,})
+    repeated_characters_pattern = r'(.)\1{2,}'  # Matches any character (.) repeated three or more times (\1{3,})
     repeated_characters = re.findall(repeated_characters_pattern, text)
 
     if len(repeated_characters) == 0:
