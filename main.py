@@ -34,6 +34,7 @@ from handle_dedications import get_dedications
 from handle_subworks import get_subwork_data, create_subwork_wikidata_items, redirect_and_disambiguate_subworks
 from handle_author import add_individual_works_to_author_page
 from handle_wikisource_export import test_pdf_export
+from handle_openlibrary import get_openlibrary_data
 import datetime
 
 
@@ -512,6 +513,28 @@ narrative_location = get_work_data(work_data, "narrative location")
 
 openlibrary_version_id, openlibrary_work_id = get_openlibrary_id()
 
+hathitrust_id = get_work_data(work_data, "HathiTrust catalog ID")
+hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
+
+transcription_text = transcription_page.text
+if hathitrust_full_text_id and not hathitrust_id:
+    hathitrust_id = get_hathitrust_catalog_id(hathitrust_full_text_id)
+    transcription_text = update_conf_value(transcription_text, "ht", hathitrust_id)
+    save_page(transcription_page, site, transcription_text, "Adding HathiTrust catalog ID value...")
+elif hathitrust_id and not hathitrust_full_text_id:
+    hathitrust_full_text_id = get_hathitrust_full_text_id(hathitrust_id)
+    transcription_text = update_conf_value(transcription_text, "htt", hathitrust_full_text_id)
+    save_page(transcription_page, site, transcription_text, "Adding HathiTrust full text ID value...")
+
+ark_identifier = get_ark_identifier(hathitrust_full_text_id)
+
+IA_id = get_work_data(work_data, "Internet Archive ID")
+GB_id = get_work_data(work_data, "Google Books ID")
+oclc = get_work_data(work_data, "OCLC control number")
+if not oclc:
+    oclc = get_oclc(hathitrust_id, GB_id)
+
+openlibrary_version_id, openlibrary_work_id, lccn = get_openlibrary_data(openlibrary_version_id, oclc)
 
 # transcription_page.text
 
@@ -536,7 +559,8 @@ version_conf_variable = "ver"
 filename = get_work_data(work_data, "filename")
 version_item = get_work_data(work_data, wikidata_item_of("version"))
 publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
-lccn = get_data_from_xml("lccn")
+if not lccn:
+    lccn = get_data_from_xml("lccn")
 
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
 gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
@@ -544,26 +568,7 @@ gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
 edition_number = get_work_data(work_data, "edition number")
 
 
-hathitrust_id = get_work_data(work_data, "HathiTrust catalog ID")
-hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
 
-transcription_text = transcription_page.text
-if hathitrust_full_text_id and not hathitrust_id:
-    hathitrust_id = get_hathitrust_catalog_id(hathitrust_full_text_id)
-    transcription_text = update_conf_value(transcription_text, "ht", hathitrust_id)
-    save_page(transcription_page, site, transcription_text, "Adding HathiTrust catalog ID value...")
-elif hathitrust_id and not hathitrust_full_text_id:
-    hathitrust_full_text_id = get_hathitrust_full_text_id(hathitrust_id)
-    transcription_text = update_conf_value(transcription_text, "htt", hathitrust_full_text_id)
-    save_page(transcription_page, site, transcription_text, "Adding HathiTrust full text ID value...")
-
-ark_identifier = get_ark_identifier(hathitrust_full_text_id)
-
-IA_id = get_work_data(work_data, "Internet Archive ID")
-GB_id = get_work_data(work_data, "Google Books ID")
-oclc = get_work_data(work_data, "OCLC control number")
-if not oclc:
-    oclc = get_oclc(hathitrust_id, GB_id)
 
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"
