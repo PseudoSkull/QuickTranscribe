@@ -1655,6 +1655,9 @@ def correct_text(text_file, work_type):
     x = x.replace("Mme,", "Mme.")
     x = x.replace("\"T,", "\"I,")
     x = x.replace(" whorn ", " whom ")
+    x = x.replace("Sefior", "Señor")
+    x = x.replace("E]", "El")
+    x = x.replace(" ts ", " is ")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
     x = re.sub(r"o\?\"([a-z])", r"of \"\1", x)
@@ -1683,6 +1686,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])agitated", r"\1-agitated", x)
     x = re.sub(r"([a-z])in-law", r"\1-in-law", x)
     x = re.sub(r"([a-z])\"I'll", r"\1'll", x)
+    x = re.sub(r"half([a-z])", r"half-\1", x)
     x = re.sub(r"twenty([a-z])", r"twenty-\1", x)
     x = re.sub(r"thirty([a-z])", r"thirty-\1", x)
     x = re.sub(r"forty([a-z])", r"forty-\1", x)
@@ -1780,7 +1784,7 @@ def correct_text(text_file, work_type):
 
 "([a-z])\.\n\n-\n\n([a-z])" -> "\1,\n\n-\n\n\2"
 
-"\.\n\n"([a-z])" -> ", \1"
+"\.\n\n([a-z])" -> ", \1"
 
 "——" -> "/b2/"
 

@@ -21,24 +21,30 @@ def get_openlibrary_data(openlibrary_version_id, oclc):
         response = requests.get(openlibrary_data_url)
         openlibrary_data = response.json()
 
-        records_data = openlibrary_data[list(openlibrary_data.keys())[0]]["records"]
-        unparsed_version_id = list(records_data.keys())[0]
-
-        records_data = records_data[unparsed_version_id]
-
-        identifiers = records_data["data"]["identifiers"]
         lccn = None
+        openlibrary_work_id = None
 
-        if "lccn" in identifiers:
-            lccn = identifiers["lccn"]
+        if len(str(openlibrary_data)) > 2:
 
-        # openlibrary_data = json.loads()
+            records_data = openlibrary_data[list(openlibrary_data.keys())[0]]["records"]
+            unparsed_version_id = list(records_data.keys())[0]
+
+            records_data = records_data[unparsed_version_id]
+
+            identifiers = records_data["data"]["identifiers"]
+            lccn = None
+
+            if "lccn" in identifiers:
+                lccn = identifiers["lccn"]
+
+            # openlibrary_data = json.loads()
 
 
-        openlibrary_version_id = unparsed_version_id.split("/")[-1]
-        # openlibrary_data["openlibrary_version_id"] = openlibrary_version_id
-        openlibrary_work_id = records_data["details"]["details"]["works"][0]["key"].split("/")[-1]
+            openlibrary_version_id = unparsed_version_id.split("/")[-1]
+            # openlibrary_data["openlibrary_version_id"] = openlibrary_version_id
+            openlibrary_work_id = records_data["details"]["details"]["works"][0]["key"].split("/")[-1]
 
-        print_in_green("Finished downloading Open Library data!")
+            print_in_green("Finished downloading Open Library data!")
 
         return openlibrary_version_id, openlibrary_work_id, lccn
+    return openlibrary_version_id, None, None

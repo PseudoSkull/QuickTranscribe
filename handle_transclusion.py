@@ -45,6 +45,8 @@ def generate_genre_categories(genre_name, work_type_name):
                 category = f"Historical fiction novels"
             else:
                 category = f"Historical {work_type_plural}"
+        elif genre == "nonfiction":
+            category = "Non-fiction books"
         elif genre == "Christian":
             category = "Christian literature"
         elif genre == "western":

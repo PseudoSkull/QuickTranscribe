@@ -534,7 +534,10 @@ oclc = get_work_data(work_data, "OCLC control number")
 if not oclc:
     oclc = get_oclc(hathitrust_id, GB_id)
 
-openlibrary_version_id, openlibrary_work_id, lccn = get_openlibrary_data(openlibrary_version_id, oclc)
+lccn = get_data_from_xml("lccn")
+
+if not openlibrary_work_id:
+    openlibrary_version_id, openlibrary_work_id, lccn = get_openlibrary_data(openlibrary_version_id, oclc)
 
 # transcription_page.text
 
@@ -559,8 +562,7 @@ version_conf_variable = "ver"
 filename = get_work_data(work_data, "filename")
 version_item = get_work_data(work_data, wikidata_item_of("version"))
 publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
-if not lccn:
-    lccn = get_data_from_xml("lccn")
+# if not lccn:
 
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
 gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
