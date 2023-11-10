@@ -783,3 +783,8 @@ def get_cover_image_file(image_data):
             return cover_image
     print_in_yellow("No cover image found...")
     return None
+
+def get_frontispiece_image(image_data):
+    for image in image_data:
+        if image["type"] == "frontispiece":
+            return image

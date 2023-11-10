@@ -3,9 +3,10 @@
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import page_exists, save_page
 from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file
-from handle_pages import get_marker_from_page_num
+from handle_pages import get_marker_from_page_num, get_page_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
+from handle_commons import get_frontispiece_image
 from parse_transcription import get_chapter_from_title, get_chapter_from_page_num
 import pywikibot
 import os
@@ -31,6 +32,16 @@ folder_path = "projectfiles/json_data"
 filename = "subwork_data.json"
 file_path = os.path.join(folder_path, filename)
 
+def get_frontispiece_linked_chapter(chapter_data, page_data, image_data):
+    frontispiece_image = get_frontispiece_image(image_data)
+    if not frontispiece_image:
+        return None
+    else:
+        frontispiece_page_num = frontispiece_image["page_num"]
+        frontispiece_page_marker = get_page_from_page_num(frontispiece_page_num, page_data)
+        frontispiece_chapter = get_chapter_from_page_num(chapter_data, frontispiece_page_marker)
+        return frontispiece_chapter
+
 def get_subwork_image(expected_title, page_data, chapter_data, image_data):
     unaccepted_image_types = [
         "vignette",
@@ -40,6 +51,15 @@ def get_subwork_image(expected_title, page_data, chapter_data, image_data):
         "front cover",
         "title illustration",
     ]
+
+    # try and get frontispiece first
+    frontispiece_chapter = get_frontispiece_linked_chapter(chapter_data, page_data, image_data)
+    if frontispiece_chapter:
+        frontispiece_chapter_title = frontispiece_chapter["title"]
+        frontispiece = get_frontispiece_image(image_data)
+        if frontispiece_chapter_title == expected_title:
+            return frontispiece["title"] + "." + frontispiece["extension"]
+
     for image in image_data:
         image_type = image["type"]
         if image_type in unaccepted_image_types:
@@ -154,7 +174,8 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
 
     subworks = append_subwork_data(subwork, subworks)
 
-    add_description(item, f'{year} edition of work by {author_name}')
+    work_type_name = subwork["type"]
+    add_description(item, f'{year} edition of {work_type_name} by {author_name}')
 
     version_edition_or_translation = 'Q3331189'
     english = 'Q1860'
@@ -185,7 +206,7 @@ def create_subwork_wikidata_items(subworks, collection_version_item, collection_
 
         if subwork_title == collection_title:
             print("Collection title is the same as subwork title. Adding namesake property...")
-            add_property(site, work_item, 'P138', collection_work_item, 'named after (collection is named after subwork contained in collection)', transcription_page_title)
+            add_property(site, collection_work_item, 'P138', work_item, 'named after (collection is named after subwork contained in collection)', transcription_page_title)
 
         print(f"Work item is {work_item} AFTER SUBWORK ITEM IS CREATED")
         subworks, version_item = create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item)
