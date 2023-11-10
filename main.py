@@ -914,7 +914,7 @@ if subworks:
     at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
     if not at_expected_progress:
-        create_subwork_wikidata_items(subworks, version_item, transcription_page_title, year, original_year, author_WD_alias, author_item, pub_date, country, genre, original_pub_date, narrative_location)
+        create_subwork_wikidata_items(subworks, version_item, base_work, title, transcription_page_title, year, original_year, author_WD_alias, author_item, pub_date, country, genre, original_pub_date, narrative_location)
 
         process_break()
 

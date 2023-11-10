@@ -176,12 +176,17 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
 
     return subworks, version_item
 
-def create_subwork_wikidata_items(subworks, collection_version_item, transcription_page_title, year, original_year, author_name, author, pub_date, country, genre, original_pub_date, narrative_location):
+def create_subwork_wikidata_items(subworks, collection_version_item, collection_work_item, collection_title, transcription_page_title, year, original_year, author_name, author, pub_date, country, genre, original_pub_date, narrative_location):
     site = pywikibot.Site("wikidata", "wikidata")
     for subwork in subworks:
         subwork_title = subwork["title"]
         print(f"Creating Wikidata items for {subwork_title}...")
         subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location)
+
+        if subwork_title == collection_title:
+            print("Collection title is the same as subwork title. Adding namesake property...")
+            add_property(site, work_item, 'P138', collection_work_item, 'named after (collection is named after subwork contained in collection)', transcription_page_title)
+
         print(f"Work item is {work_item} AFTER SUBWORK ITEM IS CREATED")
         subworks, version_item = create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item)
 
