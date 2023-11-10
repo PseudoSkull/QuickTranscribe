@@ -1,7 +1,7 @@
 # WS_collection
 
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
-from edit_mw import page_exists, save_page
+from edit_mw import page_exists, save_page, follow_redirect
 from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file
 from handle_pages import get_marker_from_page_num, get_page_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
@@ -152,7 +152,8 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
 
 
     add_property(repo, item, 'P31', literary_work, 'instance of', transcription_page_title)
-    add_property(repo, item, 'P18', handle_file(main_image_filename), 'base work main image', transcription_page_title)
+    if main_image_filename:
+        add_property(repo, item, 'P18', handle_file(main_image_filename), 'base work main image', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
     add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
@@ -184,7 +185,8 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     wikisource_link = subwork["wikisource_link"]
 
     add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
-    add_property(repo, item, 'P18', handle_file(main_image_filename), 'version main image', transcription_page_title)
+    if main_image_filename:
+        add_property(repo, item, 'P18', handle_file(main_image_filename), 'version main image', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P629', work_item, 'edition of work', transcription_page_title)
@@ -226,20 +228,31 @@ def determine_if_disambiguation_page_exists(subwork_title, site):
     # LOGIC WILL NEED TO BE CREATED FOR IF THE PAGE YOU CAME ACROSS WAS A *WORK* OR A *VERSIONS PAGE* rather than a disambig page
     variant_titles = generate_variant_titles(subwork_title)
     redirect_titles = variant_titles + [subwork_title]
+    disambiguation_template_possibilities = [
+        "{{disambig}}",
+        "{{dab}}",
+        "{{disambiguation}}",
+    ]
     for title in redirect_titles:
         if page_exists(title, site):
-            print_in_red(f"Uh oh! {title} already exists! Disambiguation is needed.")
-            return title
+            title = follow_redirect(title)
+            for template in disambiguation_template_possibilities:
+                if template in pywikibot.Page(site, title).text.lower():
+                    print_in_red(f"Uh oh! {title} already exists! Disambiguation is needed.")
+                    return title
     return False
 
-def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author_WS_name):
+def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author_WS_name, collection_title):
     site = pywikibot.Site("en", "wikisource")
     for subwork in subworks:
         work_link = subwork["work_link"]
         wikisource_link = subwork["wikisource_link"]
         subwork_title = subwork["title"]
+        if subwork_title == collection_title:
+            continue # for now we're gonna do this manually
         work_type_name = subwork["type"]
         print(f"Creating redirects for {subwork_title} ({wikisource_link})")
+        # disambiguation_page_title = follow_redirect(subwork_title)
         disambiguation_page_title = determine_if_disambiguation_page_exists(subwork_title, site)
 
         # print(variant_titles)

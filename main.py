@@ -927,7 +927,7 @@ if subworks:
     at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
     if not at_expected_progress:
-        redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author)
+        redirect_and_disambiguate_subworks(subworks, author_surname, original_year, author, title)
 
         process_break()
 

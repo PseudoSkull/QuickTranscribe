@@ -1662,6 +1662,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
     x = re.sub(r"o\?\"([a-z])", r"of \"\1", x)
+    x = re.sub(r"'ll([a-z])", r"'ll \1", x)
 
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-z])hearted", r"\1-hearted", x)

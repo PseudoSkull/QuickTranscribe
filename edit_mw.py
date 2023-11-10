@@ -241,6 +241,16 @@ def get_title_hierarchy(page_title, translator):
         return "disambig"
     return "work"
 
+def follow_redirect(page_title):
+    site = pywikibot.Site("en", "wikisource")
+    page = pywikibot.Page(site, page_title)
+    if page.isRedirectPage():
+        redirect_title = page.getRedirectTarget().title()
+        print(f"Page was a redirect. Going to {redirect_title}...")
+        return redirect_title
+    print("Page was not a redirect.")
+    return page_title
+
 # def count_instances_of_substring(s):
 #     count = 0
 #     for char in s:
