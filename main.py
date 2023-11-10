@@ -35,6 +35,7 @@ from handle_subworks import get_subwork_data, create_subwork_wikidata_items, red
 from handle_author import add_individual_works_to_author_page
 from handle_wikisource_export import test_pdf_export
 from handle_openlibrary import get_openlibrary_data
+from handle_loc import get_loc_classification
 import datetime
 
 
@@ -137,12 +138,17 @@ import datetime
 # Wikidata: gutia
 
 
-# THE ROAD TO MONTEREY
-# ol tag: parse OpenLibrary data
-#: https://openlibrary.org/developers/api
 
-# THE WAY OF THE WILD
-# Parse: /intr/ty=fm/
+
+
+
+
+
+
+# GRAY EAGLE (SASS COLLECTION)
+# Parse: Get chapter from page, if short story then do title
+# Subwork: Get image from frontispiece page pointer
+# Disambig: Eyes > follow redirect to Eye
 
 
 
@@ -570,6 +576,8 @@ gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
 edition_number = get_work_data(work_data, "edition number")
 
 
+loc_classification = get_loc_classification(lccn)
+
 
 
 transcription_text = transcription_page.text
@@ -577,7 +585,7 @@ expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     if gutenberg_id:

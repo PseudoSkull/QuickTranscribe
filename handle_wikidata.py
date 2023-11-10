@@ -501,7 +501,7 @@ def add_title_to_item(repo, item, title, alternative_title, transcription_page_t
     if alternative_title:
         add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=alternative_title, language='en'), 'title', transcription_page_title)
 
-def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, variable_name=None):
+def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
     add_description(item, f'{year} edition of work by {author_name}')
     add_alias(item, alternative_title)
@@ -535,6 +535,7 @@ def create_version_item(title, version_item, pub_date, year, author_item, author
     add_property(repo, item, 'P243', oclc, 'OCLC (WorldCat) ID', transcription_page_title)
     add_property(repo, item, 'P8091', ark_identifier, 'ARK ID', transcription_page_title)
     add_property(repo, item, 'P648', openlibrary_version_id, 'OpenLibrary version ID', transcription_page_title)
+    add_property(repo, item, 'P8360', loc_classification, 'Library of Congress Classification (call number)', transcription_page_title)
 
     if filename:
         add_scan_file_to_version_item(repo, item, filename, transcription_page_title)
