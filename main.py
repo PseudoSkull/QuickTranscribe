@@ -147,7 +147,11 @@ import datetime
 
 # GRAY EAGLE (SASS COLLECTION)
 # Parse: Get chapter from page, if short story then do title
+# Parse: Try to change the short story chapter heading
 # Subwork: Get image from frontispiece page pointer
+# Subwork: If work name contains "collection" and subwork has same title, then put "named after" in base work item of collection
+# Disambig: If collection in work, redirect = (Sass story)
+
 # Disambig: Eyes > follow redirect to Eye
 
 

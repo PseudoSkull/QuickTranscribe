@@ -799,7 +799,7 @@ def get_section_data(chapters, page_data, transcription_text):
             except ValueError:
                 page_num = page["marker"]
             content = page["content"]
-            
+        
             section_matches = re.findall(section_pattern, content)
 
             for match in section_matches:
@@ -1300,6 +1300,8 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             overall_chapter_num_zero_indexed = overall_chapter_num - 1
             chapter = chapters[overall_chapter_num_zero_indexed]
 
+            chapter_type = chapter["type"]
+            
             roman_chapter_num = ""
             real_chapter_num = chapter["chapter_num"]
             if real_chapter_num:
@@ -1340,11 +1342,20 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 if chapter_text == chapter_format:
                     chapter_text = f"{{{{ph|class=chapter|{chapter_title}.}}}}"
                 if ch_tag == "/ch/" and chapter_half_is_in_work:
-                    chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
+                    if chapter_type == "short story":
+                        print("CLEARLY I'M NOT GETTING HERE")
+                        chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
+                    else:
+                        print("Well, am I getting to the other one???")
+                        print(chapter_type)
+                        chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 # else: handle section tags
             else:
                 if ch_tag == "/ch/" and chapter_half_is_in_work:
-                    chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
+                    if chapter_type == "short story":
+                        chapter_text = f"{{{{ph|class=chapter|{chapter_title}}}}}"
+                    else:
+                        chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 elif chapter_title == None: # try this very verbose solution, but why on earth is it needed???
                     chapter_text = f"{{{{ph|class=chapter|{chapter_prefix}{displayed_section_num}}}}}"
                 elif ch_tag == "/contch/":
@@ -1729,8 +1740,9 @@ def get_internal_chapter_name(chapter):
     if not chapter_prefix:
         chapter_prefix = "Chapter"
     chapter_title = chapter["title"]
+    chapter_type = chapter["type"]
 
-    if not chapter_num:
+    if chapter_type != "numbered chapter":
         internal_chapter_name = chapter_title
     else:
         internal_chapter_name = f"{chapter_prefix} {chapter_num}"
@@ -1740,7 +1752,7 @@ def get_internal_chapter_name(chapter):
 def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
     if chapter == "Front matter":
         chapter_link = mainspace_work_title
-        if page_numberget_chapter_from_title_to_parse == "fro":
+        if page_number_to_parse == "fro":
             page_anchor = "frontis"
         elif page_number_to_parse == "cov":
             page_anchor = "cover"
