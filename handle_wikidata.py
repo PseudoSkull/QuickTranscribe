@@ -11,6 +11,7 @@ from handle_projectfiles import get_data_from_xml
 from handle_gutenberg import get_date_from_gutenberg
 from handle_wikisource_conf import update_conf_value
 from edit_mw import save_page
+from api_keys import google_books_api_key
 import requests
 import re
     
@@ -699,6 +700,38 @@ def get_oclc_from_gb(gb_id):
 
     print_in_red(f"Response code not 200. Was: {response.status_code}")
     return None
+
+def get_google_books_id_from_oclc(oclc):
+    import requests
+
+def get_book_id_by_oclc(oclc):
+    print("Attempting to retrieve the Google Books ID from the OCLC number...")
+    # Construct the URL for the Google Books API
+    if not oclc:
+        print_in_yellow("No OCLC found.")
+        return
+    
+    url = f"https://www.googleapis.com/books/v1/volumes?q=oclc:{oclc}&key={google_books_api_key}"
+
+    # Make the request to the Google Books API
+    response = requests.get(url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        data = response.json()
+        items = data.get('items', [])
+        
+        # Check if any items were found
+        if items:
+            # Return the ID of the first book found
+            books_id = items[0]['id']
+            print_in_green(f"Success. Google Books ID: {books_id}")
+            return books_id
+        else:
+            print_in_yellow("No books found with that OCLC number.")
+    else:
+        print_in_yellow(f"Error: {response.status_code}")
+
 
 def get_oclc(hathitrust_id, gb_id):
     if hathitrust_id and hathitrust_id != "None":

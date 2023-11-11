@@ -18,7 +18,7 @@ import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page, get_author_page_title, remove_esl_and_ssl_from_backlinks
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
-from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier, get_openlibrary_id, create_gutenberg_version_item
+from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier, get_openlibrary_id, create_gutenberg_version_item, get_book_id_by_oclc
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section, get_editor
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
 from handle_index import extract_file_extension, create_index_page, create_index_styles, change_proofread_progress, create_index_pagelist, get_first_page, change_transclusion_progress
@@ -140,19 +140,16 @@ import datetime
 
 
 
+# https://onlinebooks.library.upenn.edu/webbin/gutbook/lookup?num=63342
 
 
 
 
-
-# GRAY EAGLE (SASS COLLECTION)
-# Parse: Get chapter from page, if short story then do title
-# Parse: Try to change the short story chapter heading
-# Subwork: Get image from frontispiece page pointer
-# Subwork: If work name contains "collection" and subwork has same title, then put "named after" in base work item of collection
-# Disambig: If collection in work, redirect = (Sass story)
-
-# Disambig: Eyes > follow redirect to Eye
+# A GENTLEMAN FROM FRANCE
+# Wikidata: Get Books ID from OCLC???
+# "My Dog" poem in work that is otherwise a novel
+# Parse: Poem NOP -> Stanza
+# Subwork: Get first line of poem by means of parsing
 
 
 
@@ -303,9 +300,11 @@ common_publishers = {
     "Jacobs": "Q63986176",
     "Knopf": "Q1431868",
     "Little": "Q552959",
+    "Lothrop": "Q106389035",
     "Macmillan": "Q2108217",
     "McClurg": "Q4647618",
     "Putnam": "Q3093062",
+    "Scribner": "Q845617",
     "Small": "Q7542583",
     "Stokes": "Q19443780",
 }
@@ -540,9 +539,13 @@ ark_identifier = get_ark_identifier(hathitrust_full_text_id)
 
 IA_id = get_work_data(work_data, "Internet Archive ID")
 GB_id = get_work_data(work_data, "Google Books ID")
+
 oclc = get_work_data(work_data, "OCLC control number")
 if not oclc:
     oclc = get_oclc(hathitrust_id, GB_id)
+
+if not GB_id:
+    GB_id = get_book_id_by_oclc(oclc)
 
 lccn = get_data_from_xml("lccn")
 
