@@ -625,7 +625,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if "front-matter" in chapter_settings:
                             chapter["type"] = "front-matter chapter"
                         
-                    if chapter_type == "nam" or chapter["type"] == "non-work chapter":
+                    if chapter_type == "nam" or chapter["type"] != "default":
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                         chapter_num -= 1
@@ -1041,11 +1041,10 @@ def determine_illustration_page_number(image, page_data):
 
 
 def generate_illustrations(image_data, page_data, chapters, mainspace_work_title):
-    print("Are we trying to LITERALLY FUCKING GENERATE ILLUSTRATIONS?")
     first_sequential_image_done = False
-    illustrations_beginning = """{{c|{{larger|LIST OF ILLUSTRATIONS}}}}
+    illustrations_beginning = """c|{{larger|{{uc|Illustrations}}}}}}
 {{dhr}}
-{{TOC begin|sc=}}
+{{TOC begin}}
 """
     for image in image_data:
         image_type = image["type"]
@@ -1056,11 +1055,12 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
             illustration_page_number = "fro"
         elif image_type == "sequential" and image_caption:
             illustration_page_number = determine_illustration_page_number(image, page_data)
-            if first_sequential_image_done:
-                page_word = "{{ditto|page}} "
-            if not first_sequential_image_done:
-                first_sequential_image_done = True
-                page_word = "{{sc|page}} "
+            # if first_sequential_image_done:
+            #     page_word = "{{ditto|page}} "
+            # if not first_sequential_image_done:
+            #     first_sequential_image_done = True
+            #     page_word = "{{sc|page}} "
+            page_word = "" # For now
             page_number_parameter = page_word + illustration_page_number
             page_number_to_parse = "i"
         else:
@@ -1070,13 +1070,29 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
             illustration_link = generate_page_link(chapter, page_number_to_parse, mainspace_work_title)
             illustrations_beginning += f"{{{{TOC row 2-1|[[{illustration_link}|{image_caption}]]|{page_number_parameter}}}}}\n"
 
-    illustrations_end = "{{TOC end}}"
+    illustrations_end = "{{TOC end"
     illustrations = illustrations_beginning + illustrations_end
     return illustrations
 
 
 
 def format_chapter_beginning_to_smallcaps(page):
+    words_to_avoid_pairing_with_names = [
+        "Although",
+        "And",
+        "As",
+        "How",
+        "If",
+        "Is",
+        "That",
+        "The",
+        "Then",
+        "Was",
+        "What",
+        "When",
+        "Where",
+        "Why",
+    ]
     content = page['content']
 
     if string_not_in_content(content, "/ch/", "Formatting chapter beginning to smallcaps"):
@@ -1301,7 +1317,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             chapter = chapters[overall_chapter_num_zero_indexed]
 
             chapter_type = chapter["type"]
-            
+
             roman_chapter_num = ""
             real_chapter_num = chapter["chapter_num"]
             if real_chapter_num:
@@ -1742,7 +1758,7 @@ def get_internal_chapter_name(chapter):
     chapter_title = chapter["title"]
     chapter_type = chapter["type"]
 
-    if chapter_type != "numbered chapter":
+    if chapter_type != "numbered chapter" and chapter_type != "default":
         internal_chapter_name = chapter_title
     else:
         internal_chapter_name = f"{chapter_prefix} {chapter_num}"
@@ -2030,6 +2046,16 @@ def handle_poem_continuations(poem_continuations): # unused for now, until poem 
     poem_continuations.append("follow")
     return poem_continuations
 
+def detect_and_remove_nop_from_poem_continuation(content, end_continuation):
+    is_stanza = False
+    if "{{nop}}" in content or "/n/" in content:
+        print("WE GOT TO STANZA")
+        content = content.replace("\n{{nop}}", "")
+        content = content.replace("\n/n/", "")
+        end_continuation = "stanza"
+        is_stanza = True
+    return content, end_continuation, is_stanza
+
 def convert_poems(page, poem_continuations, convert_fqms):
     content = page["content"]
 
@@ -2048,11 +2074,9 @@ def convert_poems(page, poem_continuations, convert_fqms):
             content = content.replace("//poi/", "}}", 1)
         else:
             content += "\n}}"
-            if "{{nop}}" in content or "/n/" in content:
-                print("WE GOT TO STANZA")
-                content = content.replace("\n{{nop}}", "")
-                content = content.replace("\n/n/", "")
-                end_continuation = "stanza"
+            content, end_continuation, is_stanza = detect_and_remove_nop_from_poem_continuation(content, end_continuation)
+            if is_stanza:
+                pass
             elif "/f/" in content:
                 content = content.replace("\n/f/", "")
                 end_continuation = "same-line"
@@ -2087,9 +2111,11 @@ def convert_poems(page, poem_continuations, convert_fqms):
     
     # if /po// tag still in content after conversions, then start the continuation process
     if "/po//" in content or "/poi//" in content:
-        content = content.replace("/po//", "{{ppoem|class=poem|end=follow|")
-        content = content.replace("/poi//", "{{ppoem|class=poem-italic|end=follow|")
-        poem_continuations.append("follow")
+        end_continuation = "follow"
+        content, end_continuation, is_stanza = detect_and_remove_nop_from_poem_continuation(content, end_continuation)
+        content = content.replace("/po//", f"{{{{ppoem|class=poem|end={end_continuation}|")
+        content = content.replace("/poi//", f"{{{{ppoem|class=poem-italic|end={end_continuation}|")
+        poem_continuations.append(end_continuation)
         content += "\n}}"
 
     if convert_fqms != "n":
