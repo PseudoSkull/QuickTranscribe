@@ -402,11 +402,11 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
 def generate_chapter_categories(chapter):
     categories = []
     chapter_type = chapter["type"]
-    if chapter_type == "short story":
+    if chapter_type == "short story" or chapter_type == "ss":
         categories.append("Short stories")
-    elif chapter_type == "poem":
+    elif chapter_type == "poem" or chapter_type == "po":
         categories.append("Poems")
-    elif chapter_type == "essay":
+    elif chapter_type == "essay" or chapter_type == "es":
         categories.append("Essays")
     
     if len(categories) > 0:
@@ -446,7 +446,13 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         authority_control = ""
         if chapter_has_references:
             smallrefs = "\n\n{{smallrefs}}"
-
+        if chapter_type == "ss":
+            chapter_type = "short story"
+        if chapter_type == "po":
+            chapter_type = "poem"
+        if chapter_type == "es":
+            chapter_type = "essay"
+        
         if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
             chapter_internal_name = chapter_name
             authority_control = "\n\n\n{{authority control}}"

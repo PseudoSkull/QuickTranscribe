@@ -33,7 +33,9 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
     # else:
     #     work_type_plural = work_type_name + "s"
 
-    work_type_plural = "short stories" # FOR NOW
+    work_type_plural = "poem" + "s" # FOR NOW
+    if work_type_name == "short story":
+        work_type_plural = "short stories" # FOR NOW
 
     individual_works = f"\n\n===Individual {work_type_plural}===\n"
 

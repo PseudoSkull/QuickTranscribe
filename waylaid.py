@@ -9,6 +9,7 @@ import sys
 import time
 import random
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
+from cleanup import remove_triple_newlines
 # T'll WAS STILL IN THE TEXT AFTER BEING SUPPOSEDLY CORRECTED. WHAT HAPPENED THIS TIME?????
 
 def correct_text(text_file, work_type):
@@ -1670,6 +1671,7 @@ def correct_text(text_file, work_type):
     x = x.replace("\"js ", "\"is ")
     x = x.replace(" js ", " is ")
     x = x.replace("hateau", "hâteau")
+    x = x.replace(" fram ", " from ")
     x = re.sub(r"([a-z])'t([a-z])", r"\1 't\2", x)
     x = re.sub(r"very([a-z])", r"very \1", x)
     x = re.sub(r"([a-z]),'t([a-z])", r"\1, 't\2", x)
@@ -1770,6 +1772,48 @@ def correct_text(text_file, work_type):
         print_in_red("OH MY GOD WTF HAPPENED")
         exit()
     print_in_green("OCR has been corrected!")
+
+    # INTEGRATE PAGE LAYOUT
+
+    page_string = "\n\n-\n\n"
+
+    x = x.replace("  ", " ")
+    x = x.replace(" \n", "\n")
+    x = x.replace("\nDigitized by\n", page_string)
+    x = x.replace("\nOriginal from\n", page_string)
+    x = x.replace("\nGoogle\n", page_string)
+    x = x.replace(" Google\n", page_string)
+
+    for i in range(1, 51):
+        replacement = r'.' * i
+        x = re.sub(rf"\n[0-9]+?{replacement}\n", page_string, x)
+        x = re.sub(rf"\n{replacement}[0-9]+?\n", page_string, x)
+    
+    x = remove_triple_newlines(x)
+
+    x = re.sub(r" [0-9]+?\n\n-\n", "\n\n-\n", x)
+
+    while 1:
+        if "\n-\n\n-\n" in x:
+            x = x.replace("\n-\n\n-\n", "\n-\n")
+        else:
+            break
+
+    
+    x = re.sub(r"([a-z])\.\n\n-\n\n([a-z])", r"\1,\n\n-\n\n\2", x)
+
+    x = re.sub(r"\.\n\n([a-z])", r", \1", x)
+
+    x = re.sub(r"([a-z])\"\n\n", r"\1/b2/\"\n\n", x)
+
+    x = x.replace("——", "/b2/")
+
+    x = remove_triple_newlines(x)
+
+    # x = re.sub(r"\nCHAPTER .+?\n\n")
+
+
+
     return x
 
 """

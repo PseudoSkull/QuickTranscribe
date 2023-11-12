@@ -38,11 +38,13 @@ def get_frontispiece_linked_chapter(chapter_data, page_data, image_data):
         return None
     else:
         frontispiece_page_num = frontispiece_image["page_num"]
-        frontispiece_page_marker = get_page_from_page_num(frontispiece_page_num, page_data)
+        frontispiece_page = get_page_from_page_num(frontispiece_page_num, page_data)
+        frontispiece_page_content = get_page_from_page_num(frontispiece_page_num, page_data)
         frontispiece_chapter = get_chapter_from_page_num(chapter_data, frontispiece_page_marker)
         return frontispiece_chapter
 
 def get_subwork_image(expected_title, page_data, chapter_data, image_data):
+    return None
     unaccepted_image_types = [
         "vignette",
         "fleuron",
@@ -53,12 +55,12 @@ def get_subwork_image(expected_title, page_data, chapter_data, image_data):
     ]
 
     # try and get frontispiece first
-    frontispiece_chapter = get_frontispiece_linked_chapter(chapter_data, page_data, image_data)
-    if frontispiece_chapter:
-        frontispiece_chapter_title = frontispiece_chapter["title"]
-        frontispiece = get_frontispiece_image(image_data)
-        if frontispiece_chapter_title == expected_title:
-            return frontispiece["title"] + "." + frontispiece["extension"]
+    # frontispiece_chapter = get_frontispiece_linked_chapter(chapter_data, page_data, image_data)
+    # if frontispiece_chapter:
+    #     frontispiece_chapter_title = frontispiece_chapter["title"]
+    #     frontispiece = get_frontispiece_image(image_data)
+    #     if frontispiece_chapter_title == expected_title:
+    #         return frontispiece["title"] + "." + frontispiece["extension"]
 
     for image in image_data:
         image_type = image["type"]
@@ -89,6 +91,8 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                 image = get_subwork_image(title, page_data, chapters, image_data)
                 status = "proofread" # for now
                 wikisource_link = f"{mainspace_work_title}/{title}"
+                if chapter_type == "poem" or chapter_type == "po":
+                    first_line = get_first_line_of_poem(title, page_data, chapters)
 
                 subwork_data = {
                     "title": title,
@@ -98,6 +102,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                     "image": image,
                     "wikisource_link": wikisource_link,
                     "work_link": None,
+                    "first_line": first_line,
                     "status": status,
                 }
 
@@ -165,6 +170,24 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
 
     return subworks, work_item
 
+def get_first_line_of_poem(poem_title, page_data, chapter_data):
+    poem_punctuation = [
+        ".",
+        ",",
+        ";",
+    ]
+    for chapter in chapter_data:
+        if chapter["title"] == poem_title:
+            chapter_page = get_page_from_page_num(chapter_page_num, page_data)
+            chapter_content = chapter_page["content"]
+            first_line = re.search(r"\{\{ppoem\|.+?\n(.+?)\n", chapter_content).group(0)
+            for punctuation in poem_punctuation:
+                if first_line.endswith(punctuation):
+                    first_line = first_line[:-1]
+                    break
+            return first_line
+    return "This is the first line of the poem."
+
 def create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item):
     version_item = subwork["version_item"]
     title = subwork["title"]
@@ -183,6 +206,8 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     # work_item = subwork["work_item"]
     printed_matter = 'Q1261026'
     wikisource_link = subwork["wikisource_link"]
+    first_line_property = 'P1922'
+    first_line = subwork["first_line"]
 
     add_property(repo, item, 'P31', version_edition_or_translation, 'instance of', transcription_page_title)
     if main_image_filename:
@@ -191,6 +216,8 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
     add_property(repo, item, 'P629', work_item, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    if first_line:
+        add_property(repo, item, first_line_property, pywikibot.WbMonolingualText(text=first_line, language='en'), 'first line of poem', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P1433', collection_version_item, 'published in (version item of collection)', transcription_page_title)
     add_property(repo, item, 'P437', printed_matter, 'distribution format (printed matter)', transcription_page_title)
@@ -203,6 +230,8 @@ def create_subwork_wikidata_items(subworks, collection_version_item, collection_
     site = pywikibot.Site("wikidata", "wikidata")
     for subwork in subworks:
         subwork_title = subwork["title"]
+
+
         print(f"Creating Wikidata items for {subwork_title}...")
         subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location)
 
