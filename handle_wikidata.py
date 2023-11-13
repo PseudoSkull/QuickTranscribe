@@ -436,7 +436,7 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
     
 
 
-def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_item, variable_name=None):
+def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_item, derivative_work, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
     add_description(item, f'{original_year} {work_type_name} by {author_name}')
@@ -455,6 +455,7 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     handle_series(repo, item, series, transcription_page_title)
     handle_sequence(repo, item, previous_item, transcription_page_title)
     add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
+    add_property(repo, item, 'P4969', derivative_work, 'derivative work (film based on the book)', transcription_page_title)
     if "collection" not in work_type_name:
         add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
@@ -462,6 +463,8 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
     # UNLESS IT'S A TRANSLATION, IN WHICH CASE WE NEED TO ADD THE ORIGINAL LANGUAGE, add this functionality later
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     add_property(repo, item, 'P648', openlibrary_work_id, 'OpenLibrary work ID', transcription_page_title)
+    derivative_work
+
 
     
     return item_id

@@ -573,7 +573,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, transcription_text, chapters_are_subpages_of_parts):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -714,6 +714,8 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         genre_categories = generate_genre_categories(genre_name, work_type_name)
         categories += genre_categories
 
+    if derivative_work: # FOR NOW, until it gets more complicated
+        categories.append("Novels adapted into films")
 
 
 

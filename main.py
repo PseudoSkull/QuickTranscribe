@@ -145,11 +145,13 @@ import datetime
 
 
 
-# A GENTLEMAN FROM FRANCE
-# Wikidata: Get Books ID from OCLC???
-# "My Dog" poem in work that is otherwise a novel
-# Parse: Poem NOP -> Stanza
-# Subwork: Get first line of poem by means of parsing
+# Tongues of Flame
+# Cleanup: List all words that start with '
+# Cleanup: List all words that end with ' and don't end with s
+# Cleanup: List all paragraphs with bad quotation PATTERNS
+## Patterns should look like this. '"word ' 'word" ' '"word ' 'word" '
+# Derv
+# Transclusion: Books with films based on them made
 
 
 
@@ -482,6 +484,8 @@ if not original_pub_date:
 original_year = get_year_from_date(original_pub_date)
 commons_category = get_work_data(work_data, "Commons category")
 
+derivative_work = get_work_data(work_data, "derivative work")
+
 base_work = get_work_data(work_data, wikidata_item_of("base work"))
 
 author_item = None
@@ -559,7 +563,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_work, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_work, derivative_work, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -840,7 +844,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, transcription_text, chapters_are_subpages_of_parts)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts)
 
     create_redirects(mainspace_work_title, alternative_title, subtitle)
 

@@ -444,6 +444,8 @@ def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None,
         redirect_target = page_title_to_parse
     
     if subtitle:
+        if "(" in page_title_to_parse:
+            page_title_to_parse = page_title_to_parse.split("(")[0]
         colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
         comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
         variant_titles.append(colon_subtitle_form)

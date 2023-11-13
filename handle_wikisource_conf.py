@@ -59,6 +59,7 @@ variables_with_descriptions = {
         "fol": "previous work",
         "prev": "previous work",
         "scanner": "user who produced scan",
+        "der": "derivative work",
         "progress": "QT progress flag",
     }
 
