@@ -79,6 +79,7 @@ def initial_text_cleanup(text):
     text = remove_triple_newlines(text)
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
+    text = text.replace("\nm\n", "\nn\n")
     text = text.replace("<br>", "<br />")
     text = text.replace("{{hr|", "{{rule|")
     text = text.replace("{{hr}}", "{{rule}}")

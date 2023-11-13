@@ -1785,6 +1785,88 @@ def generate_page_link(chapter, page_number_to_parse, mainspace_work_title):
 
     return chapter_link
 
+def get_chapter_link_in_relation(page, relation, chapters):
+    marker = page["marker"]
+    try:
+        marker = int(marker)
+    except ValueError:
+        print_in_red(f"Error! Marker is not an integer. Marker found: {marker}")
+        exit()
+    
+    
+    
+    chapter = get_chapter_from_page_num(chapters, marker)
+    chapter_link = get_internal_chapter_name(chapter)
+
+    chapter_link = chapter_link.split(" ")
+    chapter_num = int(chapter_link[-1])
+
+    if relation == "+":
+        chapter_num += 1
+    elif relation == "-":
+        chapter_num -= 1
+
+    chapter_link = chapter_link[0] + " " + str(chapter_num)
+
+    return chapter_link
+
+
+def convert_chapter_links(page, chapters, mainspace_work_title):
+    content = page["content"]
+
+    previous_chapter_phrases = [
+        "my last chapter",
+        "my preceding chapter",
+        "my previous chapter",
+        "the last chapter",
+        "the preceding chapter",
+        "the previous chapter",
+    ]
+
+    next_chapter_phrases = [
+        "the following chapter",
+        "my next chapter",
+        "the next chapter",
+    ]
+
+    for phrase in previous_chapter_phrases:
+        if f"/{phrase}/" in content.lower():
+            print(f"/{phrase}/ found in content. Converting to previous chapter link.")
+            previous_chapter_link = get_chapter_link_in_relation(page, "-", chapters)
+            content = content.replace(f"/{phrase}/", f"[[{mainspace_work_title}/{previous_chapter_link}|{phrase}]]")
+            content = content.replace(f"/{phrase.capitalize()}/", f"[[{mainspace_work_title}/{previous_chapter_link}|{phrase}]]")
+    
+    for phrase in next_chapter_phrases:
+        if f"/{phrase}/" in content.lower():
+            print(f"/{phrase}/ found in content. Converting to next chapter link.")
+            next_chapter_link = get_chapter_link_in_relation(page, "+", chapters)
+            content = content.replace(f"/{phrase}/", f"[[{mainspace_work_title}/{next_chapter_link}|{phrase}]]")
+            content = content.replace(f"/{phrase.capitalize()}/", f"[[{mainspace_work_title}/{next_chapter_link}|{phrase}]]")
+
+    if " /chapter " in content.lower():
+        print("/chapter / found in content. Converting to chapter link.")
+        chapter_links_pattern = r"\/([Cc]hapter) (.+?)\/"
+        chapter_links = re.findall(chapter_links_pattern, content)
+
+        for chapter_link in chapter_links:
+            chapter_link = list(chapter_link)
+            text_in_chapter_link = chapter_link[0]
+            chapter_number_to_parse = chapter_link[1]
+            original_chapter_number = chapter_number_to_parse
+            try:
+                chapter_number_to_parse = int(chapter_number_to_parse)
+            except ValueError:
+                chapter_number_to_parse = roman.fromRoman(chapter_number_to_parse)
+            
+            chapter_link = f"[[{mainspace_work_title}/{text_in_chapter_link} {chapter_number_to_parse}|{text_in_chapter_link} {original_chapter_number}]]"
+
+            content = re.sub(chapter_links_pattern, chapter_link, content, count=1)
+
+    page["content"] = content
+    return page
+
+
+
 def convert_page_links(page, chapters, mainspace_work_title):
     content = page["content"]
 
@@ -2324,6 +2406,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         img_num, page = convert_images(page, image_data, img_num)
         page = convert_page_links(page, chapters, mainspace_work_title)
+        page = convert_chapter_links(page, chapters, mainspace_work_title)
 
 
         page, reference_continuations = handle_references(page, reference_continuations)

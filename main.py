@@ -145,13 +145,12 @@ import datetime
 
 
 
-# Tongues of Flame
+# The Case for Capitalism
 # Cleanup: List all words that start with '
 # Cleanup: List all words that end with ' and don't end with s
 # Cleanup: List all paragraphs with bad quotation PATTERNS
 ## Patterns should look like this. '"word ' 'word" ' '"word ' 'word" '
-# Derv
-# Transclusion: Books with films based on them made
+# Parse: Get chapter links in text: /my last chapter/, /Chapter I/, /the next chapter/
 
 
 
@@ -461,7 +460,7 @@ location = get_work_data(work_data, "location of publication", common_locations)
 original_location = get_work_data(work_data, "original location", common_locations)
 if not original_location:
     original_location = location
-country = get_value_from_property(original_location, "P17")
+country = get_value_from_property(original_location, "P17", get_last_item=True)
 country_name = get_country_name(country)
 
 work_type = get_work_data(work_data, "work type", common_work_types)
@@ -587,15 +586,15 @@ gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
 edition_number = get_work_data(work_data, "edition number")
 
 
-loc_classification = get_loc_classification(lccn)
-
 
 
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
+
 if not at_expected_progress:
+    loc_classification = get_loc_classification(lccn)
     version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
