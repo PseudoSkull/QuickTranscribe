@@ -92,6 +92,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                 image = get_subwork_image(title, page_data, chapters, image_data)
                 status = "proofread" # for now
                 wikisource_link = f"{mainspace_work_title}/{title}"
+                first_line = None
                 if chapter_type == "poem" or chapter_type == "po":
                     first_line = get_first_line_of_poem(title, page_data, chapters)
 
@@ -191,7 +192,7 @@ def get_first_line_of_poem(poem_title, page_data, chapter_data):
                     first_line = first_line[:-1]
                     break
             return first_line
-    return "This is the first line of the poem."
+    return None
 
 def create_subwork_version_item(subwork, subworks, transcription_page_title, year, author_name, author, pub_date, collection_version_item, work_item):
     version_item = subwork["version_item"]
@@ -287,6 +288,7 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
         subwork_title = subwork["title"]
         if subwork_title == collection_title:
             continue # for now we're gonna do this manually
+        subwork_subtitle = subwork["subtitle"]
         work_type_name = subwork["type"]
         print(f"Creating redirects for {subwork_title} ({wikisource_link})")
         # disambiguation_page_title = follow_redirect(subwork_title)
@@ -306,7 +308,7 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
         subwork["work_link"] = work_link
         subworks = append_subwork_data(subwork, subworks)
 
-        create_redirects(work_link, redirect_target=wikisource_link)
+        create_redirects(work_link, redirect_target=wikisource_link, subtitle=subwork_subtitle)
 
     print_in_green("All redirects and disambiguation done!")
 

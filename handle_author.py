@@ -15,11 +15,15 @@ def get_individual_works_from_author_page(author_page_title, author_page_text, i
         individual_works = individual_works.split("\n\n\n{{")[0]
         individual_works_as_list = individual_works.split("\n")
         existing_works = []
+        wd_authors = []
         for individual_work in individual_works_as_list:
-            existing_work = re.search(r"\[\[(.+?)\|", individual_work).group(1)
-            work_year = re.search(r"\(([0-9][0-9][0-9][0-9])\)", individual_work).group(1)
+            if "WD author" in individual_work:
+                wd_authors.append(individual_work)
+                continue
+            existing_work = re.search(r"\[\[(.+?)[\|\]]", individual_work).group(1)
+            work_year = re.search(r"([0-9][0-9][0-9][0-9])", individual_work).group(1)
             existing_works.append({"work_link": existing_work, "work_year": work_year})
-        return individual_works, existing_works
+        return individual_works, existing_works, wd_authors
     return None, None
 
 def add_individual_works_to_author_page(subworks, author, work_type_name, original_year):
@@ -34,14 +38,14 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
     #     work_type_plural = work_type_name + "s"
 
     work_type_plural = "poem" + "s" # FOR NOW
-    if work_type_name == "short story":
+    if "short story" in work_type_name:
         work_type_plural = "short stories" # FOR NOW
 
     individual_works = f"\n\n===Individual {work_type_plural}===\n"
 
     # Sort works by DEFAULTSORT and not by name, so that we can sort past "The", "A", etc.
     unsorted_work_links = [{"work_link": i["work_link"], "work_year": f"{original_year}"} for i in subworks]
-    previous_works_listing, existing_works = get_individual_works_from_author_page(author_page_title, author_page_text, individual_works)
+    previous_works_listing, existing_works, wd_authors = get_individual_works_from_author_page(author_page_title, author_page_text, individual_works)
     if existing_works:
         unsorted_work_links += existing_works
     
@@ -67,12 +71,12 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
         individual_work_entries.append(individual_work_entry)
 
 
+    individual_works = "\n".join(individual_work_entries)
+    individual_works = individual_works + "\n" + "\n".join(wd_authors)
 
     if previous_works_listing:
-        individual_works = "\n".join(individual_work_entries)
         author_page_text = author_page_text.replace(previous_works_listing, individual_works)
     else:
-        individual_works += "\n".join(individual_work_entries)
         if "==Works about" in author_page_text:
             author_page_text = author_page_text.replace("\n\n==Works about", f"{individual_works}\n\n==Works about")
         else:

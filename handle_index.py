@@ -75,8 +75,10 @@ style_defaults = {
     font-size: 120%;""",
 
     "chapter-subtitle":
-    """	font-size: 92%;
-	font-variant: all-small-caps;""",
+    """	text-align: center;
+	font-size: 92%;
+	font-variant: all-small-caps;
+    margin-bottom: 1.5em;""",
 
     "dropinitial-with-image":
     """	width: 75px;""",
