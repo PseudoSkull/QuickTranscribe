@@ -15,6 +15,8 @@ from cleanup import remove_triple_newlines
 def correct_text(text_file, work_type):
     print("Parsing OCR...")
 
+    consonants_regex = r"[bcdfghjklmnpqrstvwxzBCDFGHJKLMNPQRSTVWXZ]"
+
     poetry = False
 
     if work_type == "pc":
@@ -1385,7 +1387,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])'s([a-z])", r"\1's \2", x)
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-f h-z])uess ", r"\1ness", x)
-    x = re.sub(r" well([a-z])", r" well-\1", x)
+    x = re.sub(r" well([a-z][a-z])", r" well-\1", x)
     x = re.sub(r" self([a-z])", r" self-\1", x)
     x = x.replace("self-ish", "selfish")
     x = x.replace("sawit", "saw it")
@@ -1693,6 +1695,23 @@ def correct_text(text_file, work_type):
     x = x.replace(" sce ", " see ")
     x = x.replace(" ora ", " or a ")
     x = x.replace(" hima ", " him a ")
+    x = x.replace("Espafia", "España")
+    x = x.replace("Espajia", "España")
+    x = x.replace("dofia", "doña")
+    x = x.replace("dojia", "doña")
+    x = x.replace("Dofia", "Doña")
+    x = x.replace("Dojia", "Doña")
+    x = x.replace("Donia", "Doña")
+
+    x = x.replace("ojfia", "oña")
+    x = x.replace(" hke", " like")
+    x = x.replace("bhnd", "blind")
+    x = x.replace(" inthe ", " in the ")
+    x = x.replace("cHff", "cliff")
+
+    x = x.replace("<A", "A")
+    x = x.replace(",\"\n\n", ".\"\n\n")
+
 
     x = x.replace(" haveseen ", " have seen ")
     x = x.replace("Tf", "If")
@@ -1700,6 +1719,7 @@ def correct_text(text_file, work_type):
     x = x.replace("cv,", "cy,")
     x = x.replace("portecochere", "porte-cochere")
     x = x.replace("porte-cochere", "porte-cochère")
+
     x = re.sub(r"\. '([A-Z])", r". \"\1", x)
     
 
@@ -1728,7 +1748,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])tempered", r"\1-tempered", x)
     x = re.sub(r"([a-z])uniformed", r"\1-uniformed", x)
     x = re.sub(r"([a-z])covered", r"\1-covered", x)
-    x = x.replace(" dis-cover", " discover")
+    x = x.replace("dis-cover", "discover")
     x = x.replace(" re-cover", " recover")
     x = re.sub(r"([a-z])crested", r"\1-crested", x)
     x = re.sub(r"([a-z])clawed", r"\1-clawed", x)
@@ -1762,11 +1782,20 @@ def correct_text(text_file, work_type):
     x = re.sub(r"in'\? ([a-z])", r"in' \1", x)
     x = re.sub(r" the'([a-z])", r" the \1", x)
     x = re.sub(r"([a-z])\n\n([a-z])", r"\1 \2", x)
+    x = re.sub(rf"({consonants_regex})hng", r"\1ing", x)
+    x = re.sub(r"([a-z]) In ", r"\1 in ", x)
+    x = re.sub(r"([a-z]) It", r"\1 it", x)
+    x = re.sub(r"([a-z])U([a-z])", r"\1ll\2", x)
+
 
     # Fix all instances of short quotes not beginning in "
     x = re.sub(r"(..\n\n)([A-Z][^\"|\n]+?)\"\n\n", r"\1\"\2\"\n\n", x)
     x = re.sub(r"\n\n\"(.+?)\" (.+?)\. '", r"\n\n\"\1\" \2. \"", x)
     x = re.sub(r"\"(.+?)\" ([^\"]+?)\" (.)", r"\"\1\" \2 \"\3", x)
+
+    # "(.+?)' (.+?)" ([^"]+?)"\n
+
+    x = re.sub(r"\"(.+?)' (.+?)\" ([^\"]+?)\"\n", r"\"\1\" \2 \"\3\"\n", x)
     # THIS WAS FREEZING UP FOR SOME REASON ON A WORK! FIGURE OUT WHY
     # x = re.sub(r"([^\"]+?)([! , \? \.])' ([^\"]+?)\" ", r"\"\1\2\" \3 \"", x)
 

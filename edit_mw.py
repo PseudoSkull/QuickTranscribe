@@ -183,6 +183,7 @@ def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
             "ssl",
             "small scan link",
             "external scan link",
+            "ext scan link",
             "scn",
             "scan needed",
             "IA small link",

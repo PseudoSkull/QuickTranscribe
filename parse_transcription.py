@@ -513,12 +513,20 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["splice"] = False
             chapter["type"] = "advertisements"
             chapter["format"] = page_format
+            chapter["subtitle"] = None
             
             chapters.append(chapter)
             break
+        chapter["subtitle"] = None
 
         content = page["content"]
         content_lines = content.split("\n\n")
+
+        if "/sub/" in content:
+            chapter_subtitle = re.search(r"\/sub\//(.+?)\n\n", content).group(1)
+            print(f"Subtitle found: {chapter_subtitle}")
+            chapter_subtitle = convert_to_title_case(chapter_subtitle)
+            chapter["subtitle"] = chapter_subtitle
 
         for line in content_lines:
             for chapter_tag in chapter_tags:
@@ -1398,7 +1406,9 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 chapter_text += "\n/sec/"
 
             content = replace_line(content, chapter_text, line_num)
-
+        chapter_subtitle = chapter["subtitle"]
+        if chapter_subtitle:
+            content = re.sub(r"\/sub\//.+?\n\n", f"{{{{ph|class=chapter-subtitle|{chapter_subtitle}}}}}\n\n", content)
             # chapter_num += 1
 
     content = content.replace("  ", " ")

@@ -152,6 +152,12 @@ import datetime
 ## Patterns should look like this. '"word ' 'word" ' '"word ' 'word" '
 # Parse: Get chapter links in text: /my last chapter/, /Chapter I/, /the next chapter/
 
+# WISDOM OF THE WILDERNESS
+# Parse: /sub// tag for the subtitle of a chapter
+# Index: chapter-subtitle css class
+# Subworks: Get subtitle for subwork
+# Redirects: Include subtitle for subwork in redirect variants
+
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
@@ -254,6 +260,7 @@ common_genres = {
     "fiction": "Q306614",
     "historical": "Q1196408",
     "mystery": "Q6585139",
+    "nature": "Q3337126",
     "nonfiction": "Q213051",
     "science fiction": "Q24925",
     "scifi": "Q24925",

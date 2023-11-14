@@ -74,6 +74,10 @@ style_defaults = {
     """	font-style: italic;
     font-size: 120%;""",
 
+    "chapter-subtitle":
+    """	font-size: 92%;
+	font-variant: all-small-caps;""",
+
     "dropinitial-with-image":
     """	width: 75px;""",
 

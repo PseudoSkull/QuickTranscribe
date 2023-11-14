@@ -87,6 +87,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
         for chapter in chapters:
             title = chapter["title"]
             chapter_type = chapter["type"]
+            subtitle = chapter["subtitle"]
             if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
                 image = get_subwork_image(title, page_data, chapters, image_data)
                 status = "proofread" # for now
@@ -96,6 +97,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
 
                 subwork_data = {
                     "title": title,
+                    "subtitle": subtitle,
                     "type": chapter_type,
                     "work_item": None,
                     "version_item": None,
@@ -145,6 +147,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     subwork["work_item"] = item_id
     work_item = subwork["work_item"]
     main_image_filename = subwork["image"]
+    subtitle = subwork["subtitle"]
 
     print(f"WORK ITEM IS {work_item} WHEN ITS CREATED")
     subworks = append_subwork_data(subwork, subworks)
@@ -163,6 +166,8 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
     add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
+    if subtitle:
+        add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
@@ -195,6 +200,7 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     subwork["version_item"] = item_id
     version_item = subwork["version_item"]
     main_image_filename = subwork["image"]
+    subtitle = subwork["subtitle"]
 
     subworks = append_subwork_data(subwork, subworks)
 
@@ -218,6 +224,8 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     if first_line:
         add_property(repo, item, first_line_property, pywikibot.WbMonolingualText(text=first_line, language='en'), 'first line of poem', transcription_page_title)
+    if subtitle:
+        add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P1433', collection_version_item, 'published in (version item of collection)', transcription_page_title)
     add_property(repo, item, 'P437', printed_matter, 'distribution format (printed matter)', transcription_page_title)
