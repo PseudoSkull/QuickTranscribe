@@ -400,7 +400,9 @@ def generate_combinations(title_with_variants, defaultsort_prefix):
 
 def generate_variant_titles(page_title_to_parse):
     print(f"Generating variant titles for: {page_title_to_parse}")
-    if "(" in page_title_to_parse:
+    site = pywikibot.Site("en", "wikisource")
+    page_to_check = pywikibot.Page(site, page_title_to_parse)
+    if "(" in page_title_to_parse and not page_to_check.exists():
         combinations = [page_title_to_parse]
     else:
         words = page_title_to_parse.split(" ")
@@ -429,6 +431,7 @@ def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None,
         else:
             print("Page title contains parentheses. Creating sole redirect...")
 
+    site = pywikibot.Site("en", "wikisource")
     variant_titles = generate_variant_titles(page_title_to_parse)
     if alternative_title:
         alias_variant_titles = generate_variant_titles(alternative_title)
@@ -445,7 +448,7 @@ def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None,
     
     if subtitle:
         if "(" in page_title_to_parse:
-            page_title_to_parse = page_title_to_parse.split("(")[0]
+            page_title_to_parse = page_title_to_parse.split(" (")[0]
         colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
         comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
         variant_titles.append(colon_subtitle_form)
@@ -456,7 +459,6 @@ def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None,
         print("No variant titles to create redirects for. Skipping redirects...")
     
     print(f"Creating redirects to {redirect_target}...")
-    site = pywikibot.Site("en", "wikisource")
     print(variant_titles)
     for title_num, title in enumerate(variant_titles):
         title_num += 1

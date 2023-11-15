@@ -1388,6 +1388,9 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-f h-z])uess ", r"\1ness", x)
     x = re.sub(r" well([a-z][a-z])", r" well-\1", x)
+    x = re.sub(r" well([a-z][a-z])", r" well-\1", x)
+    x = x.replace(" well-ing ", " welling ")
+    x = x.replace(" well-ed ", " welled ")
     x = re.sub(r" self([a-z])", r" self-\1", x)
     x = x.replace("self-ish", "selfish")
     x = x.replace("sawit", "saw it")
@@ -1708,6 +1711,8 @@ def correct_text(text_file, work_type):
     x = x.replace("bhnd", "blind")
     x = x.replace(" inthe ", " in the ")
     x = x.replace("cHff", "cliff")
+    x = x.replace(" gd ", " go ")
+    x = x.replace("''", "\"")
 
     x = x.replace("<A", "A")
     x = x.replace(",\"\n\n", ".\"\n\n")
