@@ -54,6 +54,8 @@ def get_header_and_footer(content):
     footer_start_tag = get_noparams_start_tag(footer_tag)
     header_end_tag = get_end_tag(header_tag)
     footer_end_tag = get_end_tag(footer_tag)
+    content = content.replace("\n\n//foot//", "\n//foot/")
+    content = content.replace("\n\n//head//", "\n//head/")
 
     if header_start_tag in content:
         header = get_regex_match(content, rf"{header_start_tag}\n(.+?)\n{header_end_tag}", "header tag")

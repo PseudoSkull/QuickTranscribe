@@ -1384,6 +1384,8 @@ def correct_text(text_file, work_type):
     x = x.replace("\"TI", "\"I")
     x = x.replace(" \"\n", "\"\n")
     x = x.replace("TI'", "I'")
+    x = x.replace("Pl ", "I'll ")
+
     x = re.sub(r"([a-z])'s([a-z])", r"\1's \2", x)
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
     x = re.sub(r"([a-f h-z])uess ", r"\1ness", x)
@@ -1712,6 +1714,7 @@ def correct_text(text_file, work_type):
     x = x.replace(" inthe ", " in the ")
     x = x.replace("cHff", "cliff")
     x = x.replace(" gd ", " go ")
+    x = x.replace("Buta ", "But a ")
     x = x.replace("''", "\"")
 
     x = x.replace("<A", "A")
@@ -1720,6 +1723,7 @@ def correct_text(text_file, work_type):
 
     x = x.replace(" haveseen ", " have seen ")
     x = x.replace("Tf", "If")
+    x = x.replace("'1l", "'ll")
 
     x = x.replace("cv,", "cy,")
     x = x.replace("portecochere", "porte-cochere")
@@ -1791,6 +1795,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z]) In ", r"\1 in ", x)
     x = re.sub(r"([a-z]) It", r"\1 it", x)
     x = re.sub(r"([a-z])U([a-z])", r"\1ll\2", x)
+    x = re.sub(r"([0-9])oth", r"\1\0th", x)
+
 
 
     # Fix all instances of short quotes not beginning in "
@@ -1851,6 +1857,7 @@ def correct_text(text_file, work_type):
     x = x.replace("\nDigitized by\n", page_string)
     x = x.replace("\nOriginal from\n", page_string)
     x = x.replace("\nGoogle\n", page_string)
+    x = x.replace("\nGo gle\n", page_string)
     x = x.replace(" Google\n", page_string)
 
     for i in range(1, 51):
