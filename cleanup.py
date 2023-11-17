@@ -87,6 +87,19 @@ def initial_text_cleanup(text):
     text = text.replace("/brp/", "£")
     text = text.replace("/x/", "×")
     text = text.replace("/OE/", "Œ")
+
+    # fractions
+    text = text.replace("/1/4/", "¼")
+    text = text.replace("/1/2/", "½")
+    text = text.replace("/3/4/", "¾")
+    text = text.replace("/1/5/", "⅕")
+    text = text.replace("/1/6/", "⅙")
+    text = text.replace("/1/8/", "⅛")
+    text = text.replace("/1/9/", "⅑")
+    text = text.replace("/1/10/", "⅒")
+    text = text.replace("/1/3/", "⅓")
+    text = text.replace("/2/3/", "⅔")
+    
     text = text.replace("\nd\n", "\n/d/\n")
     text = text.replace("\n/d/\n-", "\n/d/\n\n-")
     text = text.replace("\ns\n", "\n\n/sec/\n\n")

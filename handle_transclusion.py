@@ -745,11 +745,12 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     if len(chapters) == 0 and "</ref>" in transcription_text:
         smallrefs = "\n{{smallrefs}}"
     else:
-        refs_are_in_front_matter = determine_if_refs_in_front_matter(page_data)
-        if refs_are_in_front_matter:
-            smallrefs = "\n{{smallrefs}}"
-        else:
-            smallrefs = ""
+        # refs_are_in_front_matter = determine_if_refs_in_front_matter(page_data)
+        # if refs_are_in_front_matter:
+        #     smallrefs = "\n{{smallrefs}}"
+        # else:
+        #     smallrefs = ""
+        smallrefs = "" # FOR NOW
 
     front_matter_footer = f"""
 

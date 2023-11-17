@@ -54,15 +54,15 @@ def get_header_and_footer(content):
     footer_start_tag = get_noparams_start_tag(footer_tag)
     header_end_tag = get_end_tag(header_tag)
     footer_end_tag = get_end_tag(footer_tag)
-    content = content.replace("\n\n//foot//", "\n//foot/")
-    content = content.replace("\n\n//head//", "\n//head/")
+    # content = content.replace("\n\n//foot//", "\n//foot/")
+    # content = content.replace("\n\n//head//", "\n//head/")
 
     if header_start_tag in content:
-        header = get_regex_match(content, rf"{header_start_tag}\n(.+?)\n{header_end_tag}", "header tag")
+        header = get_regex_match(content, rf"{header_start_tag}\n([\s\S]+?)\n{header_end_tag}", "header tag")
         content = content.split(header_end_tag + "\n\n")[1]
 
     if footer_start_tag in content:
-        footer = get_regex_match(content, rf"{footer_start_tag}\n(.+?)\n{footer_end_tag}", "footer tag")
+        footer = get_regex_match(content, rf"{footer_start_tag}\n([\s\S]+?)\n{footer_end_tag}", "footer tag")
         content = content.split("\n\n" + footer_start_tag)[0]
 
     return header, footer, content
