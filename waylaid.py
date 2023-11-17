@@ -1719,6 +1719,8 @@ def correct_text(text_file, work_type):
 
     x = x.replace("<A", "A")
     x = x.replace(",\"\n\n", ".\"\n\n")
+    x = x.replace("codperat", "coöperat")
+    x = x.replace("codrdinat", "coördinat")
 
 
     x = x.replace(" haveseen ", " have seen ")
@@ -1881,6 +1883,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"\.\n\n([a-z])", r", \1", x)
 
     x = re.sub(r"([a-z])\"\n\n", r"\1/b2/\"\n\n", x)
+    x = re.sub(r"\.!\n\n-", r". I\n\n-", x)
+    x = re.sub(r",!\n\n-", r", I\n\n-", x)
 
     x = x.replace("——", "/b2/")
 
