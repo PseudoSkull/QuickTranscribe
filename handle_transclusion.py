@@ -502,7 +502,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             edit_summary = f"Transcluding {chapter_name}..."
         elif chapter_name == title and number_of_chapters < 4:
             edit_summary = f"Transcluding {chapter_name} (main content chapter)..."
-        elif chapter_name == "Advertisements" and not advertising_is_transcluded:
+        elif (chapter_name == "Advertisements" and not advertising_is_transcluded) or not chapter_transclusion_tags:
             print_in_yellow("Advertising not proofread. Skipping advertisement chapter transclusion...")
             continue
         else:
