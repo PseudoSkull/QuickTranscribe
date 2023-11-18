@@ -54,7 +54,7 @@ def is_wikidata_item_string(value):
     else:
         wikidata_item_prefix = "Q"
         wikidata_item_suffix = value[1:]
-        if type(value) == str and value.startswith(wikidata_item_prefix) and wikidata_item_suffix:
+        if type(value) == str and value.startswith(wikidata_item_prefix) and wikidata_item_suffix and " " not in value:
             return True
         return False
 

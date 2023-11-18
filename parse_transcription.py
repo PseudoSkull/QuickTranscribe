@@ -799,6 +799,7 @@ def get_section_data(chapters, page_data, transcription_text):
         chapter_num = 0
         section_num = 0
         # first_section_added = False
+        previous_chapter_title = "Front matter"
         for overall_page_num, page in enumerate(page_data):
             section_pattern = r"(\/sec\/)\n"
 
@@ -812,26 +813,31 @@ def get_section_data(chapters, page_data, transcription_text):
 
             for match in section_matches:
                 chapter = get_chapter_from_page_num(chapters, page_num, for_sections=True)
-                # chapter = {}
+
                 previous_chapter_num = chapter_num
+                # try:
+                #     previous_chapter_title = chapters[previous_chapter_num]["title"]
+                # except:
+                #     previous_chapter_title = None
+                chapter_title = chapter["title"]
+                print(f"Chapter title: {chapter_title} Previous chapter title: {previous_chapter_title}")
                 chapter_num = chapter["chapter_num"]
                 chapter_start_page_num = chapter["page_num"]
                 part_num = chapter["part_num"]
                 chapter_prefix = chapter["prefix"]
                 if (chapter_prefix == "Book" or chapter_prefix == "Part") and part_num:
                     continue
-                
-                # print(sections)
 
                 chapter_has_sections = chapter["has_sections"]
                 if not chapter_has_sections:
                     print_in_red(f"ERROR: Chapter data says chapter has no sections, but section was found in chapter when collecting section data! Something is wrong with the code. Please fix it. Chapter num: {chapter_num}, part num: {part_num}, page num: {page_num}, overall page num: {overall_page_num}, match: {match}")
                     exit()
                 else:
-                    if chapter_num != previous_chapter_num:
+                    if chapter_num != previous_chapter_num or (chapter_title != previous_chapter_title):
                         section_num = 1
                         unreadable_overall_page_num = None # Change later when logic can do this
                         sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, unreadable_overall_page_num)
+                        previous_chapter_title = chapter_title
                 
                 # add first section of chapter if it's the first time encountering that chapter
                 
