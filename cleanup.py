@@ -84,6 +84,7 @@ def initial_text_cleanup(text):
     text = text.replace("\nnm\n", "\nn\n")
     text = text.replace("\nmn\n", "\nn\n")
     text = text.replace("\nb\n", "\nn\n")
+    text = text.replace("\nh\n", "\nn\n")
     text = text.replace("<br>", "<br />")
     text = text.replace("{{hr|", "{{rule|")
     text = text.replace("{{hr}}", "{{rule}}")

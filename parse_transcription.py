@@ -597,7 +597,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         else:
                             chapter["prefix"] = chapter_prefix
                             chapter["type"] = "numbered chapter"
+                        if chapter_num == 0:
+                            chapter_num += 1
                         chapter["chapter_num"] = chapter_num
+
 
                         # chapter["title"] = None
                     

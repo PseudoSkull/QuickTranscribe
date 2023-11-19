@@ -1721,6 +1721,9 @@ def correct_text(text_file, work_type):
     x = x.replace(",\"\n\n", ".\"\n\n")
     x = x.replace("codperat", "coöperat")
     x = x.replace("codrdinat", "coördinat")
+    x = x.replace(" ment ", "ment ")
+    x = x.replace(" tion ", "tion ")
+    # x = x.replace(" ish ", "ish ")
 
 
     x = x.replace(" haveseen ", " have seen ")
@@ -1730,6 +1733,9 @@ def correct_text(text_file, work_type):
     x = x.replace("cv,", "cy,")
     x = x.replace("portecochere", "porte-cochere")
     x = x.replace("porte-cochere", "porte-cochère")
+    x = x.replace("Francois", "François")
+    x = x.replace("Frangois", "François")
+    x = x.replace(" fcr", " for")
 
     x = re.sub(r"\. '([A-Z])", r". \"\1", x)
     

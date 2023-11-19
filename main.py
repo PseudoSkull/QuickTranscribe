@@ -283,6 +283,7 @@ common_work_types = {
 common_locations = {
     "Atlanta": "Q23556",
     "Boston": "Q100",
+    "Champaign": "Q577964",
     "Chicago": "Q1297",
     "Garden City": "Q739452",
     "Honolulu": "Q18094",

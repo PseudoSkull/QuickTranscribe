@@ -56,7 +56,7 @@ dedication_properties = {
     "mother": "P25",
     "father": "P22",
     "wife": "P26",
-    "husband": "P27",
+    "husband": "P26",
 }
 
 def get_dedication_page(page_data):
