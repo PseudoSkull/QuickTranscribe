@@ -1804,6 +1804,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z]) It", r"\1 it", x)
     x = re.sub(r"([a-z])U([a-z])", r"\1ll\2", x)
     x = re.sub(r"([0-9])oth", r"\1\0th", x)
+    x = re.sub(r"([0-9])o", r"\1\0", x)
 
 
 

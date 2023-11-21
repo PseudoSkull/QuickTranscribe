@@ -92,6 +92,7 @@ def initial_text_cleanup(text):
     text = text.replace("/brp/", "£")
     text = text.replace("/x/", "×")
     text = text.replace("/OE/", "Œ")
+    text = text.replace("/ss/", "§")
 
     # fractions
     text = text.replace("/1/4/", "¼")
