@@ -100,6 +100,9 @@ def initial_text_cleanup(text):
     text = text.replace("/3/4/", "¾")
     text = text.replace("/1/5/", "⅕")
     text = text.replace("/1/6/", "⅙")
+    text = text.replace("/5/6/", "⅚")
+    text = text.replace("/1/7/", "⅐")
+    
     text = text.replace("/1/8/", "⅛")
     text = text.replace("/1/9/", "⅑")
     text = text.replace("/1/10/", "⅒")

@@ -1736,6 +1736,7 @@ def correct_text(text_file, work_type):
     x = x.replace("Francois", "François")
     x = x.replace("Frangois", "François")
     x = x.replace(" fcr", " for")
+    x = x.replace(" Io ", " 10 ")
 
     x = re.sub(r"\. '([A-Z])", r". \"\1", x)
     
