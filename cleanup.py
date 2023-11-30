@@ -83,6 +83,7 @@ def initial_text_cleanup(text):
     text = text.replace("\nnb\n", "\nn\n")
     text = text.replace("\nnm\n", "\nn\n")
     text = text.replace("\nmn\n", "\nn\n")
+    text = text.replace("=\n\n-\n\n", "-\n\n-\n\n")
     text = text.replace("\nb\n", "\nn\n")
     text = text.replace("\nh\n", "\nn\n")
     text = text.replace("<br>", "<br />")
