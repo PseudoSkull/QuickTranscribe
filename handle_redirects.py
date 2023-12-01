@@ -423,7 +423,22 @@ def create_redirect(redirect_title, redirect_target, site, edit_summary):
     print(redirect_text)
     save_page(redirect_page, site, redirect_text, edit_summary)
 
-def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None, redirect_target=None):
+def generate_subtitle_variants(page_title_to_parse, subtitle, second_subtitle, variant_titles):
+    if subtitle:
+        if "(" in page_title_to_parse:
+            page_title_to_parse = page_title_to_parse.split(" (")[0]
+        colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
+        comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
+        variant_titles.append(colon_subtitle_form)
+        variant_titles.append(comma_subtitle_form)
+
+        if second_subtitle:
+            generate_subtitle_variants(colon_subtitle_form, second_subtitle, None, variant_titles)
+            generate_subtitle_variants(comma_subtitle_form, second_subtitle, None, variant_titles)
+    return variant_titles
+
+
+def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None, second_subtitle=None, redirect_target=None):
     if "(" in page_title_to_parse and not subtitle:
         if not redirect_target:
             print("Page title contains parentheses. Skipping redirects...")
@@ -445,14 +460,8 @@ def create_redirects(page_title_to_parse, alternative_title=None, subtitle=None,
             variant_titles += [page_title_to_parse]
     else:
         redirect_target = page_title_to_parse
-    
-    if subtitle:
-        if "(" in page_title_to_parse:
-            page_title_to_parse = page_title_to_parse.split(" (")[0]
-        colon_subtitle_form = f"{page_title_to_parse}: {subtitle}"
-        comma_subtitle_form = convert_to_title_case(f"{page_title_to_parse}, {subtitle}")
-        variant_titles.append(colon_subtitle_form)
-        variant_titles.append(comma_subtitle_form)
+
+    variant_titles = generate_subtitle_variants(page_title_to_parse, subtitle, second_subtitle, variant_titles)
     
     number_of_variants = len(variant_titles)
     if number_of_variants == 0 and not redirect_target:

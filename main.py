@@ -480,6 +480,11 @@ if not work_type_name:
 genre_name = get_work_data(work_data, "genre")
 alternative_title = get_work_data(work_data, "alternative title")
 subtitle = get_work_data(work_data, "subtitle")
+second_subtitle = get_work_data(work_data, "second subtitle")
+
+if second_subtitle:
+    subtitle_for_data_items = f"{subtitle}: {second_subtitle}"
+
 pub_date = get_work_data(work_data, "date of publication")
 year = get_year_from_date(pub_date)
 original_pub_date = get_work_data(work_data, "original date of publication")
@@ -567,7 +572,7 @@ expected_progress = "base_work_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_work, derivative_work, variable_name=base_work_conf_variable)
+    base_work = create_base_work_item(base_work, title, work_type, work_type_name, genre, author_item, author_WD_alias, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle_for_data_items, related_author_item, series, narrative_location, openlibrary_work_id, previous_work, derivative_work, variable_name=base_work_conf_variable)
     print_in_yellow("Add progress 'base_work_item_created' manually. Restart to mitigate ver= problem (temporary).")
     exit()
     process_break()
@@ -600,12 +605,12 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     loc_classification = get_loc_classification(lccn)
-    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=version_conf_variable)
+    version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle_for_data_items, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
     if gutenberg_id:
         print("Gutenberg ID found! Creating Gutenberg version item...")
-        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name="gutver")
+        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle_for_data_items, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name="gutver")
         add_version_to_base_work_item(base_work, gutenberg_version_item)
 
     

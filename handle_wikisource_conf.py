@@ -38,6 +38,7 @@ variables_with_descriptions = {
         "com": "Commons category",
         "aux": "toc is auxiliary",
         "sub": "subtitle",
+        "sub2": "second subtitle",
         "ptsub": "chapters are subpages of parts",
         "sec": "section type",
         "secpre": "prefix for subsection names",
