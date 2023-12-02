@@ -432,9 +432,9 @@ def generate_subtitle_variants(page_title_to_parse, subtitle, second_subtitle, v
         variant_titles.append(colon_subtitle_form)
         variant_titles.append(comma_subtitle_form)
 
-        if second_subtitle:
-            generate_subtitle_variants(colon_subtitle_form, second_subtitle, None, variant_titles)
-            generate_subtitle_variants(comma_subtitle_form, second_subtitle, None, variant_titles)
+        if second_subtitle: # such as Jungle Joe: <Pride of the Circus>, <the Story of a Trick Elephant>
+            variant_titles = generate_subtitle_variants(colon_subtitle_form, second_subtitle, None, variant_titles)
+            variant_titles = generate_subtitle_variants(comma_subtitle_form, second_subtitle, None, variant_titles)
     return variant_titles
 
 

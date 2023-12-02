@@ -471,12 +471,18 @@ def create_base_work_item(base_work_item, title, work_type, work_type_name, genr
 
 # def fill_base_work_item():
 
+def get_gutenberg_id_from_ia(gutenberg_ia_id):
+    gutenberg_id = re.search(r'0(\d+)', gutenberg_ia_id).group(1)
+    return gutenberg_id
 
-def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name=None):
+def create_gutenberg_version_item(gutenberg_id, gutenberg_ia_id, gutenberg_version_item, title, subtitle, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name=None):
     item, repo, item_id = create_wikidata_item(gutenberg_version_item, title, transcription_page_title, variable_name)
+    if not gutenberg_id:
+        gutenberg_id = get_gutenberg_id_from_ia(gutenberg_ia_id)
+    
     gutenberg_year, gutenberg_date = get_date_from_gutenberg(gutenberg_id)
     add_description(item, f'{gutenberg_year} Gutenberg edition of work')
-
+    
     version_edition_or_translation = 'Q3331189'
     english = 'Q1860'
     digital_edition = 'Q1224889'
@@ -495,6 +501,8 @@ def create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, s
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(gutenberg_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P2034', gutenberg_id, 'Gutenberg ebook ID', transcription_page_title)
+    add_property(repo, item, 'P724', gutenberg_ia_id, 'Gutenberg Internet Archive ID', transcription_page_title)
+
     
     return item_id
 

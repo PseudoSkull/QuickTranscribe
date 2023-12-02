@@ -1768,6 +1768,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])covered", r"\1-covered", x)
     x = x.replace("dis-cover", "discover")
     x = x.replace(" re-cover", " recover")
+    x = x.replace(" un-cover", " uncover")
     x = re.sub(r"([a-z])crested", r"\1-crested", x)
     x = re.sub(r"([a-z])clawed", r"\1-clawed", x)
     x = re.sub(r"([a-z])branched", r"\1-branched", x)

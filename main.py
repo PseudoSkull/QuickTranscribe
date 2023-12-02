@@ -157,6 +157,17 @@ import datetime
 # 
 
 
+# IF I WERE KING
+# Wikidata: gutia
+# Parse: beg=li
+# Parse: /epi/ - epilogues
+# Parse: Make sure poem continuations go well
+
+
+
+# 
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -482,6 +493,8 @@ alternative_title = get_work_data(work_data, "alternative title")
 subtitle = get_work_data(work_data, "subtitle")
 second_subtitle = get_work_data(work_data, "second subtitle")
 
+subtitle_for_data_items = subtitle
+
 if second_subtitle:
     subtitle_for_data_items = f"{subtitle}: {second_subtitle}"
 
@@ -565,7 +578,7 @@ lccn = get_data_from_xml("lccn")
 if not openlibrary_work_id:
     openlibrary_version_id, openlibrary_work_id, lccn = get_openlibrary_data(openlibrary_version_id, oclc)
 
-# transcription_page.text
+
 
 transcription_text = transcription_page.text
 expected_progress = "base_work_item_created"
@@ -591,6 +604,7 @@ publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publi
 # if not lccn:
 
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
+gutenberg_ia_id = get_work_data(work_data, "Gutenberg Internet Archive ID")
 gutenberg_version_item = get_work_data(work_data, "Gutenberg version item")
 
 edition_number = get_work_data(work_data, "edition number")
@@ -608,9 +622,9 @@ if not at_expected_progress:
     version_item = create_version_item(title, version_item, pub_date, year, author_item, author_WD_alias, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle_for_data_items, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=version_conf_variable)
     add_version_to_base_work_item(base_work, version_item)
 
-    if gutenberg_id:
+    if gutenberg_id or gutenberg_ia_id:
         print("Gutenberg ID found! Creating Gutenberg version item...")
-        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_version_item, title, subtitle_for_data_items, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name="gutver")
+        gutenberg_version_item = create_gutenberg_version_item(gutenberg_id, gutenberg_ia_id, gutenberg_version_item, title, subtitle_for_data_items, version_item, author_item, translator_item, base_work, transcription_page_title, variable_name="gutver")
         add_version_to_base_work_item(base_work, gutenberg_version_item)
 
     
@@ -855,7 +869,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 if not at_expected_progress:
     transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts)
 
-    create_redirects(mainspace_work_title, alternative_title, subtitle)
+    create_redirects(mainspace_work_title, alternative_title, subtitle, second_subtitle)
 
     process_break()
 

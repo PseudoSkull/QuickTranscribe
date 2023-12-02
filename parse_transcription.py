@@ -81,6 +81,7 @@ chapter_tags = [
     "chrn",
     "concl",
     "contch",
+    "epi",
     "fwd",
     "int",
     "intr",
@@ -442,6 +443,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         "bibl": "Bibliography",
         "chrn": "Chronology",
         "concl": "Conclusion",
+        "epi": "Epilogue",
         "fwd": "Foreword",
         "int": "Introduction",
         "intr": "Introduction",
@@ -1187,6 +1189,7 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, c
     if string_not_in_content(content, "/ch/", "Formatting chapter beginning to drop initial"):
         return page
     
+
     chapter_beginning_pattern = rf"{chapter_pattern}(.)(.)"
 
     chapter_beginning = re.search(chapter_beginning_pattern, content)
@@ -1195,22 +1198,24 @@ def format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, c
     first_letter = chapter_beginning.group(2)
     second_letter = chapter_beginning.group(3)
 
+    initial_template = chapter_beginning_formatting[:2]
+
     drop_initial_quotes = [
         '"',
         "'",
     ]
 
     if first_letter in drop_initial_quotes:
-        replacement = r"\1{{di|\3|fl=\2}}"
+        replacement = rf"\1{{{{{initial_template}|\3|fl=\2}}}}"
         first_letter = second_letter
         content = re.sub(chapter_beginning_pattern, replacement, content)
     
     elif first_letter.isalpha():
-        replacement = r"\1{{di|\2}}\3"
+        replacement = rf"\1{{{{{initial_template}|\2}}}}\3"
         content = re.sub(chapter_beginning_pattern, replacement, content)
 
 
-    if chapter_beginning_formatting == "dii":
+    if chapter_beginning_formatting.endswith("ii"):
         content = format_drop_initial_as_image(content, image_data, first_letter)
 
     page["content"] = content
@@ -2402,7 +2407,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = add_space_to_apostrophe_quotes(page)
         if chapter_beginning_formatting == "sc" or not chapter_beginning_formatting:
             page = format_chapter_beginning_to_smallcaps(page)
-        elif chapter_beginning_formatting == "di" or chapter_beginning_formatting == "dii":
+        elif chapter_beginning_formatting == "di" or chapter_beginning_formatting == "dii" or chapter_beginning_formatting == "li" or chapter_beginning_formatting == "lii":
             page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, chapter_beginning_formatting, image_data)
         else:
             # page = format_chapter_beginning_to_large_initial(page)
