@@ -1779,7 +1779,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])shouldered", r"\1-shouldered", x)
     x = re.sub(r"([a-z])mustached", r"\1-mustached", x)
     x = re.sub(r"([a-z])agitated", r"\1-agitated", x)
-    x = re.sub(r"([a-z])and-", r"\1-and-", x)
+    x = re.sub(r"([a-z])([a-z])and-", r"\1\2-and-", x)
     x = x.replace("thous-and-", "thousand-")
     x = re.sub(r"([a-z])hundred", r"\1-hundred", x)
     x = re.sub(r"([a-z])thousand", r"\1-thousand", x)
@@ -1894,6 +1894,14 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])\"\n\n", r"\1/b2/\"\n\n", x)
     x = re.sub(r"\.!\n\n-", r". I\n\n-", x)
     x = re.sub(r",!\n\n-", r", I\n\n-", x)
+
+    x = x.replace("\n\n-\n\nment", "-\n\n-\n\nment")
+    x = x.replace("\n\n-\n\ning", "-\n\n-\n\ning")
+    x = x.replace("\n\n-\n\ntion", "-\n\n-\n\ntion")
+    x = x.replace("\n\n-\n\nation", "-\n\n-\n\nation")
+    x = x.replace("ex\n\n-", "ex-\n\n-")
+
+
 
     x = x.replace("——", "/b2/")
 

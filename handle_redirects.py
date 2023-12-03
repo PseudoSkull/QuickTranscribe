@@ -269,6 +269,17 @@ ordinals = {
     'Ninety-ninth': '99th',
 }
 
+words_often_lowercased = [
+    "about",
+    "am",
+    "are",
+    "into",
+    "is",
+    "onto",
+    "was",
+    "were",
+]
+
 
 
 page_title_to_parse = "O Genteel Lady!"

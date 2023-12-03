@@ -1869,8 +1869,10 @@ def convert_chapter_links(page, chapters, mainspace_work_title):
 
     if " /chapter " in content.lower():
         print("/chapter / found in content. Converting to chapter link.")
-        chapter_links_pattern = r"\/([Cc]hapter) (.+?)\/"
+        chapter_links_pattern = r" \/([Cc]hapter) (.+?)\/"
         chapter_links = re.findall(chapter_links_pattern, content)
+
+        print(chapter_links)
 
         for chapter_link in chapter_links:
             chapter_link = list(chapter_link)
@@ -1882,7 +1884,7 @@ def convert_chapter_links(page, chapters, mainspace_work_title):
             except ValueError:
                 chapter_number_to_parse = roman.fromRoman(chapter_number_to_parse)
             
-            chapter_link = f"[[{mainspace_work_title}/{text_in_chapter_link} {chapter_number_to_parse}|{text_in_chapter_link} {original_chapter_number}]]"
+            chapter_link = f" [[{mainspace_work_title}/{text_in_chapter_link} {chapter_number_to_parse}|{text_in_chapter_link} {original_chapter_number}]]"
 
             content = re.sub(chapter_links_pattern, chapter_link, content, count=1)
 

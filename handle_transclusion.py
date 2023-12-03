@@ -32,6 +32,9 @@ def generate_genre_categories(genre_name, work_type_name):
     categories = []
     for genre in genres:
         work_type_plural = get_english_plural(work_type_name)
+        if genre == "adventure":
+            if work_type_name == "novel":
+                category = f"Adventure novels"
         if genre == "alternate":
             category = "Alternate history"
         if genre == "autobiography":
