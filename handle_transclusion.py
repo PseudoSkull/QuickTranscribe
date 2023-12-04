@@ -422,7 +422,7 @@ def generate_chapter_categories(chapter):
     return categories
 
 
-def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts):
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name):
     number_of_chapters = len(chapters)
     part_prefix = None
     for overall_chapter_num, chapter in enumerate(chapters):
@@ -444,6 +444,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         chapter_type = chapter["type"]
         if chapter_type == "front-matter chapter":
             continue
+    
         chapter_has_references = chapter["refs"]
         
     
@@ -469,6 +470,13 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             chapter_internal_name = chapter_name
         if chapter_name == None:
             chapter_name = chapter_internal_name
+        
+        if chapter_type == "part" and "collection" in work_type_name:
+            chapter_internal_name = chapter_name
+            part_title_is_also_a_chapter_title = check_if_part_title_is_also_a_chapter_title(chapter_internal_name, chapters)
+
+            if part_title_is_also_a_chapter_title:
+                chapter_internal_name = f"{chapter_internal_name} (part)"
         
         if chapter_internal_name == chapter_name:
             defaultsort = generate_defaultsort_tag(chapter_name)
@@ -563,6 +571,14 @@ def determine_if_refs_in_front_matter(page_data):
         if "{{smallrefs}}" in footer:
             return True
 # def is_PD_old(death_year, current_year):
+
+def check_if_part_title_is_also_a_chapter_title(part_title, chapters):
+    for chapter in chapters:
+        chapter_title = chapter["title"]
+        chapter_type = chapter["type"]
+        if part_title == chapter_title and chapter_type != "part":
+            return True
+    return False
 
 def generate_copyright_template(year, author_death_year, current_year):
     if year < 1928:
@@ -768,4 +784,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
-        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts)
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name)
