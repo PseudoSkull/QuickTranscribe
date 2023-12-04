@@ -281,8 +281,8 @@ common_work_types = {
     "diary": "Q185598",
     "novel": "Q8261",
     "play": "Q25379",
-    "poetry collection": "Q7010019",
-    "pc": "Q7010019",
+    "poetry collection": "Q12106333",
+    "pc": "Q12106333",
     "short story collection": "Q1279564",
     "ssc": "Q1279564",
     "speech": "Q861911",
@@ -357,6 +357,17 @@ transcription_text = transcription_page.text
 work_data = get_conf_values(transcription_page_title)
 
 
+
+work_type = get_work_data(work_data, "work type", common_work_types)
+work_type_name = get_work_data(work_data, "work type")
+genre = get_work_data(work_data, "genre", common_genres)
+if work_type_name == "ssc":
+    work_type_name = "short story collection"
+elif work_type_name == "pc":
+    work_type_name = "poetry collection"
+if not work_type_name:
+    work_type_name = "work"
+genre_name = get_work_data(work_data, "genre")
 
 
 expected_progress = "initial_cleanup_done"
@@ -479,16 +490,7 @@ if not original_location:
 country = get_value_from_property(original_location, "P17", get_last_item=True)
 country_name = get_country_name(country)
 
-work_type = get_work_data(work_data, "work type", common_work_types)
-genre = get_work_data(work_data, "genre", common_genres)
-work_type_name = get_work_data(work_data, "work type")
-if work_type_name == "ssc":
-    work_type_name = "short story collection"
-elif work_type_name == "pc":
-    work_type_name = "poetry collection"
-if not work_type_name:
-    work_type_name = "work"
-genre_name = get_work_data(work_data, "genre")
+
 alternative_title = get_work_data(work_data, "alternative title")
 subtitle = get_work_data(work_data, "subtitle")
 second_subtitle = get_work_data(work_data, "second subtitle")
@@ -781,6 +783,9 @@ if chapter_prefix == "Book" or chapter_prefix == "Part":
 if chapters_are_subpages_of_parts == "n":
     chapters_are_subpages_of_parts = False
 
+if work_type_name == "poetry collection":
+    chapters_are_subpages_of_parts = False
+
 
 chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name)
 sections = get_section_data(chapters, page_data, transcription_text)
@@ -801,7 +806,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 

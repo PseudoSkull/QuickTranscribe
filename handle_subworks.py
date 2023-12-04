@@ -11,6 +11,7 @@ from parse_transcription import get_chapter_from_title, get_chapter_from_page_nu
 import pywikibot
 import os
 import json
+import re
 
 {
     "title": "In the Tall Grass",
@@ -114,8 +115,11 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
         with open(file_path, 'x') as file:
             json.dump(subworks, file, indent=4)
             file.close()
-
-    print(subworks)
+        
+        if subworks:
+            print(subworks)
+            print_in_green("Subwork data created! Please review it.")
+            exit()
 
     return subworks
 
@@ -184,9 +188,10 @@ def get_first_line_of_poem(poem_title, page_data, chapter_data):
     ]
     for chapter in chapter_data:
         if chapter["title"] == poem_title:
-            chapter_page = get_page_from_page_num(chapter_page_num, page_data)
+            # chapter_page = get_page_from_page_num(chapter_page_num, page_data)
+            chapter_page = page_data[12] # FOR NOW
             chapter_content = chapter_page["content"]
-            first_line = re.search(r"\{\{ppoem\|.+?\n(.+?)\n", chapter_content).group(0)
+            first_line = re.search(r"\{\{ppoem\|.+?\n(.+?)\n", chapter_content).group(1)
             for punctuation in poem_punctuation:
                 if first_line.endswith(punctuation):
                     first_line = first_line[:-1]

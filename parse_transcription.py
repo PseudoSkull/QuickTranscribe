@@ -566,7 +566,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         part_num += 1
                         chapter["prefix"] = chapter_prefixes[chapter_tag]
                         chapter["chapter_num"] = part_num
-                        chapter_title = None
+                        if "collection" not in work_type_name:
+                            chapter_title = None
                         chapter["type"] = "part"
 
                         if chapters_are_subpages_of_parts == "y" or chapters_are_subpages_of_parts == None:
@@ -2387,7 +2388,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -2408,7 +2409,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = add_half_to_transcription(page, title)
         page = add_space_to_apostrophe_quotes(page)
         if chapter_beginning_formatting == "sc" or not chapter_beginning_formatting:
-            page = format_chapter_beginning_to_smallcaps(page)
+            page = format_chapter_beginning_to_smallcaps(page, work_type_name)
         elif chapter_beginning_formatting == "di" or chapter_beginning_formatting == "dii" or chapter_beginning_formatting == "li" or chapter_beginning_formatting == "lii":
             page = format_chapter_beginning_to_drop_initial(page, drop_initials_float_quotes, chapter_beginning_formatting, image_data)
         else:
