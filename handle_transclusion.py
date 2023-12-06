@@ -143,6 +143,14 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpa
         chapter_prefix = "Chapter"
     chapter_internal_name = f"{chapter_prefix} {chapter_num}"
 
+    if chapter_type == "part":
+        part_title_is_also_a_chapter_title = check_if_part_title_is_also_a_chapter_title(chapter_name, chapters)
+
+        if part_title_is_also_a_chapter_title:
+            # print(f"GOTHERE {part_title_is_also_a_chapter_title}")
+            # exit()
+            chapter_name = f"{chapter_name} (part)"
+    
     dots_to_chapter = "../"
     overarching_chapter_prefix = overarching_chapter["prefix"]
     if (chapter_prefix == "Book" or chapter_prefix == "Part") and chapters_are_subpages_of_parts:

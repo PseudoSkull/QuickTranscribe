@@ -21,12 +21,10 @@ british_english_words = {
     # re -> er variants
     "centre": "center",
     "fibre": "fiber",
-    # "kilometre": "kilometer",
-    # "litre": "liter",
-    # "lustre": "luster",
-    # "theatre": "theater",
-
-    # ise -> ize variants
+    "kilometre": "kilometer",
+    "litre": "liter",
+    "lustre": "luster",
+    "theatre": "theater",
 
     # miscellaneous
 
@@ -81,16 +79,16 @@ ise_ize_variants = {
     "utilise": "utilize",
 }
 
-site = pywikibot.Site("en", "wikisource")
+# site = pywikibot.Site("en", "wikisource")
 
-transcription_page = pywikibot.Page(site, transcription_page_title)
+# transcription_page = pywikibot.Page(site, transcription_page_title)
 
-transcription_text = transcription_page.text
+# transcription_text = transcription_page.text
 
-for key,value in ise_ize_variants.items():
-    transcription_text = transcription_text.replace(key, value)
-    root = key[:-2]
-    transcription_text = transcription_text.replace(f"{root}sing", f"{root}zing")
-    transcription_text = transcription_text.replace(f"{root}sation", f"{root}zation")
+# for key,value in ise_ize_variants.items():
+#     transcription_text = transcription_text.replace(key, value)
+#     root = key[:-2]
+#     transcription_text = transcription_text.replace(f"{root}sing", f"{root}zing")
+#     transcription_text = transcription_text.replace(f"{root}sation", f"{root}zation")
 
-save_page(transcription_page, site, transcription_text, "Replacing certain British English words with American English in Gutenberg-based transcription layer...")
+# save_page(transcription_page, site, transcription_text, "Replacing certain British English words with American English in Gutenberg-based transcription layer...")

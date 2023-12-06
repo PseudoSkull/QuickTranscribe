@@ -51,6 +51,7 @@ import pywikibot
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page
 from handle_title_case import convert_to_title_case
+from handle_dialectal_english import british_english_words, ise_ize_variants
 import inflect
 
 defaultsort_prefixes = [
@@ -130,6 +131,11 @@ redirect_words = [
         "Gray",
     ],
 ]
+
+british_english_words = [[us.capitalize(), uk.capitalize()] for us, uk in british_english_words.items()]
+ise_ize_variants = [[us.capitalize(), uk.capitalize()] for us, uk in ise_ize_variants.items()]
+
+british_english_words += ise_ize_variants
 
 one_way_redirects = [
     [
@@ -278,6 +284,11 @@ words_often_lowercased = [
     "onto",
     "was",
     "were",
+    "with",
+    "within",
+    "without",
+    "when",
+    "where",
 ]
 
 
@@ -319,6 +330,12 @@ def generate_title_with_variants(words):
         for redirect_combo in redirect_words:
             if word in redirect_combo:
                 variants_of_word += redirect_combo
+        
+        # british english
+        for british_english_combo in british_english_words:
+            for item in british_english_combo:
+                if item in word:
+                    variants_of_word += british_english_combo
 
         # turn sixth into 6th
         for ordinal, cardinal in ordinals.items():

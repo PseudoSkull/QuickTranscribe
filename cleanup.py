@@ -94,6 +94,7 @@ def initial_text_cleanup(text, work_type_name):
     text = text.replace("/x/", "×")
     text = text.replace("/OE/", "Œ")
     text = text.replace("/ss/", "§")
+    text = text.replace("/env/", "{{ph|class=envoi|Envoi}}")
 
     # fractions
     text = text.replace("/1/4/", "¼")
@@ -123,6 +124,21 @@ def initial_text_cleanup(text, work_type_name):
         text = re.sub(r"(.)—\n\n-", r"\1{{peh|—}}\n\n-", text)
     text = re.sub(r"\n\n—\n\n([A-Za-z])", r"\n\n—\n\n-\n\n\1", text) # fix page quality 0 with content
     text = re.sub(r"\n\n—p\n\n([A-Za-z])", r"\n\n—p\n\n-\n\n\1", text) # fix page quality 0 with content
+
+    if work_type_name == "poetry collection":
+        text = text.replace("\n\n-\n\n/ch/", "\n//po/\n\n-\n\n/ch/")
+        text = text.replace("\n\n/ch/", "//po/\n\n/ch/")
+        text = text.replace("-//po/", "-")
+        text = text.replace("-1//po/", "-1")
+        
+        text = re.sub(r"(\/ch\/.+?\n\n)", r"\1/po//\n", text)
+        text = re.sub(r"\/po\//\n(\/sub\/.+?\n\n)", r"\1/po//\n", text)
+        text = text.replace("//po/\n//po/\n", "//po/\n")
+        text = text.replace("/po//\n/po//\n", "/po//\n")
+        text = text.replace("/po///po//\n", "/po//\n")
+        text = text.replace("//po///po/", "//po/")
+        text = re.sub(r"(...)((\n\n—\n\n)+?)—cov", r"\1\n//po/\2", text)
+
 
 
     # save page.text

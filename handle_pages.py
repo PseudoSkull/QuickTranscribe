@@ -26,7 +26,8 @@ def get_page_from_page_num(expected_page_num, page_data):
     # ONLY FOR RAW PAGE NUMBERS
     for page_num, page in enumerate(page_data):
         page_num += 1
-        if page_num == expected_page_num:
+        page_marker = page["marker"]
+        if page_marker == str(expected_page_num):
             return page
 
 

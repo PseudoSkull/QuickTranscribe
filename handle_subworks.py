@@ -1,7 +1,7 @@
 # WS_collection
 
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
-from edit_mw import page_exists, save_page, follow_redirect
+from edit_mw import page_exists, save_page, follow_redirect, remove_template_markup
 from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file
 from handle_pages import get_marker_from_page_num, get_page_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
@@ -89,6 +89,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
             title = chapter["title"]
             chapter_type = chapter["type"]
             subtitle = chapter["subtitle"]
+            print(chapter)
             if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
                 image = get_subwork_image(title, page_data, chapters, image_data)
                 status = "proofread" # for now
@@ -185,17 +186,35 @@ def get_first_line_of_poem(poem_title, page_data, chapter_data):
         ".",
         ",",
         ";",
+        ":",
     ]
     for chapter in chapter_data:
-        if chapter["title"] == poem_title:
-            # chapter_page = get_page_from_page_num(chapter_page_num, page_data)
-            chapter_page = page_data[12] # FOR NOW
+        if chapter["title"] == poem_title and chapter["type"] == "poem":
+            chapter_page_num = chapter["page_num"]
+            print(poem_title)
+            print(chapter_page_num)
+            chapter_page = get_page_from_page_num(chapter_page_num, page_data)
+            print(chapter_page)
+            # chapter_page = page_data[12] # FOR NOW
             chapter_content = chapter_page["content"]
+            print(chapter_content)
             first_line = re.search(r"\{\{ppoem\|.+?\n(.+?)\n", chapter_content).group(1)
             for punctuation in poem_punctuation:
                 if first_line.endswith(punctuation):
                     first_line = first_line[:-1]
                     break
+
+            while first_line.startswith(":"):
+                first_line = first_line[1:]
+
+            first_line = first_line.replace("{{fqm}}", "")
+            first_line = first_line.replace("''", "")
+            first_line = first_line.replace("{{\" '}}", "\"'")
+            first_line = first_line.replace("{{' \"}}", "'\"")
+            first_line = first_line.replace("{{fqm|", "")
+            first_line = first_line.replace("}}", "")
+            first_line = remove_template_markup(first_line)
+            first_line = first_line.replace("\\u2014", "—")
             return first_line
     return None
 
@@ -294,6 +313,7 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
         if subwork_title == collection_title:
             continue # for now we're gonna do this manually
         subwork_subtitle = subwork["subtitle"]
+        first_line = subwork["first_line"]
         work_type_name = subwork["type"]
         print(f"Creating redirects for {subwork_title} ({wikisource_link})")
         # disambiguation_page_title = follow_redirect(subwork_title)
@@ -306,7 +326,7 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
                 continue
             print_in_yellow(f"Disambiguation page exists for {subwork_title}!")
             work_link = f"{subwork_title} ({author_surname})"
-            add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_link, work_type_name, original_year, work_type_name, author_WS_name)
+            add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_link, work_type_name, original_year, work_type_name, author_WS_name, first_line)
         else:
             work_link = subwork_title
 

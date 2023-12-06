@@ -24,7 +24,7 @@ def get_individual_works_from_author_page(author_page_title, author_page_text, i
             work_year = re.search(r"([0-9][0-9][0-9][0-9])", individual_work).group(1)
             existing_works.append({"work_link": existing_work, "work_year": work_year})
         return individual_works, existing_works, wd_authors
-    return None, None
+    return None, None, ""
 
 def add_individual_works_to_author_page(subworks, author, work_type_name, original_year):
     site = pywikibot.Site("en", "wikisource")
@@ -71,7 +71,7 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
         individual_work_entries.append(individual_work_entry)
 
 
-    individual_works = "\n".join(individual_work_entries)
+    individual_works += "\n".join(individual_work_entries)
     individual_works = individual_works + "\n" + "\n".join(wd_authors)
 
     if previous_works_listing:

@@ -83,6 +83,11 @@ style_defaults = {
     "dropinitial-with-image":
     """	width: 75px;""",
 
+    "envoi":
+    """	text-align: center;
+    font-size: 92%;
+    font-variant: all-small-caps;""",
+
     "half":
     """	text-align: center;
 	text-transform: uppercase;

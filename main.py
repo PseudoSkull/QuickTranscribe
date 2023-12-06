@@ -374,7 +374,7 @@ expected_progress = "initial_cleanup_done"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transcription_text = initial_text_cleanup(transcription_text)
+    transcription_text = initial_text_cleanup(transcription_text, work_type_name)
     save_page(transcription_page, site, transcription_text, "Performing initial text cleanup...")
 
     process_break()

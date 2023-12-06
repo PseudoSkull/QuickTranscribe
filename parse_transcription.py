@@ -69,6 +69,7 @@ block_elements = {
 named_chapter_pattern = r"\/ch\/.+?\n\n"
 named_chapter_pattern_with_settings = r"\/ch\/.+?\/.+?\n\n"
 empty_chapter_pattern = r"\/ch\/\n\n"
+chapter_pattern_for_poetry_collection = r"(\/ch\/.+?\n\n\/po.+?\n)"
 
 chapter_pattern = rf"({named_chapter_pattern}|{named_chapter_pattern_with_settings}|{empty_chapter_pattern})"
 
@@ -1096,7 +1097,7 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
 
 
 
-def format_chapter_beginning_to_smallcaps(page):
+def format_chapter_beginning_to_smallcaps(page, work_type_name):
     words_to_avoid_pairing_with_names = [
         "Although",
         "And",
@@ -1119,6 +1120,9 @@ def format_chapter_beginning_to_smallcaps(page):
         return page
     
     quote_pattern = r"\"?\'?"
+    if work_type_name == "poetry collection":
+        chapter_pattern = chapter_pattern_for_poetry_collection
+    
     full_names_pattern = rf"{chapter_pattern}({quote_pattern}[A-Z][a-z]+ [A-Z][a-z]+)"
     general_pattern = rf"{chapter_pattern}({quote_pattern}[A-Z][a-z]+)"
     # general_pattern = rf"{chapter_pattern}(.+\s)"
@@ -1412,7 +1416,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 chapter_text = chapter_text.replace("class=chapter ", "class=chapter-half ")
                 chapter_text = chapter_text.replace("class=chapter|", "class=chapter-half|")
             
-            if ch_tag == "/pt/" or ch_tag == "/bk/":
+            if ch_tag == "/pt/" or ch_tag == "/bk/" or chapter_type == "part":
                 part_num = chapter["part_num"]
                 roman_part_num = roman.toRoman(part_num)
                 chapter_text = f"{{{{ph|class=part-header|{chapter_prefix} {roman_part_num}}}}}"
@@ -2177,8 +2181,8 @@ def convert_poems(page, poem_continuations, convert_fqms):
     if len(poem_continuations) > 0:
         start_continuation = poem_continuations[0]
         poem_continuations = []
+        end_continuation = None
         if "//po/" in content or "//poi/" in content:
-            end_continuation = None
             content = content.replace("//po/", "}}", 1)
             content = content.replace("//poi/", "}}", 1)
         else:

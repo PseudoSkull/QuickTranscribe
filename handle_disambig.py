@@ -27,7 +27,7 @@ def add_similar_template_to_page(disambiguation_page_title, work_page_title):
 
     save_page(work_page, site, work_page_text, "Adding {{similar}} template to page...")
 
-def add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_link, work_type_name, original_year, work_type, author_WS_name):
+def add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_link, work_type_name, original_year, work_type, author_WS_name, first_line):
     # standardize_disambiguation_page(), a very hefty function, will call this in later logic
     print("Adding item to disambiguation page...")
     site = pywikibot.Site("en", "wikisource")
@@ -37,7 +37,10 @@ def add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_
         formatted_work_link = f"[[{work_link}|]]"
     else:
         formatted_work_link = f"\"[[{work_link}|]]\""
-    disambiguation_entry = f"* {formatted_work_link} ({original_year}), a {work_type_name} by [[Author:{author_WS_name}|]]"
+    if work_type_name == "poem":
+        disambiguation_entry = f"* {formatted_work_link} ({original_year}, \"{first_line}\"), a {work_type_name} by [[Author:{author_WS_name}|]]"    
+    else:
+        disambiguation_entry = f"* {formatted_work_link} ({original_year}), a {work_type_name} by [[Author:{author_WS_name}|]]"
     
 
 
