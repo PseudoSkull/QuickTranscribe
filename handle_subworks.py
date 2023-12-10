@@ -207,7 +207,7 @@ def get_first_line_of_poem(poem_title, page_data, chapter_data):
             while first_line.startswith(":"):
                 first_line = first_line[1:]
 
-            first_line = first_line.replace("{{fqm}}", "")
+            first_line = first_line.replace("{{fqm}}", "\"")
             first_line = first_line.replace("''", "")
             first_line = first_line.replace("{{\" '}}", "\"'")
             first_line = first_line.replace("{{' \"}}", "'\"")

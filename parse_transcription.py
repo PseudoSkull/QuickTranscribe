@@ -426,6 +426,8 @@ def parse_chapter_settings(chapter_settings):
                 chapter_settings_data["type"] = "non-work chapter"
             elif chapter_settings_data["type"] == "fm":
                 chapter_settings_data["type"] = "front-matter chapter"
+        if "rel=" in setting:
+            chapter_settings_data["related_author"] = setting.split("=")[1]
 
     return chapter_settings_data
 
@@ -516,12 +518,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["splice"] = False
             chapter["type"] = "advertisements"
             chapter["format"] = page_format
+            chapter["related_author"] = None
             chapter["subtitle"] = None
             
             chapters.append(chapter)
             break
         chapter["subtitle"] = None
-
+        chapter["related_author"] = None
+        
         content = page["content"]
         content_lines = content.split("\n\n")
 
@@ -596,6 +600,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         elif work_type_name == "pc" or work_type_name == "poetry collection":
                             chapter["prefix"] = None
                             chapter["type"] = "poem"
+                        elif work_type_name == "ec" or work_type_name == "essay collection":
+                            chapter["prefix"] = None
+                            chapter["type"] = "essay"
                         elif not chapter_prefix:
                             chapter["prefix"] = "Chapter"
                         else:
@@ -639,6 +646,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["type"] = chapter_settings["type"]
                         if "front-matter" in chapter_settings:
                             chapter["type"] = "front-matter chapter"
+                        if "related_author" in chapter_settings:
+                            chapter["related_author"] = chapter_settings["related_author"]
                         
                     if chapter_type == "nam" or chapter["type"] != "default":
                         chapter["prefix"] = None
@@ -655,9 +664,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                     
+                    if ": " in chapter["title"] and (chapter["type"] != "preface" and chapter["type"] != "default"):
+                        chapter["title"], chapter["subtitle"] = chapter["title"].split(": ")
+
                     if chapter_title:
                         chapter["title"] = convert_to_title_case(chapter["title"])
                         chapter["display_title"] = convert_to_title_case(chapter["display_title"])
+                        if chapter["subtitle"]:
+                            chapter["subtitle"] = convert_to_title_case(chapter["subtitle"])
 
                     splice_chapter = False
                     if chapter_splice_points:

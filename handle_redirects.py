@@ -281,6 +281,8 @@ words_often_lowercased = [
     "are",
     "into",
     "is",
+    "it",
+    "its",
     "onto",
     "was",
     "were",
@@ -293,8 +295,8 @@ words_often_lowercased = [
 
 
 
-page_title_to_parse = "O Genteel Lady!"
-redirect_target = page_title_to_parse # later, when dealing with disambig etc., this will be changed
+# page_title_to_parse = "O Genteel Lady!"
+# redirect_target = page_title_to_parse # later, when dealing with disambig etc., this will be changed
 
 
 def get_defaultsort_prefixes(words):

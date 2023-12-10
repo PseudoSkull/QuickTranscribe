@@ -1737,6 +1737,7 @@ def correct_text(text_file, work_type):
     x = x.replace("Frangois", "François")
     x = x.replace(" fcr", " for")
     x = x.replace(" Io ", " 10 ")
+    
 
     x = re.sub(r"\. '([A-Z])", r". \"\1", x)
     
@@ -1807,6 +1808,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])U([a-z])", r"\1ll\2", x)
     x = re.sub(r"([0-9])oth", r"\1\0th", x)
     x = re.sub(r"([0-9])o", r"\1\0", x)
+
+    x = x.replace(" o?\"", "of \"")
 
 
 
@@ -1896,10 +1899,16 @@ def correct_text(text_file, work_type):
     x = re.sub(r",!\n\n-", r", I\n\n-", x)
 
     x = x.replace("\n\n-\n\nment", "-\n\n-\n\nment")
+    x = x.replace("\n\n-\n\nness", "-\n\n-\n\nness")
     x = x.replace("\n\n-\n\ning", "-\n\n-\n\ning")
     x = x.replace("\n\n-\n\ntion", "-\n\n-\n\ntion")
     x = x.replace("\n\n-\n\nation", "-\n\n-\n\nation")
+    x = x.replace("\n\n-\n\nzation", "-\n\n-\n\nzation")
     x = x.replace("ex\n\n-", "ex-\n\n-")
+    x = x.replace("con\n\n-", "con-\n\n-")
+    x = x.replace("pre\n\n-", "pre-\n\n-")
+    x = x.replace("pro\n\n-", "pro-\n\n-")
+    x = x.replace("re\n\n-", "re-\n\n-")
 
 
 

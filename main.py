@@ -281,6 +281,8 @@ common_work_types = {
     "diary": "Q185598",
     "novel": "Q8261",
     "play": "Q25379",
+    "ec": "Q16324495",
+    "essay collection": "Q16324495",
     "poetry collection": "Q12106333",
     "pc": "Q12106333",
     "short story collection": "Q1279564",
@@ -365,6 +367,8 @@ if work_type_name == "ssc":
     work_type_name = "short story collection"
 elif work_type_name == "pc":
     work_type_name = "poetry collection"
+elif work_type_name == "ec":
+    work_type_name = "essay collection"
 if not work_type_name:
     work_type_name = "work"
 genre_name = get_work_data(work_data, "genre")
@@ -786,9 +790,10 @@ if chapters_are_subpages_of_parts == "n":
 if work_type_name == "poetry collection":
     chapters_are_subpages_of_parts = False
 
+first_section_automatically_after_chapter = get_work_data(work_data, "first section is automatically after chapter")
 
 chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name)
-sections = get_section_data(chapters, page_data, transcription_text)
+sections = get_section_data(chapters, page_data, transcription_text, first_section_automatically_after_chapter)
 
 toc_format = find_form_section(transcription_text, "toc")
 chapter_format = find_form_section(transcription_text, "ch")

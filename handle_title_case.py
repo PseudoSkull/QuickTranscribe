@@ -109,7 +109,7 @@ def convert_word_to_title_case(word_num, word, capitalize_all=False):
         word = word.capitalize()
     else:
         if word.lower() not in title_case_exceptions:
-            if "." in word and word.upper() == word:
+            if "." in word and word.upper() == word and len(word) == word.count(".")*2:
                 pass # handling exceptions with abbreviations, like "U.S.", "F.B.I."
             else:
                 word = word.capitalize()
