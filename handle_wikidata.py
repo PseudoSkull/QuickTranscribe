@@ -234,7 +234,7 @@ def get_alias(item):
 
     if alias:
         print_in_green(f"Alias retrieved for {item}: {alias}.")
-        return description
+        return alias
     else:
         print_in_yellow(f"Alias not found for {item}.")
         return None

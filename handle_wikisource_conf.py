@@ -62,6 +62,7 @@ variables_with_descriptions = {
         "prev": "previous work",
         "scanner": "user who produced scan",
         "der": "derivative work",
+        "cnum": "force chapter numbers",
         "progress": "QT progress flag",
     }
 

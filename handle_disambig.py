@@ -37,10 +37,13 @@ def add_to_disambiguation_page(disambiguation_page_title, work_link, wikisource_
         formatted_work_link = f"[[{work_link}|]]"
     else:
         formatted_work_link = f"\"[[{work_link}|]]\""
+    indefinite_article = "a"
+    if work_type_name[0] in "aeiou":
+        indefinite_article = "an"
     if work_type_name == "poem":
-        disambiguation_entry = f"* {formatted_work_link} ({original_year}, \"{first_line}\"), a {work_type_name} by [[Author:{author_WS_name}|]]"    
+        disambiguation_entry = f"* {formatted_work_link} ({original_year}, \"{first_line}\"), {indefinite_article} {work_type_name} by [[Author:{author_WS_name}|]]"    
     else:
-        disambiguation_entry = f"* {formatted_work_link} ({original_year}), a {work_type_name} by [[Author:{author_WS_name}|]]"
+        disambiguation_entry = f"* {formatted_work_link} ({original_year}), {indefinite_article} {work_type_name} by [[Author:{author_WS_name}|]]"
     
 
 

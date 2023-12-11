@@ -5,6 +5,7 @@ from handle_wikidata import get_commons_category_from_wikidata
 from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
 from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item, get_wikidata_item_from_page
+from handle_transclusion import generate_defaultsort_tag
 import sys
 import os
 
@@ -301,7 +302,9 @@ def create_commons_category(title, category_namespace_prefix, author_item, work_
     # create subcategories
     categories = create_commons_category_subcategories(category_namespace_prefix, work_type_name, original_year, country_name, author_item, author_WD_alias, series_item)
 
-    commons_category_text = f"{{{{Wikidata Infobox}}}}\n\n{categories}"
+    defaultsort_tag = generate_defaultsort_tag(category_title_no_prefix)
+
+    commons_category_text = f"{{{{Wikidata Infobox}}}}{defaultsort_tag}\n\n{categories}"
 
     print_in_green(f"Commons category text generated! Category name: {category_page_title}")
     return [category_page_title, category_title_no_prefix, commons_category_text]
@@ -337,15 +340,17 @@ def generate_scan_filename(title, year, scan_file_path):
     # scan_filename = f"{title}.{extension}"
     return scan_filename
 
-def generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year):
+def generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year, filename):
     source_template = generate_source_template(scan_source, scanner, IA_id, hathitrust_full_text_id, GB_id)
     copyright_template = generate_commons_copyright_template(year)
+
+    defaultsort_tag = generate_defaultsort_tag(filename)
 
     commons_file_text = f"""=={{{{int:filedesc}}}}==
 {{{{Book
 |source = {source_template}
 |Wikidata = {version_item}
-}}}}
+}}}}{defaultsort_tag}
 
 =={{{{int:license-header}}}}==
 {copyright_template}
@@ -364,7 +369,7 @@ def upload_scan_file(title, year, version_item, scan_source, scanner, commons_ca
         scan_file_path = find_scan_file_to_upload(scan_source)
         scan_filename = generate_scan_filename(title, year, scan_file_path)
 
-    scan_file_text = generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year)
+    scan_file_text = generate_scan_file_text(version_item, scan_source, scanner, commons_category, IA_id, hathitrust_full_text_id, GB_id, year, scan_filename)
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 
@@ -704,7 +709,7 @@ def generate_commons_copyright_template(year):
     else:
         return "{{PD-US-not renewed}}"
 
-def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator):
+def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, image_filename):
     print("Generating image text...")
     file_description = generate_file_description(caption, image_type, page_num, work_title, year, image_letter)
     # commons_file_date = generate_commons_file_date()
@@ -712,13 +717,15 @@ def generate_image_text(scan_filename, author_item, author, transcription_page_t
     illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator)
     copyright_template = generate_commons_copyright_template(year)
 
+    defaultsort_tag = generate_defaultsort_tag(image_filename)
+
     commons_file_text = f"""=={{{{int:filedesc}}}}==
 {{{{Information
 |description={{{{en|1={file_description}}}}}
 |date={pub_date}
 |source={{{{extracted from|{scan_filename}}}}}
 |author={illustrator}
-}}}}
+}}}}{defaultsort_tag}
 
 
 =={{{{int:license-header}}}}==
@@ -762,7 +769,7 @@ def upload_images_to_commons(image_data, scan_filename, author_item, author, tra
         print(f"Uploading image {image_num} to Wikimedia Commons as \"{image_filename}\", from \"{image_file_path}\"...")
         image_caption = image["caption"]
         image_type = image["type"]
-        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator)
+        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, image_filename)
 
         
 

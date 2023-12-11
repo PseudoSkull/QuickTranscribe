@@ -792,7 +792,15 @@ if work_type_name == "poetry collection":
 
 first_section_automatically_after_chapter = get_work_data(work_data, "first section is automatically after chapter")
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name)
+if first_section_automatically_after_chapter == "n":
+    first_section_automatically_after_chapter = False
+else:
+    first_section_automatically_after_chapter = True
+
+force_chapter_numbers = get_work_data(work_data, "force chapter numbers")
+
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name, force_chapter_numbers)
+
 sections = get_section_data(chapters, page_data, transcription_text, first_section_automatically_after_chapter)
 
 toc_format = find_form_section(transcription_text, "toc")
@@ -811,7 +819,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 

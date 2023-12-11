@@ -431,7 +431,7 @@ def parse_chapter_settings(chapter_settings):
 
     return chapter_settings_data
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name, force_chapter_numbers):
     print("Getting chapter data...")
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
@@ -612,7 +612,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter_num += 1
                         chapter["chapter_num"] = chapter_num
 
-
                         # chapter["title"] = None
                     
 
@@ -649,7 +648,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if "related_author" in chapter_settings:
                             chapter["related_author"] = chapter_settings["related_author"]
                         
-                    if chapter_type == "nam" or chapter["type"] != "default":
+                    if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers):
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                         chapter_num -= 1
@@ -804,7 +803,7 @@ def add_section(sections, section_num, chapter_num, part_num, page_num, overall_
     return sections
     
 
-def get_section_data(chapters, page_data, transcription_text):
+def get_section_data(chapters, page_data, transcription_text, first_section_automatically_after_chapter):
     print("Getting section data...")
     sections_json_file = "section_data.json"
     sections = get_json_data(sections_json_file)
@@ -829,7 +828,7 @@ def get_section_data(chapters, page_data, transcription_text):
             except ValueError:
                 page_num = page["marker"]
             content = page["content"]
-        
+            
             section_matches = re.findall(section_pattern, content)
 
             for match in section_matches:
@@ -846,19 +845,20 @@ def get_section_data(chapters, page_data, transcription_text):
                 chapter_start_page_num = chapter["page_num"]
                 part_num = chapter["part_num"]
                 chapter_prefix = chapter["prefix"]
-                if (chapter_prefix == "Book" or chapter_prefix == "Part") and part_num:
+                if ((chapter_prefix == "Book" or chapter_prefix == "Part") and part_num):
                     continue
-
+                #  or not first_section_automatically_after_chapter
                 chapter_has_sections = chapter["has_sections"]
                 if not chapter_has_sections:
                     print_in_red(f"ERROR: Chapter data says chapter has no sections, but section was found in chapter when collecting section data! Something is wrong with the code. Please fix it. Chapter num: {chapter_num}, part num: {part_num}, page num: {page_num}, overall page num: {overall_page_num}, match: {match}")
                     exit()
                 else:
-                    if chapter_num != previous_chapter_num or (chapter_title != previous_chapter_title):
+                    if (chapter_num != previous_chapter_num or (chapter_title != previous_chapter_title)):
                         section_num = 1
-                        unreadable_overall_page_num = None # Change later when logic can do this
-                        sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, unreadable_overall_page_num)
-                        previous_chapter_title = chapter_title
+                        if first_section_automatically_after_chapter:
+                            unreadable_overall_page_num = None # Change later when logic can do this
+                            sections = add_section(sections, section_num, chapter_num, part_num, chapter_start_page_num, unreadable_overall_page_num)
+                            previous_chapter_title = chapter_title
                 
                 # add first section of chapter if it's the first time encountering that chapter
                 
@@ -1328,7 +1328,7 @@ def add_toc_to_transcription(page, toc, block_continuations):
 
     return block_continuations, page
 
-def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work):
+def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work, first_section_automatically_after_chapter):
     # IF MULTIPLE CHAPTERS, THEY NEED TO BE SECTIONED OUT WITH ANCHORS!!!!!
     content = page["content"]
 
@@ -1435,7 +1435,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 roman_part_num = roman.toRoman(part_num)
                 chapter_text = f"{{{{ph|class=part-header|{chapter_prefix} {roman_part_num}}}}}"
             
-            if chapter_has_sections and "/chh/" not in ch_tag:
+            if chapter_has_sections and "/chh/" not in ch_tag and first_section_automatically_after_chapter:
                 chapter_text += "\n/sec/"
 
             content = replace_line(content, chapter_text, line_num)
@@ -2406,7 +2406,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -2460,7 +2460,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
 
         block_continuations, page = add_toc_to_transcription(page, toc, block_continuations)
         page = add_illustrations_to_transcription(page, illustrations)
-        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work)
+        overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work, first_section_automatically_after_chapter)
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
 
         page = remove_split_tag(page)

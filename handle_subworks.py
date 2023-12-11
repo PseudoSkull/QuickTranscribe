@@ -2,7 +2,7 @@
 
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import page_exists, save_page, follow_redirect, remove_template_markup
-from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file
+from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file, get_wikidata_item_from_wikisource, get_alias, get_label
 from handle_pages import get_marker_from_page_num, get_page_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
@@ -97,6 +97,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                 first_line = None
                 if chapter_type == "poem" or chapter_type == "po":
                     first_line = get_first_line_of_poem(title, page_data, chapters)
+                related_author = chapter["related_author"]
 
                 subwork_data = {
                     "title": title,
@@ -108,6 +109,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                     "wikisource_link": wikisource_link,
                     "work_link": None,
                     "first_line": first_line,
+                    "related_author": related_author,
                     "status": status,
                 }
 
@@ -144,6 +146,19 @@ def append_subwork_data(subwork, subworks):
 def get_work_type_item(work_type_name):
     return work_types[work_type_name]
 
+def determine_if_named_after_author(title, related_author_item):
+    if related_author_item:
+        author_name = get_label(related_author_item)
+        aliases = get_alias(related_author_item)
+
+        author_names = [author_name] + aliases
+        for name in author_names:
+            if title.lower() in name.lower():
+                return True
+        return False
+    else:
+        return False
+
 def create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location):
     work_item = subwork["work_item"]
     work_type_name = subwork["type"]
@@ -154,6 +169,12 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     work_item = subwork["work_item"]
     main_image_filename = subwork["image"]
     subtitle = subwork["subtitle"]
+    related_author = subwork["related_author"]
+    related_author_item = None
+    if related_author:
+        related_author_item = get_wikidata_item_from_wikisource(f"Author:{related_author}")
+
+    named_after_related_author = determine_if_named_after_author(title, related_author_item)
 
     print(f"WORK ITEM IS {work_item} WHEN ITS CREATED")
     subworks = append_subwork_data(subwork, subworks)
@@ -174,6 +195,9 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     if subtitle:
         add_property(repo, item, 'P1680', pywikibot.WbMonolingualText(text=subtitle, language='en'), 'subtitle', transcription_page_title)
+    add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
+    if named_after_related_author:
+        add_property(repo, item, 'P138', related_author_item, 'named after (named after related author)', transcription_page_title)
     add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)

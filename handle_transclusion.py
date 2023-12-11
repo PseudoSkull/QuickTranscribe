@@ -454,6 +454,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             continue
     
         chapter_has_references = chapter["refs"]
+        related_author = chapter["related_author"]
         
     
         smallrefs = ""
@@ -466,6 +467,12 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             chapter_type = "poem"
         if chapter_type == "es":
             chapter_type = "essay"
+
+        if related_author:
+            related_author_display = f"""
+ | related_author = {related_author}"""
+        else:
+            related_author_display = ""
         
         if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
             chapter_internal_name = chapter_name
@@ -510,7 +517,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
  | author     = {author_header_display}{translator_display}
  | section    = {chapter_name}
  | previous   = {previous_chapter_display}
- | next       = {next_chapter_display}{editor_display}
+ | next       = {next_chapter_display}{editor_display}{related_author_display}
  | notes      = 
 }}}}{defaultsort}
 

@@ -173,6 +173,22 @@ ending_symbols = [
     "—",
 ]
 
+numbers = {
+    "2": "two",
+    "3": "three",
+    "4": "four",
+    "5": "five",
+    "6": "six",
+    "7": "seven",
+    "8": "eight",
+    "9": "nine",
+    "10": "ten",
+}
+
+# for i in range(5, 101):
+#     numbers[str(i)] = num2words(i)
+
+
 ordinals = {
     'First': '1st',
     'Second': '2nd',
