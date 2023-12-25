@@ -36,6 +36,7 @@ basic_elements = {
     "bt": "***|char=·",
     "d": "dhr",
     "end": "dhr|2}}\n{{c|{{asc|The end}}",
+    "fin": "dhr|2}}\n{{c|{{asc|Finis}}",
     "n": "nop",
     "peh": "peh",
     "st": "***",
@@ -82,6 +83,7 @@ chapter_tags = [
     "chrn",
     "concl",
     "contch",
+    "dedch",
     "epi",
     "fwd",
     "int",
@@ -446,6 +448,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         "bibl": "Bibliography",
         "chrn": "Chronology",
         "concl": "Conclusion",
+        "dedch": "Dedication",
         "epi": "Epilogue",
         "fwd": "Foreword",
         "int": "Introduction",
@@ -587,6 +590,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         #     chapter["title"] = chapter_title
                         
                     else:
+                        print("GOT TO CHAPTER NUM")
+                        print(chapter_num)
                         chapter_num += 1
 
                         if chapter_prefix == "n":
@@ -648,10 +653,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         if "related_author" in chapter_settings:
                             chapter["related_author"] = chapter_settings["related_author"]
                         
-                    if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers):
+                    if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers and chapter["type"] != "numbered chapter"):
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
-                        chapter_num -= 1
+                        # chapter_num -= 1
                         # chapter["type"] = "non-work chapter"
                     
                     if chapter_type == "fm" or chapter["type"] == "front-matter chapter":
@@ -663,7 +668,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                     
-                    if ": " in chapter["title"] and (chapter["type"] != "preface" and chapter["type"] != "default"):
+                    if chapter["title"] and (": " in chapter["title"] and (chapter["type"] != "preface" and chapter["type"] != "default")):
                         chapter["title"], chapter["subtitle"] = chapter["title"].split(": ")
 
                     if chapter_title:
@@ -1112,6 +1117,7 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
 
 
 def format_chapter_beginning_to_smallcaps(page, work_type_name):
+    global chapter_pattern
     words_to_avoid_pairing_with_names = [
         "Although",
         "And",
@@ -1357,11 +1363,12 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             overall_chapter_num_zero_indexed = overall_chapter_num - 1
             chapter = chapters[overall_chapter_num_zero_indexed]
 
-            chapter_type = chapter["type"]
+            # chapter_type = chapter["type"]
 
             roman_chapter_num = ""
             real_chapter_num = chapter["chapter_num"]
             if real_chapter_num:
+                print(real_chapter_num)
                 roman_chapter_num = roman.toRoman(real_chapter_num)
                 inflect_engine = inflect.engine()
                 chapter_num_as_word = inflect_engine.number_to_words(real_chapter_num).capitalize()
@@ -2296,14 +2303,43 @@ def convert_images(page, image_data, img_num):
         else:
             caption_display = ""
         image_size = image["size"]
+        template_name = "FreedImg"
 
-        image_text = f"""{{{{FreedImg
+        image_settings = image["settings"]
+
+        image_settings = image_settings.split(",")
+
+        float_display = ""
+        float_setting = ""
+
+        for setting in image_settings:
+            if "fl=" in setting:
+                template_name = "Img float"
+                float_setting = setting.split("=")[1]
+                if float_setting == "r":
+                    float_setting = "right"
+                elif float_setting == "l":
+                    float_setting = "left"
+        
+    
+        if float_setting:
+            float_display = f"\n | float = {float_setting}"
+            image_size = 150
+
+
+
+        image_text = f"""{{{{{template_name}
  | file = {image_filename}{caption_display}
- | width = {image_size}px
+ | width = {image_size}px{float_display}
 }}}}"""
 
         content = replace_line(content, image_text, line_num)
 
+    if " | float = " in content:
+        content = re.sub("float = left\n}}\n\n", "float = left\n}}", content)
+        content = re.sub("float = right\n}}\n\n", "float = right\n}}", content)
+        content = re.sub("float = left\n}}\n", "float = left\n}}", content)
+        content = re.sub("float = right\n}}\n", "float = right\n}}", content)
 
     # content = re.sub(pattern, r"{{img|\1}}", content)
 

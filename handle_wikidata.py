@@ -117,7 +117,21 @@ def get_value_from_property(item, property, get_last_item=False):
     else:
         items = item
 
+    # filtered_items = []
 
+    # united_states = False
+    # for item in items:
+    #     if item_page(site, item) == item_page(site, "Q2079909"):
+    #         print("Found Q2079909")
+    #         united_states = True
+    #         continue
+    #     filtered_items.append(item)
+
+    # if united_states:
+    #     filtered_items.append(item_page("Q30"))
+
+    # items = filtered_items
+        
     results = []
     for item in items:
         page = item_page(site, item)  # Create an ItemPage for the variable
@@ -134,6 +148,8 @@ def get_value_from_property(item, property, get_last_item=False):
             result = claim[0].target.id
             if get_last_item:
                 result = claim[-1].target.id
+                if result == "Q2079909":
+                    result = "Q30"
                 return result
         except AttributeError:
             try:

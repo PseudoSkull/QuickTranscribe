@@ -1737,6 +1737,12 @@ def correct_text(text_file, work_type):
     x = x.replace("Frangois", "François")
     x = x.replace(" fcr", " for")
     x = x.replace(" Io ", " 10 ")
+    x = x.replace(" \"d ", " I'd ")
+    x = x.replace(".\"O", ".50")
+    x = x.replace("\nT ", "\nI ")
+
+    # x = re.sub(r"([0-9])\"O", r"\150", x)
+
     
 
     x = re.sub(r"\. '([A-Z])", r". \"\1", x)
@@ -1808,6 +1814,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])U([a-z])", r"\1ll\2", x)
     x = re.sub(r"([0-9])oth", r"\1\0th", x)
     x = re.sub(r"([0-9])o", r"\1\0", x)
+    x = re.sub(r"([a-np-z])of ", r"\1 of ", x)
 
     x = x.replace(" o?\"", "of \"")
 

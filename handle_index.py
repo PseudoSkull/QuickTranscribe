@@ -339,6 +339,11 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
     else:
         translator_display = ""
 
+
+    publisher_display = f"[[Portal:{publisher_name}|{publisher_name}]]"
+    if publisher_name == "self":
+        publisher_display = "[[Portal:Self-published works|Self-published]]"
+
     title_page = get_title_page(page_data)
     index_page_text = f"""{{{{:MediaWiki:Proofreadpage_index_template
 |Type=book

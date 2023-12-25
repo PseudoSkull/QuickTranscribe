@@ -76,6 +76,7 @@ def initial_text_cleanup(text, work_type_name):
     # Replace instances of —t3 with "—\n\n—\n\n—" for example, shorthand for multiple non-proofreadable pages
     text = re.sub(r'—t(\d+?)\n', lambda m: '—\n\n' * int(m.group(1)), text)
 
+    # the regex/script should check for the following symbols: " ", "\n", "—"
     text = remove_triple_newlines(text)
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
@@ -115,6 +116,7 @@ def initial_text_cleanup(text, work_type_name):
     text = text.replace("\n/d/\n-", "\n/d/\n\n-")
     text = text.replace("\ns\n", "\n\n/sec/\n\n")
     text = text.replace("\n/s/\n", "\n/sec/\n")
+    text = text.replace("/rimg//", "/img/fl=r/")
     text = re.sub(r"\n\n-\n\nn\n\n", r"\n/n/\n\n-\n\n", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)
     text = re.sub(r"(.)\nn", r"\1\n/n/", text)

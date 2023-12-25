@@ -43,6 +43,8 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Biographies"
         if genre == "children's" or genre == "children":
             category = "Children's books"
+        if genre == "genealogy":
+            category = ["Genealogy", "Non-fiction books"]
         elif genre == "historical":
             if work_type_name == "novel":
                 category = f"Historical fiction novels"
@@ -56,7 +58,10 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Christian literature"
         elif genre == "western":
             category = "Western fiction"
-        categories.append(category)
+        if type(category) == str:
+            categories.append(category)
+        else:
+            categories += category
     return categories
 
 def check_if_parts_exist(transcription_text):

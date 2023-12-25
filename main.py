@@ -265,6 +265,8 @@ common_genres = {
     "children's": "Q56451354",
     "Christian": "Q1084059",
     "dystopian": "Q15062348",
+    "gen": "Q47307",
+    "genealogy": "Q47307",
     "fiction": "Q306614",
     "historical": "Q1196408",
     "mystery": "Q6585139",
@@ -288,12 +290,18 @@ common_work_types = {
     "short story collection": "Q1279564",
     "ssc": "Q1279564",
     "speech": "Q861911",
+
+    # types that are normally subworks
+    "short story": "Q49084",
+    "poem": "Q5185279",
+    "essay": "Q35760",
 }
 
 common_locations = {
     "Atlanta": "Q23556",
     "Boston": "Q100",
     "Champaign": "Q577964",
+    "Chattanooga": "Q186702",
     "Chicago": "Q1297",
     "Garden City": "Q739452",
     "Honolulu": "Q18094",
@@ -308,6 +316,8 @@ common_locations = {
 }
 
 common_publishers = {
+    "Appleton": "Q3011053",
+    "Atlantic": "Q84848622",
     "Burt": "Q24204324",
     "Century": "Q7721960",
     "Dodd": "Q5287721",
@@ -324,6 +334,7 @@ common_publishers = {
     "McClurg": "Q4647618",
     "Putnam": "Q3093062",
     "Scribner": "Q845617",
+    # "self": "",
     "Small": "Q7542583",
     "Stokes": "Q19443780",
 }
@@ -554,6 +565,7 @@ narrative_location = get_work_data(work_data, "narrative location")
 
 openlibrary_version_id, openlibrary_work_id = get_openlibrary_id()
 
+
 hathitrust_id = get_work_data(work_data, "HathiTrust catalog ID")
 hathitrust_full_text_id = get_work_data(work_data, "HathiTrust full text ID")
 
@@ -584,6 +596,8 @@ lccn = get_data_from_xml("lccn")
 if not openlibrary_work_id:
     openlibrary_version_id, openlibrary_work_id, lccn = get_openlibrary_data(openlibrary_version_id, oclc)
 
+# openlibrary_work_id = "OL8421169W"
+# openlibrary_version_id = "OL17961024M"
 
 
 transcription_text = transcription_page.text
@@ -608,6 +622,8 @@ filename = get_work_data(work_data, "filename")
 version_item = get_work_data(work_data, wikidata_item_of("version"))
 publisher = get_work_data(work_data, wikidata_item_of("publisher"), common_publishers)
 # if not lccn:
+if not publisher and get_work_data(work_data, wikidata_item_of("publisher")) == "self":
+    publisher = author_item
 
 gutenberg_id = get_work_data(work_data, "Gutenberg ID")
 gutenberg_ia_id = get_work_data(work_data, "Gutenberg Internet Archive ID")
@@ -770,7 +786,11 @@ file_extension = extract_file_extension(filename)
 # author_item = get_wikidata_item_from_wikisource()
 
 # title = get_label(base_work)
-publisher_name = get_wikisource_page_from_wikidata(publisher)
+print(publisher)
+if publisher == author_item:
+    publisher_name = "self"
+else:
+    publisher_name = get_wikisource_page_from_wikidata(publisher)
 location_name = get_label(location)
 
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
@@ -935,15 +955,18 @@ if not at_expected_progress:
     save_page(transcription_page, site, transcription_text, "Noting that transcription backlink scan templates have been removed...")
 
 
-transcription_text = transcription_page.text
-expected_progress = "export_tested"
-at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
-if not at_expected_progress:
-    test_pdf_export(mainspace_work_title)
+# STOPPED FOR NOW DUE TO KNOWN ISSUE WITH EXPORTER (not related to QT at all)
 
-    transcription_text = update_QT_progress(transcription_text, expected_progress)
-    save_page(transcription_page, site, transcription_text, "Noting that export of the work has been tested...")
+# transcription_text = transcription_page.text
+# expected_progress = "export_tested"
+# at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+# if not at_expected_progress:
+#     test_pdf_export(mainspace_work_title)
+
+#     transcription_text = update_QT_progress(transcription_text, expected_progress)
+#     save_page(transcription_page, site, transcription_text, "Noting that export of the work has been tested...")
 
 
 # exit()

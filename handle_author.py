@@ -20,8 +20,12 @@ def get_individual_works_from_author_page(author_page_title, author_page_text, i
             if "WD author" in individual_work:
                 wd_authors.append(individual_work)
                 continue
+            print(individual_work)
             existing_work = re.search(r"\[\[(.+?)[\|\]]", individual_work).group(1)
-            work_year = re.search(r"([0-9][0-9][0-9][0-9])", individual_work).group(1)
+            try:
+                work_year = re.search(r"([0-9][0-9][0-9][0-9])", individual_work).group(1)
+            except AttributeError:
+                work_year = None
             existing_works.append({"work_link": existing_work, "work_year": work_year})
         return individual_works, existing_works, wd_authors
     return None, None, ""
@@ -69,7 +73,10 @@ def add_individual_works_to_author_page(subworks, author, work_type_name, origin
             formatted_work_link = f"[[{work_link}|]]"
         else:
             formatted_work_link = f"\"[[{work_link}|]]\""
-        individual_work_entry = f"* {formatted_work_link} ({original_year})"
+        if original_year:
+            individual_work_entry = f"* {formatted_work_link} ({original_year})"
+        else:
+            individual_work_entry = f"* {formatted_work_link}"
         individual_work_entries.append(individual_work_entry)
 
 
