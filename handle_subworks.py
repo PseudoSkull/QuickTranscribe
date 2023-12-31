@@ -8,6 +8,7 @@ from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
 from handle_commons import get_frontispiece_image
 from parse_transcription import get_chapter_from_title, get_chapter_from_page_num
+from handle_wikisource_conf import get_year_from_date
 import pywikibot
 import os
 import json
@@ -45,10 +46,11 @@ def get_frontispiece_linked_chapter(chapter_data, page_data, image_data):
         return frontispiece_chapter
 
 def get_subwork_image(expected_title, page_data, chapter_data, image_data):
-    return None
+    # return None
     unaccepted_image_types = [
         "vignette",
         "fleuron",
+        "frontispiece",
         "drop initial",
         "back cover",
         "front cover",
@@ -73,6 +75,7 @@ def get_subwork_image(expected_title, page_data, chapter_data, image_data):
             page_num = int(page_num)
         except ValueError:
             continue
+        print("Page num is " + str(page_num))
         chapter = get_chapter_from_page_num(chapter_data, page_num)
         chapter_title = chapter["title"]
         if expected_title == chapter_title:
@@ -98,6 +101,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                 if chapter_type == "poem" or chapter_type == "po":
                     first_line = get_first_line_of_poem(title, page_data, chapters)
                 related_author = chapter["related_author"]
+                original_date = str(chapter["original_year"]) if chapter["original_year"] else None
 
                 subwork_data = {
                     "title": title,
@@ -110,6 +114,7 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                     "work_link": None,
                     "first_line": first_line,
                     "related_author": related_author,
+                    "original_date": original_date,
                     "status": status,
                 }
 
@@ -151,7 +156,11 @@ def determine_if_named_after_author(title, related_author_item):
         author_name = get_label(related_author_item)
         aliases = get_alias(related_author_item)
 
-        author_names = [author_name] + aliases
+        if aliases:
+            author_names = [author_name] + aliases
+        else:
+            author_names = [author_name]
+
         for name in author_names:
             if title.lower() in name.lower():
                 return True
@@ -173,6 +182,9 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     related_author_item = None
     if related_author:
         related_author_item = get_wikidata_item_from_wikisource(f"Author:{related_author}")
+    if subwork["original_date"]:
+        original_pub_date = subwork["original_date"]
+        original_year = get_year_from_date(original_pub_date)
 
     named_after_related_author = determine_if_named_after_author(title, related_author_item)
 

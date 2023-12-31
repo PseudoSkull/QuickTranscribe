@@ -43,7 +43,7 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Biographies"
         if genre == "children's" or genre == "children":
             category = "Children's books"
-        if genre == "genealogy":
+        if genre == "gen" or genre == "genealogy":
             category = ["Genealogy", "Non-fiction books"]
         elif genre == "historical":
             if work_type_name == "novel":

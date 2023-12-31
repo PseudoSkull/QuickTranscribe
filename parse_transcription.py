@@ -88,6 +88,7 @@ chapter_tags = [
     "fwd",
     "int",
     "intr",
+    "inty",
     "pref",
     "prol",
     "pt",
@@ -430,11 +431,14 @@ def parse_chapter_settings(chapter_settings):
                 chapter_settings_data["type"] = "front-matter chapter"
         if "rel=" in setting:
             chapter_settings_data["related_author"] = setting.split("=")[1]
+        if "oy=" in setting:
+            chapter_settings_data["original_year"] = int(setting.split("=")[1])
 
     return chapter_settings_data
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name, force_chapter_numbers):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name, force_chapter_numbers, part_prefix):
     print("Getting chapter data...")
+
     chapters_json_file = "chapter_data.json"
     chapters = get_json_data(chapters_json_file)
     try:
@@ -453,6 +457,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         "fwd": "Foreword",
         "int": "Introduction",
         "intr": "Introduction",
+        "inty": "Introductory",
         "pref": "Preface",
         "prol": "Prologue",
         "refch": "References",
@@ -522,12 +527,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             chapter["type"] = "advertisements"
             chapter["format"] = page_format
             chapter["related_author"] = None
+            chapter["original_year"] = None
             chapter["subtitle"] = None
             
             chapters.append(chapter)
             break
         chapter["subtitle"] = None
         chapter["related_author"] = None
+        chapter["original_year"] = None
         
         content = page["content"]
         content_lines = content.split("\n\n")
@@ -573,6 +580,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     elif chapter_tag == "bk" or chapter_tag == "pt":
                         part_num += 1
                         chapter["prefix"] = chapter_prefixes[chapter_tag]
+                        if part_prefix:
+                            chapter["prefix"] = part_prefix
                         chapter["chapter_num"] = part_num
                         if "collection" not in work_type_name:
                             chapter_title = None
@@ -617,6 +626,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter_num += 1
                         chapter["chapter_num"] = chapter_num
 
+                        if part_prefix and chapter["type"] == "part":
+                            chapter["prefix"] = part_prefix
+
                         # chapter["title"] = None
                     
 
@@ -652,8 +664,11 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["type"] = "front-matter chapter"
                         if "related_author" in chapter_settings:
                             chapter["related_author"] = chapter_settings["related_author"]
+                        if "original_year" in chapter_settings:
+                            chapter["original_year"] = chapter_settings["original_year"]
                         
                     if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers and chapter["type"] != "numbered chapter"):
+
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
                         # chapter_num -= 1
@@ -742,10 +757,16 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         page_num = int(page_num)
         # print(f"WELL WE GOT HERE??? {page_num}")
         first_chapter = chapters[0]
+        first_chapter_type = first_chapter["type"]
+        if first_chapter_type == "preface":
+            first_chapter = chapters[1]
         first_chapter_start_page = first_chapter["page_num"]
         # print(f"WELL WE GOT HERE??????? {page_num} {first_chapter_start_page}")
         # if type(page_num) == int and type(first_chapter_start_page) == int:
         if page_num < first_chapter_start_page:
+            print(f"Page number {page_num} is less than first chapter start page {first_chapter_start_page}.")
+            print("I'm getting here you know")
+            # print()
             return "Front matter"
         # (TypeError, ValueError)
     except (TypeError, ValueError):
@@ -1524,23 +1545,42 @@ def handle_reference_continuations(page, content, reference_continuations):
     marker = page["marker"]
     # footer = page["footer"]
 
+    print(f"Reference continuations: {reference_continuations}")
     # if string_not_in_content(content, "/rc/", "Handling reference continuations"):
     #     return page
-    
-    if "/rcs//" in content:
-        continued_reference = re.findall(r"\/rcs\//(.+?)\//rc\/", content)[0]
-        ref_id = f"P{marker}"
-        reference_continuations.append(ref_id)
 
-    if "/rc//" in content:
-        continued_reference = re.findall(r"\/rc\//(.+?)\//rc", content)[0]
+    # if "/rcs/" in content and "/rce/" in content:
+    #     continued_reference = re.findall(r"\/rcs\//(.+?)\//rce\/", content)[0]
+    #     ref_id = f"P{marker}"
+    #     reference_continuations.append(ref_id)
+
+    if "/rcs/" in content and "/rce/" in content:
         ref_id = reference_continuations[0]
-    
-    if "//rce/" in content:
-        reference_continuations = []
+        ref_id_2 = f"P{marker}"
+        reference_continuations = [ref_id_2]
+        continued_reference1 = re.findall(r"\/rc\//(.+?)\//rce", content)[0]
+        continued_reference2 = re.findall(r"\/rcs\//(.+?)\//rc", content)[0]
+        content = content.replace(f"/rcs//{continued_reference2}//rc", f"<ref name=\"{ref_id_2}\">{continued_reference2}//rc")
+        content = content.replace(f"/rc//{continued_reference1}//rce", f"<ref follow=\"{ref_id}\">{continued_reference1}//rce")
 
-    content = content.replace(f"/rcs//{continued_reference}//rc", f"<ref name=\"{ref_id}\">{continued_reference}//rc")
-    content = content.replace(f"/rc//{continued_reference}//rc", f"<ref follow=\"{ref_id}\">{continued_reference}//rc")
+    
+    else:
+        if "/rcs/" in content:
+            continued_reference = re.findall(r"\/rcs\//(.+?)\//rc\/", content)[0]
+            ref_id = f"P{marker}"
+            reference_continuations.append(ref_id)
+
+        if "/rc//" in content:
+            continued_reference = re.findall(r"\/rc\//(.+?)\//rc", content)[0]
+            print(content)
+            ref_id = reference_continuations[0]
+        
+        if "//rce/" in content:
+    
+            reference_continuations = []
+
+        content = content.replace(f"/rcs//{continued_reference}//rc", f"<ref name=\"{ref_id}\">{continued_reference}//rc")
+        content = content.replace(f"/rc//{continued_reference}//rc", f"<ref follow=\"{ref_id}\">{continued_reference}//rc")
 
     content = content.replace("//rc/", "</ref>")
     content = content.replace("//rce/", "</ref>")

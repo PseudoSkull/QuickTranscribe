@@ -63,6 +63,7 @@ variables_with_descriptions = {
         "scanner": "user who produced scan",
         "der": "derivative work",
         "cnum": "force chapter numbers",
+        "ptpre": "prefix for part names",
         "progress": "QT progress flag",
     }
 
@@ -104,6 +105,7 @@ statuses = [
     "subwork_data_items_created",
     "subworks_disambiguated",
     "subworks_listed_at_author",
+    "subworks_added_to_related_authors",
     "projectfiles_folders_archived",
     "done",
 ]

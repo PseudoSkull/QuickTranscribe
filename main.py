@@ -32,7 +32,7 @@ from config import username, mainspace_work_title, transcription_page_title
 from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos, find_drop_initial_letters
 from handle_dedications import get_dedications
 from handle_subworks import get_subwork_data, create_subwork_wikidata_items, redirect_and_disambiguate_subworks
-from handle_author import add_individual_works_to_author_page
+from handle_author import add_individual_works_to_author_page, add_works_to_related_authors
 from handle_wikisource_export import test_pdf_export
 from handle_openlibrary import get_openlibrary_data
 from handle_loc import get_loc_classification
@@ -797,6 +797,7 @@ drop_initials_float_quotes = get_work_data(work_data, "drop initials float quote
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
 chapter_prefix = get_work_data(work_data, "prefix for chapter names")
+part_prefix = get_work_data(work_data, "prefix for part names")
 parts_exist = check_if_parts_exist(transcription_text)
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 if chapters_are_subpages_of_parts == None and parts_exist:
@@ -819,7 +820,7 @@ else:
 
 force_chapter_numbers = get_work_data(work_data, "force chapter numbers")
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name, force_chapter_numbers)
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name, force_chapter_numbers, part_prefix)
 
 sections = get_section_data(chapters, page_data, transcription_text, first_section_automatically_after_chapter)
 
@@ -1017,6 +1018,17 @@ if subworks:
 
         transcription_text = update_QT_progress(transcription_text, expected_progress)
         save_page(transcription_page, site, transcription_text, "Noting that the subworks have been listed at the author page...")
+
+    transcription_text = transcription_page.text
+    expected_progress = "subworks_added_to_related_authors"
+    at_expected_progress = check_QT_progress(transcription_text, expected_progress)
+
+    if not at_expected_progress:
+        add_works_to_related_authors(subworks, year)
+        process_break()
+
+        transcription_text = update_QT_progress(transcription_text, expected_progress)
+        save_page(transcription_page, site, transcription_text, "Noting that the subworks have been added to the related authors' pages...")
 
 transcription_text = transcription_page.text
 expected_progress = "projectfiles_folders_archived"

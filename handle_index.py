@@ -355,7 +355,7 @@ def create_index_page(index_page_title, index_pagelist, transcription_text, main
 |Editor={editor_display}
 |Illustrator={illustrator_display}
 |School=
-|Publisher=[[Portal:{publisher_name}|{publisher_name}]]
+|Publisher={publisher_display}
 |Address={location_name}
 |Year={year}
 |Key=

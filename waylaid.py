@@ -1735,11 +1735,25 @@ def correct_text(text_file, work_type):
     x = x.replace("porte-cochere", "porte-cochère")
     x = x.replace("Francois", "François")
     x = x.replace("Frangois", "François")
+    x = x.replace("Francais", "Français")
+    x = x.replace("Frangais", "Français")
+    x = x.replace("frangais", "français")
+    x = x.replace("francais", "français")
     x = x.replace(" fcr", " for")
     x = x.replace(" Io ", " 10 ")
     x = x.replace(" \"d ", " I'd ")
     x = x.replace(".\"O", ".50")
     x = x.replace("\nT ", "\nI ")
+    x = x.replace("confrere", "confrère")
+    x = x.replace("Cafe ", "Café ")
+    x = x.replace(" cafe ", " café ")
+    x = x.replace(" cafes", " cafés")
+    x = x.replace("Elysee", "Élysée")
+    x = x.replace("Comedie", "Comédie")
+    # x = x.replace("comedie", "comédie")
+
+
+
 
     # x = re.sub(r"([0-9])\"O", r"\150", x)
 
@@ -1815,6 +1829,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([0-9])oth", r"\1\0th", x)
     x = re.sub(r"([0-9])o", r"\1\0", x)
     x = re.sub(r"([a-np-z])of ", r"\1 of ", x)
+    x = re.sub(r"([a-z])ii([a-z])", r"\1n\2", x)
 
     x = x.replace(" o?\"", "of \"")
 

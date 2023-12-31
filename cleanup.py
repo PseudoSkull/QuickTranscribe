@@ -78,6 +78,13 @@ def initial_text_cleanup(text, work_type_name):
 
     # the regex/script should check for the following symbols: " ", "\n", "—"
     text = remove_triple_newlines(text)
+
+    # convert italics
+
+    text = re.sub(r"([\n ])([^ \n]+?)`([^ \n]+?)([\n ])", r"\1''\2\3''\4", text)
+    text = re.sub(r"([\n ])`([^ \n]+?)([\n ])", r"\1''\2''\3", text)
+    text = re.sub(r"([\n ])([^ \n]+?)`([\n ])", r"\1''\2''\3", text)
+
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
     text = text.replace("\nm\n", "\nn\n")
@@ -88,6 +95,7 @@ def initial_text_cleanup(text, work_type_name):
     text = text.replace("\nb\n", "\nn\n")
     text = text.replace("\nh\n", "\nn\n")
     text = text.replace("<br>", "<br />")
+    text = text.replace("<by>", "<br />")
     text = text.replace("{{hr|", "{{rule|")
     text = text.replace("{{hr}}", "{{rule}}")
     text = text.replace("/oe/", "œ")
