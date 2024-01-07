@@ -2,7 +2,7 @@
 
 from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
-from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy
+from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy, get_current_pd_cutoff_year
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
 from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item, get_wikidata_item_from_page
 from handle_transclusion import generate_defaultsort_tag
@@ -704,7 +704,8 @@ def generate_illustrator(author_item, author, transcription_page_title, illustra
         return author
 
 def generate_commons_copyright_template(year):
-    if year < 1928:
+    current_pd_cutoff_year = get_current_pd_cutoff_year()
+    if year <= current_pd_cutoff_year:
         return "{{PD-US-expired}}"
     else:
         return "{{PD-US-not renewed}}"

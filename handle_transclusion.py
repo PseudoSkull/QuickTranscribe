@@ -4,7 +4,7 @@ import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from handle_wikidata import get_value_from_property
-from edit_mw import save_page, get_english_plural, has_digits, linkify, get_title_hierarchy
+from edit_mw import save_page, get_english_plural, has_digits, linkify, get_title_hierarchy, get_current_pd_cutoff_year
 import json
 
 # FIND A WAY TO CLEAN THE TRANSCLUDE PAGES LOGIC UP. IT'S A BIT OF A MESS.
@@ -601,7 +601,7 @@ def check_if_part_title_is_also_a_chapter_title(part_title, chapters):
     return False
 
 def generate_copyright_template(year, author_death_year, current_year):
-    if year < 1928:
+    if year <= get_current_pd_cutoff_year():
         if (current_year - author_death_year) >= 101:
             template_name = "PD-old"
         else:

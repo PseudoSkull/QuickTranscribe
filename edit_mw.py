@@ -4,6 +4,7 @@ import pywikibot
 from pywikibot import pagegenerators
 import mwparserfromhell
 from debug import print_in_red, print_in_green, print_in_yellow
+import datetime
 import re
 
 def edit_summary(summary, transcription_page_title=None):
@@ -186,7 +187,7 @@ def remove_esl_and_ssl_from_backlinks(mainspace_work_title):
             "ext scan link",
             "scn",
             "scan needed",
-            "IA small link",
+            "ia small link",
         ]
 
         new_page_text = []
@@ -252,9 +253,6 @@ def follow_redirect(page_title):
     print("Page was not a redirect.")
     return page_title
 
-# def count_instances_of_substring(s):
-#     count = 0
-#     for char in s:
-#         if char == '"':
-#             count += 1
-#     return count
+def get_current_pd_cutoff_year():
+    current_year = datetime.datetime.now().year
+    return current_year - 96

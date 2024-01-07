@@ -107,7 +107,8 @@ if not at_expected_progress:
 
 ocr_file_path = "projectfiles/original_ocr.txt"
 
-generate_ocr()
+if "text_original.txt" not in os.listdir("projectfiles"):
+    generate_ocr()
 
 try:
     ocr_file = open(ocr_file_path, "r")
