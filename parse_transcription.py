@@ -12,6 +12,7 @@ from handle_title_case import convert_to_title_case
 from handle_projectfiles import write_to_json_file, get_json_data
 from handle_wikisource_conf import get_regex_match
 from handle_commons import get_image_filename
+# from handle_pages import get_marker_from_page_num
 from handle_transclusion import get_last_page
 
 
@@ -130,6 +131,12 @@ def strings_not_in_content(content, list, message):
 
 def get_bare_title(mainspace_work_title):
     return mainspace_work_title.split(" (")[0]
+
+def get_marker_from_page_num(expected_page_num, page_data):
+    for page_num, page in enumerate(page_data):
+        page_num += 1
+        if page_num == expected_page_num:
+            return page["marker"]
 
 
 ## TAGS ##
@@ -1111,7 +1118,7 @@ def determine_illustration_page_number(image, page_data):
     #     return image_page_number
 
 
-def generate_illustrations(image_data, page_data, chapters, mainspace_work_title):
+def generate_illustrations(image_data, page_data, chapters, mainspace_work_title, transcription_text):
     first_sequential_image_done = False
     illustrations_beginning = """c|{{larger|{{uc|Illustrations}}}}}}
 {{dhr}}
@@ -1120,20 +1127,29 @@ def generate_illustrations(image_data, page_data, chapters, mainspace_work_title
     for image in image_data:
         image_type = image["type"]
         image_caption = image["caption"]
+        image_page_number = image["page_num"]
         if image_type == "frontispiece":
             page_number_parameter = "''Frontispiece''"
             page_number_to_parse = "fro"
-            illustration_page_number = "fro"
+            if "\n-fro\n" in transcription_text:
+                illustration_page_number = "fro"
+            else:
+                illustration_page_number = get_marker_from_page_num(image_page_number, page_data)
         elif image_type == "sequential" and image_caption:
-            illustration_page_number = determine_illustration_page_number(image, page_data)
+            # illustration_page_number = determine_illustration_page_number(image, page_data)
             # if first_sequential_image_done:
             #     page_word = "{{ditto|page}} "
             # if not first_sequential_image_done:
             #     first_sequential_image_done = True
             #     page_word = "{{sc|page}} "
+            if "\n-i\n" not in transcription_text:
+                illustration_page_number = get_marker_from_page_num(image_page_number, page_data)
+                page_number_to_parse = illustration_page_number
+            else:
+                illustration_page_number = determine_illustration_page_number(image, page_data)
+                page_number_to_parse = "i"
             page_word = "" # For now
             page_number_parameter = page_word + illustration_page_number
-            page_number_to_parse = "i"
         else:
             continue
         if chapters:
@@ -2357,7 +2373,8 @@ def convert_images(page, image_data, img_num):
 
         image_settings = image["settings"]
 
-        image_settings = image_settings.split(",")
+        if type(image_settings) == str:
+            image_settings = image_settings.split(",")
 
         float_display = ""
         float_setting = ""
@@ -2652,8 +2669,12 @@ def insert_parsed_pages(page_data, transcription_text):
     transcription_text_pages = remove_triple_newlines(transcription_text_pages)
 
     # fix introduction issues etc.
-    transcription_text_pages = re.sub(r"\{\{ph|class=chapter num\|\/cpre\/ \/cnum\/\}\}\n\{\{ph\|class=chapter title\|(.+?)\}\}\n", r"{{ph|class=chapter|\1}}\n", transcription_text_pages)
+    transcription_text_pages = re.sub(r"\{\{ph\|class=chapter num\|\/cpre\/ \/cnum\/\}\}\n\{\{ph\|class=chapter title\|(.+?)\}\}\n", r"{{ph|class=chapter|\1}}\n", transcription_text_pages)
+    transcription_text_pages = transcription_text_pages.replace("-1|/cnum/.|", "-1||")
     transcription_text_pages = transcription_text_pages.replace("-1|/cnum/|", "-1||")
+    transcription_text_pages = transcription_text_pages.replace("wst-toc-aux|/cnum/|", "wst-toc-aux||")
+    transcription_text_pages = re.sub(r"/Chapter 1\|(.+?)\]\]\|i\}\}", r"/Chapter 1|\1]]|1}}", transcription_text_pages)
+    transcription_text_pages = re.sub(r"/Chapter 1\|(.+?)\]\]\|iii\}\}", r"/Chapter 1|\1]]|3}}", transcription_text_pages)
 
     print_in_green("Transcription text page generated from parsed pages.")
 

@@ -4,7 +4,7 @@ from debug import print_in_red, print_in_green, print_in_yellow, process_break
 from handle_wikidata import get_commons_category_from_wikidata
 from edit_mw import linkify, edit_summary, save_page, remove_template_markup, filter_existing_pages, get_english_plural, page_exists, get_title_hierarchy, get_current_pd_cutoff_year
 from handle_projectfiles import find_scan_file_to_upload, get_json_data, write_to_json_file, get_images_to_upload
-from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item, get_wikidata_item_from_page
+from handle_wikidata import get_value_from_property, add_property, add_commons_category_to_item, get_wikidata_item_from_page, get_label
 from handle_transclusion import generate_defaultsort_tag
 import sys
 import os
@@ -464,6 +464,9 @@ def get_image_size(image_type, settings):
         for setting in settings:
             if setting.startswith("s="):
                 size = int(setting[2:])
+            if setting.startswith("h="):
+                size = 600
+        size = 300
     elif type(settings) == str and settings.isdigit():
         size = int(settings)
     elif image_type == "title illustration":
@@ -487,6 +490,16 @@ def get_letter_from_initial_image(line):
     #     dii_tag = "/dii/"
     #     letter = line.split(dii_tag)[1][0]
     #     return letter
+
+def determine_contributor(settings):
+    if type(settings) == str:
+        settings = [settings,]
+    if type(settings) == list:
+        for setting in settings:
+            if setting.startswith("con="):
+                contributor = setting.split("=")[1]
+                return contributor
+    return None
 
 {
     "seq_num": 0,
@@ -534,6 +547,7 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                     caption = ""
                     settings = ""
                     image_type = ""
+                    contributor = None
                     letter = None
                     expected_image_tag_length = 5
                     # img_num += 1
@@ -569,6 +583,9 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
+                    print("OKAY SO WE'rE ABOUT TO DETERMINE CONTRIBUTOR")
+                    contributor = determine_contributor(settings)
+
                     if image_type == "fleuron":
                         image["seq_num"] = fleuron_num
                     else:
@@ -578,6 +595,7 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                     image["title"] = image_title
                     image["caption"] = caption
                     image["settings"] = settings
+                    image["contributor"] = contributor
                     image["extension"] = extension
                     if image_type == "drop initial" and letter not in image_path:
                         image_path = f"{image_files_folder}/{letter}.{extension}"
@@ -731,14 +749,26 @@ def generate_image_file_categories(image_type, country_name, main_commons_catego
 
     return categories
 
-def generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator):
+def generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator, contributor):
 # {{Creator:Edmund Frederick}}{{Creator:Amédée de Noé}}
-    creator_page = get_creator_page(author_item, author, transcription_page_title, illustrator_item, illustrator)
+    
+    if contributor:
+        if contributor.startswith("Q") and contributor[1].isdigit():
+            illustrator_item = contributor
+            illustrator = get_label(illustrator_item)
+        else:
+            illustrator = contributor
+            illustrator_item = None
+    
+    if illustrator_item:
+        creator_page = get_creator_page(author_item, author, transcription_page_title, illustrator_item, illustrator)
 
-    if creator_page:
-        return creator_page
+        if creator_page:
+            return creator_page
+        else:
+            return author
     else:
-        return author
+        return illustrator
 
 def generate_commons_copyright_template(year):
     current_pd_cutoff_year = get_current_pd_cutoff_year()
@@ -747,12 +777,12 @@ def generate_commons_copyright_template(year):
     else:
         return "{{PD-US-not renewed}}"
 
-def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, image_filename):
+def generate_image_text(scan_filename, author_item, author, transcription_page_title, caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, contributor, image_filename):
     print("Generating image text...")
     file_description = generate_file_description(caption, image_type, page_num, work_title, year, image_letter)
     # commons_file_date = generate_commons_file_date()
     image_file_categories = generate_image_file_categories(image_type, country_name, main_commons_category, image_letter, year)
-    illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator)
+    illustrator = generate_illustrator(author_item, author, transcription_page_title, illustrator_item, illustrator, contributor)
     copyright_template = generate_commons_copyright_template(year)
 
     defaultsort_tag = generate_defaultsort_tag(image_filename)
@@ -807,7 +837,8 @@ def upload_images_to_commons(image_data, scan_filename, author_item, author, tra
         print(f"Uploading image {image_num} to Wikimedia Commons as \"{image_filename}\", from \"{image_file_path}\"...")
         image_caption = image["caption"]
         image_type = image["type"]
-        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, image_filename)
+        contributor = image["contributor"]
+        image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, contributor, image_filename)
 
         
 

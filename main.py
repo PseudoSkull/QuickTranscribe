@@ -152,6 +152,24 @@ import datetime
 # If subtitle has "or", then get alternative title also
 
 
+
+
+
+
+# GROWING UP
+# Commons: con= - who is to be credited in the source
+#: If Wikidata item, then create or use creator page
+#: Else, just use the string given
+# Parse: h=y, 600px
+# Parse: if "\n-i\n" not in page, use page number of image in illustration anchors
+
+
+
+
+
+
+
+
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
 # Conf: Conf variables saving without \n
 # Transclusion: Prologue/Preface/etc. are being transcluded as "Chapter None" still...
@@ -822,7 +840,7 @@ section_format = find_form_section(transcription_text, "sec")
 toc = generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, page_data, chapters_are_subpages_of_parts)
 
 if "/illus/" in transcription_text:
-    illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title)
+    illustrations = generate_illustrations(image_data, page_data, chapters, mainspace_work_title, transcription_text)
 else:
     illustrations = ""
 
