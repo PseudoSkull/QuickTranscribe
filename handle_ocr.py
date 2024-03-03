@@ -38,6 +38,15 @@ def generate_ocr():
 
         page_list = []
 
+        pdf_document = fitz.open(pdf_path)
+
+        page_list = []
+
+        png_dir = "projectfiles/png"
+
+        if not os.path.exists(png_dir):
+            os.makedirs(png_dir)
+
         # Loop through all pages in the document
         for page_number in range(pdf_document.page_count):
             print(f"Collecting OCR from page {page_number+1} of {pdf_document.page_count} in {pdf_path}...")
@@ -52,14 +61,16 @@ def generate_ocr():
                 base_image = pdf_document.extract_image(xref)
                 
                 image_data = base_image["image"]
-                # image_width = base_image["width"]
-                # image_height = base_image["height"]
                 
                 # Create a PIL image using io.BytesIO
                 image = Image.open(io.BytesIO(image_data))
-                
-                # Perform OCR on the image
-                text = pytesseract.image_to_string(image)
+
+                # Save the image as a PNG file
+                png_path = os.path.join(png_dir, f"page_{page_number+1}_img_{img_index}.png")
+                image.save(png_path, 'PNG')
+
+                # Perform OCR on the saved PNG image file
+                text = pytesseract.image_to_string(Image.open(png_path))
                 
                 # Print the extracted text
                 print("Text was: ", text)

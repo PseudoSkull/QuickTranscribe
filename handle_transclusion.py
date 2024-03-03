@@ -173,7 +173,7 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpa
     elif chapter_name == None:
         chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}/]]"
     else:
-        chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}|{chapter_name}]]"
+        chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}/]]"
 
     return chapter_link
 
@@ -544,6 +544,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 def generate_defaultsort_tag(title, mainspace_work_title=False, for_logic=False):
+    defaultsort = ""
+    return defaultsort
     bad_prefixes = [
         "A ",
         "An ",
@@ -640,7 +642,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
         elif first_chapter_name == None:
             first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
         else:
-            first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}|{first_chapter_name}]]"
+            first_chapter_display = f"[[/{first_chapter_prefix} {first_chapter_num}/]]"
     else:
         first_chapter_display = ""
     print("First content page:", first_content_page)

@@ -58,6 +58,7 @@ variables_with_descriptions = {
         "alt": "alternative title",
         "scan": "personal scan",
         "oclc": "OCLC control number",
+        "ol": "Open Library ID",
         "fol": "previous work",
         "prev": "previous work",
         "scanner": "user who produced scan",

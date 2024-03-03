@@ -547,6 +547,8 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
         for line in content_lines:
             for chapter_tag in chapter_tags:
+                increment_chapter_num = True
+
                 chapter_tag_without_slashes = chapter_tag
                 chapter_tag = get_plain_tag(chapter_tag)
                 if chapter_tag in line:
@@ -601,7 +603,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     else:
                         print("GOT TO CHAPTER NUM")
                         print(chapter_num)
-                        chapter_num += 1
+                        # chapter_num += 1
 
                         if chapter_prefix == "n":
                             chapter["prefix"] = None
@@ -622,8 +624,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         else:
                             chapter["prefix"] = chapter_prefix
                             chapter["type"] = "numbered chapter"
-                        if chapter_num == 0:
+                        if chapter_num == 0 and (chapter_type == "default" or chapter_type == "numbered chapter"):
                             chapter_num += 1
+                            increment_chapter_num = False
                         chapter["chapter_num"] = chapter_num
 
                         if part_prefix and chapter["type"] == "part":
@@ -668,9 +671,10 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             chapter["original_year"] = chapter_settings["original_year"]
                         
                     if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers and chapter["type"] != "numbered chapter"):
-
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
+                        print(chapter_num)
+                        increment_chapter_num = False
                         # chapter_num -= 1
                         # chapter["type"] = "non-work chapter"
                     
@@ -682,6 +686,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     if chapter["auxiliary"]:
                         chapter["prefix"] = None
                         chapter["chapter_num"] = None
+                        increment_chapter_num = False
                     
                     if chapter["title"] and (": " in chapter["title"] and (chapter["type"] != "preface" and chapter["type"] != "default")):
                         chapter["title"], chapter["subtitle"] = chapter["title"].split(": ")
@@ -700,6 +705,11 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                             splice_chapter = True
                     chapter["splice"] = splice_chapter
                     chapter["format"] = page_format
+
+                    if increment_chapter_num:
+                        chapter_num += 1
+                        chapter["chapter_num"] = chapter_num
+
 
                     chapters.append(chapter)
                     previous_chapter = chapter
@@ -2640,6 +2650,10 @@ def insert_parsed_pages(page_data, transcription_text):
     transcription_text_pages = transcription_header + "\n\n" + transcription_text_pages
 
     transcription_text_pages = remove_triple_newlines(transcription_text_pages)
+
+    # fix introduction issues etc.
+    transcription_text_pages = re.sub(r"\{\{ph|class=chapter num\|\/cpre\/ \/cnum\/\}\}\n\{\{ph\|class=chapter title\|(.+?)\}\}\n", r"{{ph|class=chapter|\1}}\n", transcription_text_pages)
+    transcription_text_pages = transcription_text_pages.replace("-1|/cnum/|", "-1||")
 
     print_in_green("Transcription text page generated from parsed pages.")
 

@@ -23,6 +23,7 @@ import time
 import os
 import io
 import inspect
+import cv2
 # from pywikibot.upload import UploadRobot
 # from pywikibot import upload
 
@@ -31,6 +32,42 @@ import inspect
 
 # Your API request code here
 
+def whiten_image(image_path):
+    # Read the image
+    image = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply Gaussian blur to reduce noise
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    
+    # Apply adaptive thresholding to separate text from the background
+    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                   cv2.THRESH_BINARY, 15, 4)
+    
+    # Find contours and fill them to ensure complete text/drawing regions
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        if cv2.contourArea(contour) > 10:  # this threshold is to avoid noise contours
+            cv2.drawContours(thresh, [contour], -1, (255, 255, 255), thickness=cv2.FILLED)
+    
+    # Invert the image if the text/drawing is white and background is dark
+    # thresh = cv2.bitwise_not(thresh)
+    
+    # Save the processed image
+    cv2.imwrite(image_path, thresh)
+
+def whiten_images():
+    print("Whitening images...")
+    folder_path = "projectfiles/processed_files"
+    files = os.listdir(folder_path)
+    for file_num, filename in enumerate(files):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            print(f"Processing {filename} ({file_num+1} of {len(files)})...")
+            file_path = os.path.join(folder_path, filename)
+            whiten_image(file_path)
+            print(f"Processed {filename}!")
 
 def get_image_filename(image):
     image_title = image["title"]

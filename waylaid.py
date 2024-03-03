@@ -1175,6 +1175,7 @@ def correct_text(text_file, work_type):
     x = x.replace(" lias ", " has ")
     x = x.replace("Avere ", "were ")
     x = x.replace("Avith ", "with ")
+    x = x.replace("Avhich", "which")
     x = x.replace(", hut ", ", but ")
     x = x.replace("; hut ", "; but ")
     x = x.replace(" bnt ", " but ")
@@ -1385,6 +1386,9 @@ def correct_text(text_file, work_type):
     x = x.replace(" \"\n", "\"\n")
     x = x.replace("TI'", "I'")
     x = x.replace("Pl ", "I'll ")
+    x = x.replace(" yonr ", " yonr ")
+    x = x.replace("your'\n", "you?\"\n")
+    x = x.replace(" ete.", " etc.")
 
     x = re.sub(r"([a-z])'s([a-z])", r"\1's \2", x)
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)
@@ -1750,6 +1754,11 @@ def correct_text(text_file, work_type):
     x = x.replace(" cafes", " cafés")
     x = x.replace("Elysee", "Élysée")
     x = x.replace("Comedie", "Comédie")
+    x = x.replace("portiere", "portière")
+    x = x.replace(" atit ", " at it ")
+    x = x.replace("—ing ", "ing ")
+    x = x.replace(" italy", " Italy")
+    x = x.replace(" italian", " Italian")
     # x = x.replace("comedie", "comédie")
 
 
@@ -1773,6 +1782,7 @@ def correct_text(text_file, work_type):
     x = re.sub(r"\? \. \. ([a-z A-Z])", r"? . . . \1", x)
 
     x = re.sub(r",\n\n([a-z])", r", \1", x)
+    x = re.sub(r"([a-z]) A ", r"\1 A. ", x)
     
 
     x = re.sub(r"([a-z])shaped", r"\1-shaped", x)

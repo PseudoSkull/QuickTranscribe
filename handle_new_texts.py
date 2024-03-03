@@ -56,6 +56,7 @@ def generate_new_texts_item(mainspace_work_title, author, year):
     return new_texts_item
 
 def add_to_new_texts(mainspace_work_title, title, author, year):
+    return
     print("Adding finished transcription to new texts...")
 
     for word in words_to_reject:

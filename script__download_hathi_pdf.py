@@ -5,7 +5,7 @@ from hathi import get_hathitrust_images
 from handle_projectfiles import assemble_pdf
 
 folder = "hathi_images"
-hathitrust_full_text_id = "hvd.32044080048069"
+hathitrust_full_text_id = "wu.89054429964"
 
 print(f"Attempting to download {hathitrust_full_text_id}...")
 

@@ -145,27 +145,11 @@ import datetime
 
 
 
-# The Case for Capitalism
-# Cleanup: List all words that start with '
-# Cleanup: List all words that end with ' and don't end with s
-# Cleanup: List all paragraphs with bad quotation PATTERNS
-## Patterns should look like this. '"word ' 'word" ' '"word ' 'word" '
-# Parse: Get chapter links in text: /my last chapter/, /Chapter I/, /the next chapter/
-
-# ILLINOIS VERSE
-# Two chapters in one single page, handle that.
-# 
-
-
-# IF I WERE KING
-# Wikidata: gutia
-# Parse: beg=li
-# Parse: /epi/ - epilogues
-# Parse: Make sure poem continuations go well
-
-
-
-# 
+# JOYOUS THINGS
+# ol: Open Library ID in Wikidata
+# Get OCLC from Open
+# ol=OL5235359M
+# If subtitle has "or", then get alternative title also
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
@@ -305,6 +289,7 @@ common_locations = {
     "Chicago": "Q1297",
     "Garden City": "Q739452",
     "Honolulu": "Q18094",
+    "Indianapolis": "Q6346",
     "London": "Q84",
     "New York": "Q60",
     "New York City": "Q60",
@@ -313,6 +298,7 @@ common_locations = {
     "Philadelphia": "Q1345",
     "San Francisco": "Q62",
     "Toronto": "Q172",
+    "USA": "Q30",
 }
 
 common_publishers = {
@@ -324,6 +310,7 @@ common_publishers = {
     "Doubleday": "Q1251563",
     "Duffield": "Q60220388",
     "Grosset": "Q3117078",
+    "Harcourt": "Q5654997",
     "Harper": "Q3127696",
     "Houghton": "Q390074",
     "Jacobs": "Q63986176",
@@ -502,7 +489,11 @@ location = get_work_data(work_data, "location of publication", common_locations)
 original_location = get_work_data(work_data, "original location", common_locations)
 if not original_location:
     original_location = location
-country = get_value_from_property(original_location, "P17", get_last_item=True)
+if location == "Q30":
+    country = "Q30"
+else:
+    country = get_value_from_property(original_location, "P17", get_last_item=True)
+
 country_name = get_country_name(country)
 
 

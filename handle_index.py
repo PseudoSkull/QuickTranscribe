@@ -396,7 +396,7 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
     # include captions
     if "FreedImg" in transcription_text and " | caption = " in transcription_text:
         classes_used.append("wst-freedimg-caption")
-    if "{{fine block" in transcription_text:
+    if "{{fine block" in transcription_text or "{{fb|" in transcription_text:
         classes_used.append("wst-fine-block")
     if "{{bc|" in transcription_text or "{{block center" in transcription_text:
         classes_used.append("wst-block-center")
