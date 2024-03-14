@@ -50,6 +50,8 @@ def generate_genre_categories(genre_name, work_type_name):
                 category = f"Historical fiction novels"
             else:
                 category = f"Historical {work_type_plural}"
+        elif genre == "mystery":
+            category = "Mystery novels"
         elif genre == "nature":
             category = "Nature"
         elif genre == "nonfiction":
@@ -137,7 +139,7 @@ def generate_toc_page_tag(toc_pages, filename):
     page_tag = f"<pages index=\"{filename}\" from={toc_begin} to={toc_end} />"
     return page_tag
 
-def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpages_of_parts, overarching_chapter):
+def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpages_of_parts, overarching_chapter, work_type_name="novel"):
     chapter = chapters[chapter_num_zero_indexed]
     chapter_num = chapter["chapter_num"]
     chapter_name = chapter["title"]
@@ -149,9 +151,10 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpa
     chapter_internal_name = f"{chapter_prefix} {chapter_num}"
 
     if chapter_type == "part":
+        chapter_internal_name = f"{chapter_prefix} {part_num}"
         part_title_is_also_a_chapter_title = check_if_part_title_is_also_a_chapter_title(chapter_name, chapters)
 
-        if part_title_is_also_a_chapter_title:
+        if part_title_is_also_a_chapter_title and "collection" in work_type_name:
             # print(f"GOTHERE {part_title_is_also_a_chapter_title}")
             # exit()
             chapter_name = f"{chapter_name} (part)"
@@ -174,6 +177,7 @@ def generate_chapter_link(chapters, chapter_num_zero_indexed, chapters_are_subpa
         chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}/]]"
     else:
         chapter_link = f"[[{dots_to_chapter}{chapter_internal_name}/]]"
+
 
     return chapter_link
 
@@ -483,7 +487,11 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
             chapter_internal_name = chapter_name
             authority_control = "\n\n\n{{authority control}}"
         else:
-            chapter_internal_name = f"{chapter_prefix} {chapter_num}"
+            if chapter_type == "part":
+                chapter_internal_name = f"{chapter_prefix} {part_num}"
+            else:
+                chapter_internal_name = f"{chapter_prefix} {chapter_num}"
+            
         if not chapter_prefix and chapter_num and not authority_control:
             chapter_prefix = "Chapter"
         if not chapter_prefix and not chapter_num:
@@ -505,6 +513,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         
         if chapter_prefix == "Chapter" and chapters_are_subpages_of_parts:
             chapter_internal_name = f"{part_prefix} {part_num}/Chapter {chapter_num}"
+            print("WE GOT HERE YAKNOW")
+
 
             # chapter_name = f"Chapter {chapter_num}"
         # if chapter_name == title:
@@ -517,6 +527,7 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
 
         chapter_page_title = f"{mainspace_work_title}/{chapter_internal_name}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
+        defaultsort = ""
         chapter_text = f"""{{{{header
  | title      = {title_display}
  | author     = {author_header_display}{translator_display}
@@ -544,8 +555,8 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         save_page(chapter_page, site, chapter_text, edit_summary, transcription_page_title)
 
 def generate_defaultsort_tag(title, mainspace_work_title=False, for_logic=False):
-    defaultsort = ""
-    return defaultsort
+    # defaultsort = ""
+    # return defaultsort
     bad_prefixes = [
         "A ",
         "An ",
@@ -636,7 +647,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
             first_chapter_prefix = "Chapter"
         first_chapter_num = 1
         first_chapter_type = first_chapter["type"]
-        if first_chapter["chapter_num"] == None or first_chapter_type == "short story" or first_chapter_type == "poem" or first_chapter_type == "essay":
+        if (first_chapter["chapter_num"] == None and first_chapter["type"] != "part") or first_chapter_type == "short story" or first_chapter_type == "poem" or first_chapter_type == "essay":
             first_chapter_num = None
             first_chapter_display = f"[[/{first_chapter_name}/]]"
         elif first_chapter_name == None:
@@ -704,7 +715,7 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     else:
         translator_display = ""
 
-
+    defaultsort = ""
 
     front_matter_header = f"""{disambiguation_pointer}{{{{header
  | title      = {title}

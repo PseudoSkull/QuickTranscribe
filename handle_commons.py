@@ -464,8 +464,10 @@ def get_image_size(image_type, settings):
         for setting in settings:
             if setting.startswith("s="):
                 size = int(setting[2:])
+                return size
             if setting.startswith("h="):
                 size = 600
+                return size
         size = 300
     elif type(settings) == str and settings.isdigit():
         size = int(settings)

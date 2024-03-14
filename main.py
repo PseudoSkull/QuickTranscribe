@@ -807,7 +807,8 @@ convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
 chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 part_prefix = get_work_data(work_data, "prefix for part names")
-parts_exist = check_if_parts_exist(transcription_text)
+# parts_exist = check_if_parts_exist(transcription_text)
+parts_exist = False
 chapters_are_subpages_of_parts = get_work_data(work_data, "chapters are subpages of parts")
 if chapters_are_subpages_of_parts == None and parts_exist:
     chapters_are_subpages_of_parts = True

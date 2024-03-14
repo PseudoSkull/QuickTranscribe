@@ -178,16 +178,17 @@ def get_hathitrust_images(full_text_id, folder_path=None):
         print(f"Attempting to download {page_num} of {number_of_pages}...")
         page_url = f"https://babel.hathitrust.org/cgi/imgsrv/image?id={full_text_id};seq={page_num};size=200;rotation=0"
 
-        response = requests.get(page_url)
-        if response.status_code == 200:
-            # Save the image to the specified path
-            image_path = os.path.join(folder_path, f"{page_num}.jpg")
-            with open(image_path, 'wb') as file:
-                file.write(response.content)
-                print_in_green(f"Image for page #{page_num} saved successfully!")
-                continue
+        while 1: # make SURE the image downloads.
+            response = requests.get(page_url)
+            if response.status_code == 200:
+                # Save the image to the specified path
+                image_path = os.path.join(folder_path, f"{page_num}.jpg")
+                with open(image_path, 'wb') as file:
+                    file.write(response.content)
+                    print_in_green(f"Image for page #{page_num} saved successfully!")
+                    break
 
-        print_in_red(f"Failed to download the image file for page #{page_num}!")
+            print_in_red(f"Failed to download the image file for page #{page_num}! Trying again...")
 
     print_in_green(f"All images downloaded from Hathi scan {full_text_id} successfully!")
 

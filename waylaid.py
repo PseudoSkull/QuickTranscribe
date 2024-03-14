@@ -1759,6 +1759,14 @@ def correct_text(text_file, work_type):
     x = x.replace("—ing ", "ing ")
     x = x.replace(" italy", " Italy")
     x = x.replace(" italian", " Italian")
+    x = x.replace(" ama ", " am a ")
+    x = x.replace(" hll", " Jill")
+    x = x.replace("zsthetic", "æsthetic")
+    x = x.replace("Ihave", "I have")
+    x = x.replace("Ffrangcon", "Ffrangçon") # name of famous actress
+    x = x.replace(" o\n", "\n")
+    x = x.replace(" *\n", "\n")
+    x = x.replace("d'ceuvre", "d'œuvre")
     # x = x.replace("comedie", "comédie")
 
 
@@ -1810,6 +1818,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])shouldered", r"\1-shouldered", x)
     x = re.sub(r"([a-z])mustached", r"\1-mustached", x)
     x = re.sub(r"([a-z])agitated", r"\1-agitated", x)
+    x = re.sub(r"([a-z])colored", r"\1-colored", x)
+    x = re.sub(r"([a-z])coloured", r"\1-coloured", x)
     x = re.sub(r"([a-z])([a-z])and-", r"\1\2-and-", x)
     x = x.replace("thous-and-", "thousand-")
     x = re.sub(r"([a-z])hundred", r"\1-hundred", x)
@@ -1945,6 +1955,32 @@ def correct_text(text_file, work_type):
 
 
     x = x.replace("——", "/b2/")
+    x = x.replace(" st-and-", " stand-")
+    x = x.replace(" br-and-", " brand-")
+    x = x.replace(" gr-and-", " grand-")
+    x = x.replace(" h-and-", " hand-")
+    x = x.replace(" l-and-", " land-")
+    x = x.replace("\"?\n\n", "/b2/\"\n\n")
+    x = x.replace("\nce ", "\n\"")
+    x = x.replace(" and. The", " and The")
+    x = x.replace(" tome.", " to me.")
+    x = x.replace(" tome,", " to me,")
+    x = x.replace("Pil ", "I'll ")
+
+    x = x.replace(" italy", " Italy")
+    x = x.replace(" italian", " Italian")
+    x = x.replace("\"OQ", "\"O")
+    x = x.replace("Asa ", "As a ")
+    x = x.replace("self-less", "selfless")
+    x = x.replace("P'll", "I'd")
+    x = x.replace("\"Q,", "\"O,")
+    x = x.replace(" bom.", " born.")
+    x = x.replace(" bom,", " born,")
+    x = x.replace(" nee ", " née ")
+    x = x.replace("A1", "Al")
+    x = x.replace("Hawanan", "Hawaiian")
+    x = x.replace("Tue ", "The ")
+    x = x.replace("ofT", "off")
 
     x = remove_triple_newlines(x)
 

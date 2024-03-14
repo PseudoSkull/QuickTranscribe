@@ -25,6 +25,7 @@ marker_definitions = {
     "no": "note",
     "not": "note",
     "po": "poem",
+    "pt": "part",
     "quo": "quote",
     "ti": "title",
     "toc": "toc",
@@ -449,5 +450,5 @@ def change_transclusion_progress(index_page_title, advertising_is_transcluded):
         transclusion_progress = "yes"
     else:
         transclusion_progress = "notadv"
-    index_page_text = re.sub("Transclusion=no", f"Transclusion={transclusion_progress}", index_page_text)
+    index_page_text = re.sub("Transclusion=no\n", f"Transclusion={transclusion_progress}\n", index_page_text)
     save_page(index_page, site, index_page_text, "Changing transclusion progress to \"fully transcluded\"...")
