@@ -410,8 +410,6 @@ def upload_scan_file(title, year, version_item, scan_source, scanner, commons_ca
 
     # print(f"Uploading scan file to Wikimedia Commons as \"{scan_filename}\", from \"{scan_file_path}\"...")
 
-    # upload_file_to_commons()
-
     upload_file_to_commons(scan_filename, scan_file_text, scan_file_path, transcription_page_title)
 
     return scan_filename
@@ -768,9 +766,15 @@ def generate_illustrator(author_item, author, transcription_page_title, illustra
         if creator_page:
             return creator_page
         else:
-            return author
+            if author:
+                return author
+            else:
+                return "{{unknown|author}}"
     else:
-        return illustrator
+        if illustrator:
+            return illustrator
+        else:
+            return "{{unknown|author}}"
 
 def generate_commons_copyright_template(year):
     current_pd_cutoff_year = get_current_pd_cutoff_year()
@@ -842,7 +846,7 @@ def upload_images_to_commons(image_data, scan_filename, author_item, author, tra
         contributor = image["contributor"]
         image_file_text = generate_image_text(scan_filename, author_item, author, transcription_page_title, image_caption, image_type, page_num, work_title, year, pub_date, country_name, main_commons_category, image_letter, illustrator_item, illustrator, contributor, image_filename)
 
-        
+        print(image_file_text)
 
         upload_file_to_commons(image_filename, image_file_text, image_file_path, transcription_page_title)
                                

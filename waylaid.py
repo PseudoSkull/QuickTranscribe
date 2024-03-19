@@ -227,7 +227,7 @@ def correct_text(text_file, work_type):
     "broad-spreading",
     "bunk-room",
     "bushy-haired",
-    "business-like",
+    # "business-like",
     "cartridge-belt",
     "chair-back",
     "city-bred",
@@ -1518,6 +1518,8 @@ def correct_text(text_file, work_type):
     x = re.sub(r"([a-z])\.\. ", r"\1 \. \. \. ", x)
     x = re.sub(r" \.\.([a-z])", r" \. \. \. \1", x)
     x = re.sub(r"([a-z]) \. \.\n", r"\1 \. \. \.\n", x)
+    x = re.sub(r"([a-z])\.\.\"", r"\1\. \. \. \.\n", x)
+
 
 
     x = re.sub(r"([a-zA-Z])\.([a-zA-Z])", r"\1 \2", x)
@@ -1915,6 +1917,7 @@ def correct_text(text_file, work_type):
     x = x.replace("\nGoogle\n", page_string)
     x = x.replace("\nGo gle\n", page_string)
     x = x.replace(" Google\n", page_string)
+    x = x.replace("—Google\n", f"—{page_string}")
 
     for i in range(1, 51):
         replacement = r'.' * i
@@ -1981,6 +1984,17 @@ def correct_text(text_file, work_type):
     x = x.replace("Hawanan", "Hawaiian")
     x = x.replace("Tue ", "The ")
     x = x.replace("ofT", "off")
+    x = x.replace(" es ", " ''is'' ")
+    x = x.replace("gwine—a", "gwine-a")
+    x = x.replace("crepe", "crêpe")
+    x = x.replace(" seude", " suède")
+    x = x.replace(" frappe", " frappé")
+    x = x.replace("Jovely", "lovely")
+    x = x.replace("Jook", "look")
+    x = x.replace(" glace", " glacé")
+    x = x.replace(" tres ", " très ")
+    x = x.replace(" tres,", " très,")
+    x = x.replace("Ob,", "Oh,")
 
     x = remove_triple_newlines(x)
 

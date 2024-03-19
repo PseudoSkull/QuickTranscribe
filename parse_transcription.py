@@ -2617,8 +2617,8 @@ def generate_header_footer_text(header, footer):
 
     return header_text, footer_text
 
-def generate_marker_text(marker, quality, page_format, previous_page_format):
-    if quality == "0":
+def generate_marker_text(marker, quality, page_format, previous_page_format, content):
+    if quality == "0" or (marker == "ad" and not content):
         marker_text = "—"
     else:
         marker_text = "-"
@@ -2653,13 +2653,16 @@ def insert_parsed_pages(page_data, transcription_text):
         previous_page_format = previous_page["format"]
         page_format = page["format"]
 
-        marker_text = generate_marker_text(marker, quality, page_format, previous_page_format)
+        marker_text = generate_marker_text(marker, quality, page_format, previous_page_format, content)
 
         if quality == "0":
             page_text = marker_text
         else:
-            header_text, footer_text = generate_header_footer_text(header, footer)
-            page_text = marker_text + header_text + content + footer_text
+            if (marker == "ad" or marker == "adv") and not content:
+                page_text = marker_text
+            else:
+                header_text, footer_text = generate_header_footer_text(header, footer)
+                page_text = marker_text + header_text + content + footer_text
         
         transcription_text_pages.append(page_text)
     
@@ -2673,6 +2676,7 @@ def insert_parsed_pages(page_data, transcription_text):
     transcription_text_pages = transcription_text_pages.replace("-1|/cnum/.|", "-1||")
     transcription_text_pages = transcription_text_pages.replace("-1|/cnum/|", "-1||")
     transcription_text_pages = transcription_text_pages.replace("wst-toc-aux|/cnum/|", "wst-toc-aux||")
+    transcription_text_pages = transcription_text_pages.replace("wst-toc-aux|/cnum/.|", "wst-toc-aux||")
     transcription_text_pages = re.sub(r"/Chapter 1\|(.+?)\]\]\|i\}\}", r"/Chapter 1|\1]]|1}}", transcription_text_pages)
     transcription_text_pages = re.sub(r"/Chapter 1\|(.+?)\]\]\|iii\}\}", r"/Chapter 1|\1]]|3}}", transcription_text_pages)
 

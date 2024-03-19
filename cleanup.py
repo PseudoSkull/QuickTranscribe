@@ -81,7 +81,7 @@ def initial_text_cleanup(text, work_type_name):
 
     # convert italics
 
-    text = re.sub(r"([\n ])([^ \n]+?)`([^ \n]+?)([\n ])", r"\1''\2\3''\4", text)
+    text = re.sub(r"([\n —])([^ \n—]+?)`([^ \n—]+?)([\n —])", r"\1''\2\3''\4", text) # test on pg 16
     text = re.sub(r"([\n ])`([^ \n]+?)([\n ])", r"\1''\2''\3", text)
     text = re.sub(r"([\n ])([^ \n]+?)`([\n ])", r"\1''\2''\3", text)
 

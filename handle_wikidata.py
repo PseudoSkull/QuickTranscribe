@@ -355,6 +355,7 @@ def add_index_page_to_version_item(version_item, index_page_title):
     item = item_page(site, version_item)
 
     index_page_title_for_URL = index_page_title.replace(" ", "_")
+    index_page_title_for_URL = index_page_title_for_URL.replace("\"", "%22")
     URL_prefix = "https://en.wikisource.org/wiki/"
     index_page_URL = URL_prefix + index_page_title_for_URL
 

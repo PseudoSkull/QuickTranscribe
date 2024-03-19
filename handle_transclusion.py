@@ -266,10 +266,15 @@ def get_page_tag_splits(page_data, chapter_start, chapter_end):
     # return
 
 def generate_transclusion_tag(filename, start_page, end_page):
-    if start_page != end_page:
-        transclusion_tag = f"<pages index=\"{filename}\" from={start_page} to={end_page} />"
+    if '"' in filename:
+        filename = "'" + filename + "'"
     else:
-        transclusion_tag = f"<pages index=\"{filename}\" include={start_page} />"
+        filename = '"' + filename + '"'
+
+    if start_page != end_page:
+        transclusion_tag = f"<pages index={filename} from={start_page} to={end_page} />"
+    else:
+        transclusion_tag = f"<pages index={filename} include={start_page} />"
     return transclusion_tag
 
 def get_actual_page_num(page_num, page_data, chapter_format=None):
@@ -564,10 +569,11 @@ def generate_defaultsort_tag(title, mainspace_work_title=False, for_logic=False)
     ]
 
     # defaultsorting against ""
-    if title.startswith('"') and title.endswith('"'):
-        title = title[1:-1]
-    elif title.startswith('"'):
-        title = title[1:]
+    # if title.startswith('"') and title.endswith('"'):
+    #     title = title[1:-1]
+    # elif title.startswith('"'):
+    #     title = title[1:]
+    title = title.replace("\"", "")
     
     for prefix in bad_prefixes:
         if title.startswith(prefix):
