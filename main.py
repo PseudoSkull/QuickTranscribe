@@ -156,18 +156,6 @@ import datetime
 
 
 
-# GROWING UP
-# Commons: con= - who is to be credited in the source
-#: If Wikidata item, then create or use creator page
-#: Else, just use the string given
-# Parse: h=y, 600px
-# Parse: if "\n-i\n" not in page, use page number of image in illustration anchors
-
-
-
-
-
-
 
 
 # So we've got several HUGE PROBLEMS that need to be fixed upon working on the next few works:
@@ -325,6 +313,7 @@ common_publishers = {
     "Burt": "Q24204324",
     "Century": "Q7721960",
     "Dodd": "Q5287721",
+    "Doran": "Q5540027",
     "Doubleday": "Q1251563",
     "Duffield": "Q60220388",
     "Grosset": "Q3117078",
@@ -805,6 +794,7 @@ location_name = get_label(location)
 drop_initials_float_quotes = get_work_data(work_data, "drop initials float quotes")
 convert_fqms = get_work_data(work_data, "convert fqms")
 toc_is_auxiliary = get_work_data(work_data, "toc is auxiliary")
+sectioned_transclusion = get_work_data(work_data, "transclusion is sectioned")
 chapter_prefix = get_work_data(work_data, "prefix for chapter names")
 part_prefix = get_work_data(work_data, "prefix for part names")
 # parts_exist = check_if_parts_exist(transcription_text)

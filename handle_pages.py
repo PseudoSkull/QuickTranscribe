@@ -6,6 +6,7 @@ from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, 
 from handle_wikisource_conf import get_regex_match
 from parse_transcription import get_plain_tag, get_noparams_start_tag, get_end_tag
 from edit_mw import save_page
+import re
 
 """<noinclude><pagequality level="{page_quality}" user="PseudoSkull" />{header}</noinclude>{content}<noinclude>{footer}</noinclude>"""
 
@@ -187,6 +188,28 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
         site = pywikibot.Site("en", "wikisource")
         page_title = f"Page:{filename}/{page_num}"
         page = pywikibot.Page(site, page_title)
+
+        # if page is already validated, DO NOT UNVALIDATE
+        if page.exists():
+            current_page_text = page.text
+            if "<pagequality level=\"4\"" in current_page_text:
+                page_quality = "4"
+                print_in_yellow("THIS PAGE WAS PREVIOUSLY VALIDATED.")
+
+            # get header and footer from currently existing page
+            # Justification: People will probably get upset at me if I REMOVE the headers and footers from pages that already have them...
+            header_match = re.search(r'" \/\>(.+?)\<\/noinclude\>', page_text)
+            if header_match:
+                header = header_match.group(1)
+                print_in_yellow(f"HEADER MATCH FOUND: {header}")
+
+            footer_match = re.search(r"\<noinclude\>([^<].+?)\<\/noinclude\>", page_text)
+            if footer_match:
+                footer = footer_match.group(1)
+                print_in_yellow(f"FOOTER MATCH FOUND: {footer}")
+
+            
+            
 
         if page_quality == "i":
             print("Page quality is 'i'. Ignoring page...")
