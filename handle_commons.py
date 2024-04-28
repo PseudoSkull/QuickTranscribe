@@ -200,7 +200,7 @@ def upload_file_to_commons(filename, file_text, file_path, transcription_page_ti
         print_in_green("File uploaded successfully!")
     else:
         print_in_yellow(f"File {filename} already exists on Wikimedia Commons! Not uploading.")
-        if "{{Book" in file_text: # ie if it's the scan that's being uploaded
+        if "{{Book" in file_text and "Fæ" in file_text: # ie if it's the scan that's being uploaded
             original_file_text = file_page.text
 
             file_text = append_existing_file_text(file_text, original_file_text) # CODE FOR THIS IS AN ABSOLUTE MESS! PLEASE CLEAN IT UP
@@ -274,10 +274,14 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
     print("Generating subcategories...")
     country_name = add_country_prefix(country_name)
 
-    author_category = get_commons_category_from_wikidata(author_item)
-    if not author_category:
-        author_category = create_author_category(author_item, author_WD_alias)
-    author_category = linkify(author_category)
+    if author_item:
+        author_category = get_commons_category_from_wikidata(author_item)
+        if not author_category:
+            author_category = create_author_category(author_item, author_WD_alias)
+        author_category = linkify(author_category)
+    else:
+        author_category = "NONEXISTENTCATEGORY"
+    
     type_category = generate_type_category(category_namespace_prefix, work_type_name, country_name)
     year_category = generate_year_category(category_namespace_prefix, original_year, country_name)
     if series_item:
@@ -299,20 +303,28 @@ def create_commons_category_subcategories(category_namespace_prefix, work_type_n
 
     return categories
 
-def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator):
+def generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator, commons_category_override):
     title_hierarchy = get_title_hierarchy(mainspace_work_title, translator)
     if title_hierarchy == "disambig":
         category_title = mainspace_work_title
     else:
         category_title = title
+
+    if commons_category_override:
+        print(title)
+        print("THIS IS THE TITLE")
+        category_title = commons_category_override
     commons_site = pywikibot.Site("commons", "commons")
 
-    
+    category_title = category_title.replace("Category:", "")
+
     category_title_no_prefix = category_title
 
     category_title = category_namespace_prefix + category_title
 
-    if page_exists(category_title, commons_site):
+    category_title = category_title.replace("Category:Category:", "Category:")
+
+    if page_exists(category_title, commons_site) or commons_category_override:
         # either title hierarchy is "work" or "version"
         category_page = pywikibot.Page(commons_site, category_title)
         try:
@@ -321,7 +333,7 @@ def generate_commons_category_title(category_namespace_prefix, title, mainspace_
             category_data_item = None
         # print(category_data_item)
         # print(base_work_item)
-        if category_data_item != base_work_item:
+        if category_data_item != base_work_item and not commons_category_override:
             category_main_topic_property = "P301"
             if category_data_item:
                 category_data_item = get_value_from_property(category_data_item, category_main_topic_property)
@@ -332,8 +344,8 @@ def generate_commons_category_title(category_namespace_prefix, title, mainspace_
     return category_title, category_title_no_prefix
 
 
-def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title, author_surname, base_work_item, translator):
-    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator)
+def create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series_item, mainspace_work_title, author_surname, base_work_item, translator, commons_category_override):
+    category_page_title, category_title_no_prefix = generate_commons_category_title(category_namespace_prefix, title, mainspace_work_title, author_surname, base_work_item, translator, commons_category_override)
     print(f"Generating Commons category {category_page_title}...")
 
     # create subcategories
@@ -445,8 +457,14 @@ def determine_image_type(marker, settings, overall_page_num):
     return image_type
         # image_type = image_types[marker]
 
-def generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num):
+def generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num, settings):
     work_title_with_year = f"{work_title} ({year})"
+    if settings:
+        if type(settings) == list:
+            for setting in settings:
+                if setting.startswith("f="):
+                    image_title = setting[1:]
+                    return image_title
     if image_type == "sequential":
         image_title = f"{work_title_with_year} {seq_num}"
     elif image_type == "drop initial":
@@ -579,7 +597,10 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
                         img_num += 1
                         print(img_num)
                         image_path, extension = get_file_path_and_extension(image_files_folder, str(img_num))
-                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num)
+
+                    image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num, settings)
+                    if "." in image_title:
+                        extension = image_title.split(".")[-1]
                     image_size = get_image_size(image_type, settings)
                     # extension = "png" # for now!!!!
 
@@ -616,7 +637,7 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
             page_num = int(drop_initial["pages"][0])
             image_type = "drop initial"
 
-            image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num)
+            image_title = generate_image_title(image_type, seq_num, work_title, year, letter, fleuron_num, settings)
             image_path, extension = get_file_path_and_extension(image_files_folder, letter)
             image_size = 75
 
@@ -631,6 +652,7 @@ def generate_image_data(page_data, work_title, year, drop_initial_letter_data):
             image["size"] = image_size
             image["alignment"] = ""
             image["letter"] = letter
+            image["contributor"] = None
             image_data.append(image)
     
     print_in_green("Image data generated!")

@@ -36,6 +36,8 @@ from spellchecker import SpellChecker
 
 consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 't', 'v', 'w', 'x', 'z']
 
+vowels = ['a', 'e', 'i', 'o', 'u', 'y']
+
 consonants_that_should_never_combine = [
     'j',
     'k',
@@ -87,6 +89,7 @@ def initial_text_cleanup(text, work_type_name):
 
     text = re.sub(r"\n ", r"\n", text)
     text = re.sub(r" \n", r"\n", text)
+    text = text.replace("/end/.", "{{The End|dot=y}}")
     text = text.replace("\nm\n", "\nn\n")
     text = text.replace("\nnb\n", "\nn\n")
     text = text.replace("\nnm\n", "\nn\n")
@@ -104,6 +107,8 @@ def initial_text_cleanup(text, work_type_name):
     text = text.replace("/OE/", "Œ")
     text = text.replace("/ss/", "§")
     text = text.replace("/env/", "{{ph|class=envoi|Envoi}}")
+    text = text.replace("{{let|", "{{letter|")
+    text = text.replace("{{Let|", "{{letter|")
 
     # fractions
     text = text.replace("/1/4/", "¼")
@@ -137,17 +142,23 @@ def initial_text_cleanup(text, work_type_name):
 
     if work_type_name == "poetry collection":
         text = text.replace("\n\n-\n\n/ch/", "\n//po/\n\n-\n\n/ch/")
+        text = text.replace("\n\n-\n\n/pt/", "\n//po/\n\n-\n\n/pt/")
         text = text.replace("\n\n/ch/", "//po/\n\n/ch/")
         text = text.replace("-//po/", "-")
         text = text.replace("-1//po/", "-1")
         
         text = re.sub(r"(\/ch\/.+?\n\n)", r"\1/po//\n", text)
+        text = re.sub(r"(\/sub\/.+?\n\n)", r"\1/po//\n", text)
         text = re.sub(r"\/po\//\n(\/sub\/.+?\n\n)", r"\1/po//\n", text)
         text = text.replace("//po/\n//po/\n", "//po/\n")
         text = text.replace("/po//\n/po//\n", "/po//\n")
         text = text.replace("/po///po//\n", "/po//\n")
         text = text.replace("//po///po/", "//po/")
+        text = text.replace("—p\n//po/", "—p\n")
         text = re.sub(r"(...)((\n\n—\n\n)+?)—cov", r"\1\n//po/\2", text)
+        text = re.sub(r"(\n-..?.?.?)//po/", r"\1", text)
+        text = remove_triple_newlines(text)
+
 
 
 
@@ -610,6 +621,32 @@ def find_consonant_combos(text):
     else:
         print_in_yellow("Likely problematic consonant combos found:")
         print_in_yellow(consonant_combos)
+
+def find_entire_words_of_consonants(text):
+    words = get_all_words(text)
+    words_of_only_consonants = []
+    for word in words:
+        has_vowels = False
+        has_consonants = False
+        for char in word:
+            if char in consonants:
+                has_consonants = True
+                continue
+            if char in vowels:
+                has_vowels = True
+                break
+        if has_vowels:
+            continue
+        if has_consonants:
+            words_of_only_consonants.append(word)
+
+    words_of_only_consonants = list(set(words_of_only_consonants))
+
+    if len(words_of_only_consonants) == 0:
+        print_in_green("No words with only consonants found.")
+    else:
+        print_in_yellow("Words with only consonants found:")
+        print_in_yellow(words_of_only_consonants)
 
 
 

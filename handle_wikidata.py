@@ -61,7 +61,7 @@ def is_wikidata_item_string(value):
 def add_property(repo, item, property, values, descriptor, transcription_page_title=None):
     print(f"Adding {descriptor} claim to item {item}...")
 
-    if not item:
+    if not item and descriptor != "author":
         print_in_yellow(f"No item found for {descriptor}. No action taken.")
         return
 
@@ -70,6 +70,17 @@ def add_property(repo, item, property, values, descriptor, transcription_page_ti
 
     if type(values) != list:
         values = [values,]
+
+    if not values and descriptor == "Author":
+        existing_claims = item.claims.get(property)
+        claim = pywikibot.Claim(repo, property)
+
+        # claim.setSnakType('somevalue')
+        claim.setTarget('somevalue')
+        property_edit_summary = edit_summary(f'Adding anonymous author claim...', transcription_page_title)
+
+        item.addClaim(claim, summary=property_edit_summary)
+        print_in_green(f"{descriptor} claim added successfully.")
 
     for value in values:
         existing_claims = item.claims.get(property)
@@ -456,7 +467,12 @@ def create_wikidata_item(existing_item, title, transcription_page_title=None, va
 def create_base_work_item(base_work_item, title, work_type, work_type_name, genre, author, author_name, original_pub_date, original_year, country, transcription_page_title, alternative_title, subtitle, related_author_item, series, narrative_location, openlibrary_work_id, previous_item, derivative_work, variable_name=None):
     item, repo, item_id = create_wikidata_item(base_work_item, title, transcription_page_title, variable_name)
 
-    add_description(item, f'{original_year} {work_type_name} by {author_name}')
+    if author_name == "Anonymous":
+        author_display = "written anonymously"
+    else:
+        author_display = f"by {author_name}"
+    
+    add_description(item, f'{original_year} {work_type_name} {author_display}')
     add_alias(item, alternative_title)
 
     literary_work = 'Q7725634'
@@ -532,7 +548,13 @@ def add_title_to_item(repo, item, title, alternative_title, transcription_page_t
 
 def create_version_item(title, version_item, pub_date, year, author_item, author_name, base_work, publisher, location, filename, hathitrust_id, IA_id, transcription_page_title, GB_id, alternative_title, subtitle, illustrator_item, editor_item, translator_item, dedications, lccn, ark_identifier, oclc, edition_number, openlibrary_version_id, loc_classification, variable_name=None):
     item, repo, item_id = create_wikidata_item(version_item, title, transcription_page_title, variable_name)
-    add_description(item, f'{year} edition of work by {author_name}')
+
+    if author_name == "Anonymous":
+        author_display = " written anonymously"
+    else:
+        author_display = f""
+    
+    add_description(item, f'{year} edition of work{author_display}')
     add_alias(item, alternative_title)
 
     # item names for readability

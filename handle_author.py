@@ -30,10 +30,12 @@ def get_individual_works_from_author_page(author_page_title, author_page_text, i
         existing_works = []
         wd_authors = []
         for individual_work in individual_works_as_list:
+            if individual_work == "":
+                continue
             if "WD author" in individual_work:
                 wd_authors.append(individual_work)
                 continue
-            print(individual_work)
+            print(f"\"{individual_work}\"")
             existing_work = re.search(r"\[\[(.+?)[\|\]]", individual_work).group(1)
             try:
                 work_year = re.search(r"([0-9][0-9][0-9][0-9])", individual_work).group(1)

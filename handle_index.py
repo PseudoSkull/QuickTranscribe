@@ -22,6 +22,7 @@ marker_definitions = {
     "i2": "img2", # add functionality for iteration later
     "i3": "img3",
     "ill": "illus",
+    "li": "list",
     "no": "note",
     "not": "note",
     "po": "poem",
@@ -81,8 +82,9 @@ style_defaults = {
 	font-variant: all-small-caps;
     margin-bottom: 1.5em;""",
 
-    "dropinitial-with-image":
-    """	width: 75px;""",
+    "drop-initial-image img":
+    """	width: 75px;
+	height: auto;""",
 
     "envoi":
     """	text-align: center;
@@ -122,11 +124,16 @@ style_defaults = {
     "toc-block":
     """	max-width: 25em;
     margin-left: auto;
-    margin-right: auto;
-    """,
+    margin-right: auto;""",
 
     "wst-block-center":
     """	max-width: 25em;""",
+
+    "wst-blockquote":
+    """	font-size: 92%;
+	max-width: 25em;
+    margin-bottom: 1.5em;
+    margin-top: 1.5em;""",
 
     "wst-fine-block":
     """	margin-bottom: 2em;
@@ -138,6 +145,15 @@ style_defaults = {
     # "wst-smaller-block":
     # """	margin-bottom: 2em;
 	# margin-top: 2em;""",
+ 
+    "wst-letter-message":
+    """	margin-top: 2em;
+    margin-bottom: 2em;""",
+
+    "wst-the-end":
+    """	margin-top: 5em;
+    font-variant: all-small-caps;
+    text-align: center;""",
 
     "wst-toc-table":
     """	font-variant: small-caps;
@@ -401,10 +417,16 @@ def create_index_styles(transcription_text, index_page_title, transcription_page
         classes_used.append("wst-fine-block")
     if "{{bc|" in transcription_text or "{{block center" in transcription_text:
         classes_used.append("wst-block-center")
+    if "{{bquote|" in transcription_text or "{{blockquote" in transcription_text:
+        classes_used.append("wst-blockquote")
+    if "{{let|" in transcription_text or "{{letter/s}}" in transcription_text or "{{letter|" in transcription_text:
+        classes_used.append("wst-letter-message")
+    if "{{The End}}" in transcription_text or "{{Finis}}" in transcription_text or "{{finis}}" in transcription_text:
+        classes_used.append("wst-the-end")
     if "{{TOC begin}}" in transcription_text:
         classes_used.append("wst-toc-table")
     if "|image=" in transcription_text and "{{di|" in transcription_text: # drop initial images
-        classes_used.append("dropinitial-with-image")
+        classes_used.append("drop-initial-image img")
     
     classes_that_have_children = []
     # put parent class in too

@@ -18,6 +18,7 @@ import pywikibot
 from debug import print_in_red, print_in_green, print_in_yellow, print_in_blue, process_break
 from edit_mw import save_page, get_author_page_title, remove_esl_and_ssl_from_backlinks
 from hathi import get_hathitrust_catalog_id, get_hathitrust_full_text_id
+from handle_repeat_images import handle_repeat_images
 from handle_wikidata import get_label, get_wikisource_page_from_wikidata, get_value_from_property, add_index_page_to_version_item, get_author_death_year, add_wikisource_page_to_item, create_version_item, add_version_to_base_work_item, get_wikidata_item_from_wikisource, create_base_work_item, get_commons_category_from_wikidata, get_country_name, add_commons_category_to_item, add_scan_file_to_version_item, add_main_image_to_wikidata_items, get_surname_from_author, get_oclc, get_ark_identifier, get_openlibrary_id, create_gutenberg_version_item, get_book_id_by_oclc
 from handle_wikisource_conf import get_work_data, get_conf_values, wikidata_item_of, get_year_from_date, check_QT_progress, update_QT_progress, update_conf_value, find_form_section, get_editor
 from parse_transcription import get_chapter_data, get_section_data, generate_toc, parse_transcription_pages, get_bare_title, insert_parsed_pages, generate_illustrations
@@ -29,7 +30,7 @@ from handle_projectfiles import compare_image_counts, get_data_from_xml, archive
 from handle_new_texts import add_to_new_texts
 from handle_redirects import create_redirects
 from config import username, mainspace_work_title, transcription_page_title
-from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos, find_drop_initial_letters
+from cleanup import initial_text_cleanup, find_hyphenation_inconsistencies, place_page_numbers, find_probable_scannos, compare_page_counts, find_paragraphs_without_ending_punctuation, find_irregular_single_symbols, find_possible_bad_quotation_spacing, find_repeated_characters, find_uneven_quotations, use_spellchecker, find_long_substrings, find_consonant_combos, find_drop_initial_letters, find_entire_words_of_consonants
 from handle_dedications import get_dedications
 from handle_subworks import get_subwork_data, create_subwork_wikidata_items, redirect_and_disambiguate_subworks
 from handle_author import add_individual_works_to_author_page, add_works_to_related_authors
@@ -154,7 +155,7 @@ import datetime
 
 
 
-
+# MAKE SURE -399 GOT SECTIONED RIGHT
 
 
 
@@ -251,6 +252,7 @@ common_genres = {
     "alternate": "Q224989", # alternate history
     "autobiography": "Q4184",
     "biography": "Q36279",
+    "captivity": "Q1035168", # captivity narrative
     "children": "Q56451354",
     "children's": "Q56451354",
     "Christian": "Q1084059",
@@ -262,6 +264,7 @@ common_genres = {
     "mystery": "Q6585139",
     "nature": "Q3337126",
     "nonfiction": "Q213051",
+    "satire": "Q128758",
     "science fiction": "Q24925",
     "scifi": "Q24925",
     "thriller": "Q182015",
@@ -275,8 +278,11 @@ common_work_types = {
     "play": "Q25379",
     "ec": "Q16324495",
     "essay collection": "Q16324495",
+    "ic": "Q125659500",
+    "illustration album": "Q125659500",
     "poetry collection": "Q12106333",
     "pc": "Q12106333",
+    "short story anthology": "Q125544547",
     "short story collection": "Q1279564",
     "ssc": "Q1279564",
     "speech": "Q861911",
@@ -368,10 +374,18 @@ work_data = get_conf_values(transcription_page_title)
 work_type = get_work_data(work_data, "work type", common_work_types)
 work_type_name = get_work_data(work_data, "work type")
 genre = get_work_data(work_data, "genre", common_genres)
+if work_type_name == "ssa":
+    work_type_name = "short story anthology"
 if work_type_name == "ssc":
     work_type_name = "short story collection"
+elif work_type_name == "pa":
+    work_type_name = "poetry anthology"
 elif work_type_name == "pc":
     work_type_name = "poetry collection"
+elif work_type_name == "ic":
+    work_type_name = "illustration album"
+elif work_type_name == "ea":
+    work_type_name = "essay anthology"
 elif work_type_name == "ec":
     work_type_name = "essay collection"
 if not work_type_name:
@@ -452,6 +466,8 @@ if not at_expected_progress:
     process_break()
     find_uneven_quotations(transcription_text)
     process_break()
+    find_entire_words_of_consonants(transcription_text)
+    process_break()
     find_long_substrings(transcription_text)
     process_break()
     find_consonant_combos(transcription_text)
@@ -468,6 +484,9 @@ if not at_expected_progress:
 # create base work item
 
 author = get_work_data(work_data, "author")
+if author == "anon":
+    author = "Anonymous"
+
 author_namespace_prefix = "Author:"
 # this will break later if there are multiple authors
 author_page_title = get_author_page_title(author)
@@ -525,31 +544,35 @@ derivative_work = get_work_data(work_data, "derivative work")
 
 base_work = get_work_data(work_data, wikidata_item_of("base work"))
 
+base_work_conf_variable = "base"
 author_item = None
+author_surname = None
+author_death_year = None
+author_WD_alias = "Anonymous"
+dedications = None
 
-if base_work:
-    author_item = get_value_from_property(base_work, "P50")
+if author != "Anonymous":
+    if base_work:
+        author_item = get_value_from_property(base_work, "P50")
 
-if base_work and author_item:
-    if not author:
-        author = get_wikisource_page_from_wikidata(author_item)
-else:
-    author_item = get_wikidata_item_from_wikisource(author_page_title)
+    if base_work and author_item:
+        if not author:
+            author = get_wikisource_page_from_wikidata(author_item)
+    else:
+        author_item = get_wikidata_item_from_wikisource(author_page_title)
+
+    author_WD_alias = get_label(author_item)
+    author_death_year = get_author_death_year(author_item)
+
+    author_surname = get_surname_from_author(author_item)
+
+    dedications = get_dedications(page_data, author_item)
 
 
 illustrator_item = get_wikidata_item_from_wikisource(illustrator_page_title)
 editor_item = get_wikidata_item_from_wikisource(editor_page_title)
 translator_item = get_wikidata_item_from_wikisource(translator_page_title)
 related_author_item = get_wikidata_item_from_wikisource(related_author_page_title)
-
-
-author_WD_alias = get_label(author_item)
-author_death_year = get_author_death_year(author_item)
-base_work_conf_variable = "base"
-
-author_surname = get_surname_from_author(author_item)
-
-dedications = get_dedications(page_data, author_item)
 
 if not dedications:
     dedications = []
@@ -631,7 +654,6 @@ edition_number = get_work_data(work_data, "edition number")
 
 
 
-
 transcription_text = transcription_page.text
 expected_progress = "version_item_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
@@ -667,7 +689,7 @@ expected_progress = "commons_category_created"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title, author_surname, base_work, translator)
+    commons_category, commons_category_title, commons_category_text = create_commons_category(title, category_namespace_prefix, author_item, work_type_name, original_year, country_name, author_WD_alias, series, mainspace_work_title, author_surname, base_work, translator, commons_category)
 
     commons_category_page = pywikibot.Page(commons_site, commons_category)
     save_page(commons_category_page, commons_site, commons_category_text, f"Creating Commons category for book {title} that will be filled shortly...", transcription_page_title)
@@ -729,6 +751,7 @@ if not at_expected_progress:
     transcription_text = update_QT_progress(transcription_text, expected_progress)
     save_page(transcription_page, site, transcription_text, "Noting that page counts have been compared...")
 
+    handle_repeat_images(transcription_text, transcription_page_title)
 
 
 
@@ -747,6 +770,7 @@ expected_progress = "image_counts_compared"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
+
     compare_image_counts(image_data)
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)
@@ -820,7 +844,7 @@ else:
 
 force_chapter_numbers = get_work_data(work_data, "force chapter numbers")
 
-chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name, force_chapter_numbers, part_prefix)
+chapters = get_chapter_data(transcription_text, page_data, chapter_prefix, chapters_are_subpages_of_parts, title, chapter_type, work_type_name, force_chapter_numbers, part_prefix, sectioned_transclusion)
 
 sections = get_section_data(chapters, page_data, transcription_text, first_section_automatically_after_chapter)
 
@@ -840,7 +864,7 @@ expected_progress = "transcription_parsed"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter)
+    page_data = parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter, sectioned_transclusion)
 
     transcription_text = insert_parsed_pages(page_data, transcription_text)
 
@@ -906,7 +930,7 @@ expected_progress = "pages_transcluded"
 at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
-    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts)
+    transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author, year, filename, cover_image, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts, sectioned_transclusion)
 
     create_redirects(mainspace_work_title, alternative_title, subtitle, second_subtitle)
 
@@ -938,7 +962,7 @@ at_expected_progress = check_QT_progress(transcription_text, expected_progress)
 
 if not at_expected_progress:
     # archive transcription
-    transcription_text = "<syntaxhighlight lang=\"mw\">\n" + transcription_text + "\n</syntaxhighlight>\n[[Category:Finished QuickTranscribe projects]]"
+    transcription_text = "<syntaxhighlight lang=\"wikitext\">\n" + transcription_text + "\n</syntaxhighlight>\n[[Category:Finished QuickTranscribe projects]]"
     save_page(transcription_page, site, transcription_text, "Archiving QT transcription...")
 
     transcription_text = update_QT_progress(transcription_text, expected_progress)

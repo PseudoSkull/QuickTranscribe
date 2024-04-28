@@ -65,7 +65,7 @@ variables_with_descriptions = {
         "der": "derivative work",
         "cnum": "force chapter numbers",
         "ptpre": "prefix for part names",
-        "sectrans": "transclude with section tags",
+        "sectrans": "transclusion is sectioned",
         "progress": "QT progress flag",
     }
 

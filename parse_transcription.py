@@ -36,8 +36,8 @@ basic_elements = {
     "brp": "£",
     "bt": "***|char=·",
     "d": "dhr",
-    "end": "dhr|2}}\n{{c|{{asc|The end}}",
-    "fin": "dhr|2}}\n{{c|{{asc|Finis}}",
+    "end": "The End",
+    "fin": "Finis",
     "n": "nop",
     "peh": "peh",
     "st": "***",
@@ -65,7 +65,11 @@ block_elements = {
 
     # alignment
     "bc": "block center",
+    "bq": "blockquote",
     "hi": "hanging indent",
+
+    # semantic
+    "let": "letter",
 }
 
 named_chapter_pattern = r"\/ch\/.+?\n\n"
@@ -191,9 +195,11 @@ def replace_line(content, replacement, line_num):
 
 def format_form_tag(row, replacements):
     for tag, replacement in replacements.items():
+        print(replacement)
         tag = get_plain_tag(tag)
         print(f"Tag: {tag} Replacement: {replacement} Row: {row}")
         if replacement:
+            replacement = str(replacement) # somehow not getting here as str sometimes
             row = row.replace(tag, replacement)
     
     row = row.replace("| ", "|")
@@ -329,6 +335,69 @@ def handle_inline_continuations(content, page, page_data, tag, continuation_pref
 
 ################### transclusion functions ###################
 
+def generate_section_transclusion_start_tag(chapter_prefix, chapter):
+    section_transclusion_name = chapter["section_name"]
+    section_transclusion_tag = f"<*{section_transclusion_name}*>"
+
+    return section_transclusion_tag
+
+def generate_section_transclusion_end_tag(chapter_prefix, chapter):
+    section_transclusion_name = chapter["section_name"]
+    section_transclusion_tag = f"<*-{section_transclusion_name}-*>"
+
+    return section_transclusion_tag
+
+def add_section_transclusion_tags(page, chapters, overall_chapter_num):
+    # Notes:
+    #* THIS WILL ONLY WORK right now with single chapter switches on one page.
+    #* It ONLY SUPPORTS the chaptered structure right now. Poetry collections later should modify this significantly
+
+    if overall_chapter_num == 0:
+        # if this is the front matter this isn't needed
+        return page
+
+    content = page["content"]
+
+    overall_chapter_num_zero_indexed = overall_chapter_num - 1
+    chapter = chapters[overall_chapter_num_zero_indexed]
+    previous_chapter = chapters[overall_chapter_num_zero_indexed-1]
+    chapter_prefix = chapter["prefix"]
+
+    
+    
+    section_transclusion_start_tag = generate_section_transclusion_start_tag(chapter_prefix, chapter)
+
+
+    section_transclusion_end_tag = generate_section_transclusion_end_tag(chapter_prefix, chapter)
+    
+    if ("ph|class=chapter" in content or "ph|class=part" in content) and overall_chapter_num != 1:
+        previous_chapter_num = overall_chapter_num_zero_indexed
+
+        if content.startswith("{{ph|class=chapter") or content.startswith("{{ph|class=part"):
+            previous_chapter_start_tag = section_transclusion_start_tag
+        else:
+            previous_chapter_start_tag = generate_section_transclusion_start_tag(chapter_prefix, previous_chapter)
+        # THIS HAS A PROBLEM, see https://en.wikisource.org/wiki/The_Strange_Case_of_Miss_Annie_Spragg/Chapter_13
+
+        
+            
+        previous_chapter_end_tag = generate_section_transclusion_end_tag(chapter_prefix, previous_chapter)
+        
+        content = content.replace("\n{{ph|class=chapter", f"{previous_chapter_end_tag}{section_transclusion_start_tag}{{{{ph|class=chapter")
+        content = content.replace("\n{{ph|class=part", f"{previous_chapter_end_tag}{section_transclusion_start_tag}{{{{ph|class=part")
+
+        content = previous_chapter_start_tag + content + section_transclusion_end_tag
+    else:
+        content = section_transclusion_start_tag + content + section_transclusion_end_tag
+
+
+    page["content"] = content
+    
+    return page
+
+
+
+
 
 
 def handle_forced_page_breaks(page, page_break_string):
@@ -426,10 +495,18 @@ def parse_chapter_settings(chapter_settings):
     for setting in chapter_settings:
         if setting == "aux=y" or setting == "aux":
             chapter_settings_data["auxiliary"] = True
-        if "t=" in setting:
+        if setting.startswith("i="):
+            chapter_settings_data["header_invisible"] = setting.split("=")[1]
+        if setting.startswith("flt="):
+            chapter_settings_data["first_line_is_title"] = setting.split("=")[1]
+        if setting.startswith("t="):
             chapter_settings_data["title"] = setting.split("=")[1]
         if "con=" in setting:
             chapter_settings_data["contributor"] = setting.split("=")[1]
+        if "tr=" in setting:
+            chapter_settings_data["translator"] = setting.split("=")[1]
+        if "base=" in setting:
+            chapter_settings_data["base_work_item"] = setting.split("=")[1]
         if "ty=" in setting:
             chapter_settings_data["type"] = setting.split("=")[1]
             if chapter_settings_data["type"] == "nam":
@@ -443,7 +520,7 @@ def parse_chapter_settings(chapter_settings):
 
     return chapter_settings_data
 
-def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name, force_chapter_numbers, part_prefix):
+def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_parts, work_title, chapter_type, work_type_name, force_chapter_numbers, part_prefix, transclusion_is_sectioned):
     print("Getting chapter data...")
 
     chapters_json_file = "chapter_data.json"
@@ -517,6 +594,13 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
         chapter = {}
 
         chapter["type"] = "default"
+        chapter["header_invisible"] = False
+        chapter["first_line_is_title"] = False
+        chapter["subtitle"] = None
+        chapter["related_author"] = None
+        chapter["original_year"] = None
+        chapter["base_work_item"] = None
+        chapter["translator"] = None
 
         if (page_num == "ad" or page_num == "adv") and len(chapters) > 0:
             chapter["prefix"] = None
@@ -539,9 +623,6 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             
             chapters.append(chapter)
             break
-        chapter["subtitle"] = None
-        chapter["related_author"] = None
-        chapter["original_year"] = None
         
         content = page["content"]
         content_lines = content.split("\n\n")
@@ -551,6 +632,14 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
             print(f"Subtitle found: {chapter_subtitle}")
             chapter_subtitle = convert_to_title_case(chapter_subtitle)
             chapter["subtitle"] = chapter_subtitle
+
+        is_sectioned_at_beginning = False
+
+        if transclusion_is_sectioned:
+            for chapter_tag in chapter_tags:
+                if content.startswith(f"/{chapter_tag}/"):
+                    is_sectioned_at_beginning = True
+                    break
 
         for line in content_lines:
             for chapter_tag in chapter_tags:
@@ -614,16 +703,16 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
 
                         if chapter_prefix == "n":
                             chapter["prefix"] = None
-                        elif work_type_name == "scc" or work_type_name == "short story collection":
+                        elif work_type_name == "ssc" or work_type_name == "short story collection" or work_type_name == "ssa" or work_type_name == "short story anthology":
                             if chapter_prefix == "y":
                                 chapter["prefix"] = "Chapter"
                             else:
                                 chapter["prefix"] = None
                             chapter["type"] = "short story"
-                        elif work_type_name == "pc" or work_type_name == "poetry collection":
+                        elif work_type_name == "pc" or work_type_name == "poetry collection" or work_type_name == "pa" or work_type_name == "poetry anthology":
                             chapter["prefix"] = None
                             chapter["type"] = "poem"
-                        elif work_type_name == "ec" or work_type_name == "essay collection":
+                        elif work_type_name == "ec" or work_type_name == "essay collection" or work_type_name == "ea" or work_type_name == "essay anthology":
                             chapter["prefix"] = None
                             chapter["type"] = "essay"
                         elif not chapter_prefix:
@@ -662,20 +751,9 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     chapter["display_title"] = chapter["title"]
 
                     if chapter_settings:
-                        if "auxiliary" in chapter_settings:
-                            chapter["auxiliary"] = True
-                        if "title" in chapter_settings:
-                            chapter["title"] = chapter_settings["title"]
-                        if "contributor" in chapter_settings:
-                            chapter["contributor"] = chapter_settings["contributor"]
-                        if "type" in chapter_settings:
-                            chapter["type"] = chapter_settings["type"]
-                        if "front-matter" in chapter_settings:
-                            chapter["type"] = "front-matter chapter"
-                        if "related_author" in chapter_settings:
-                            chapter["related_author"] = chapter_settings["related_author"]
-                        if "original_year" in chapter_settings:
-                            chapter["original_year"] = chapter_settings["original_year"]
+                        for setting in chapter_settings:
+                            if setting in chapter:
+                                chapter[setting] = chapter_settings[setting]
                         
                     if chapter_type == "nam" or (chapter["type"] != "default" and not force_chapter_numbers and chapter["type"] != "numbered chapter"):
                         chapter["prefix"] = None
@@ -698,7 +776,7 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                     if chapter["title"] and (": " in chapter["title"] and (chapter["type"] != "preface" and chapter["type"] != "default")):
                         chapter["title"], chapter["subtitle"] = chapter["title"].split(": ")
 
-                    if chapter_title:
+                    if chapter_title and not chapter["first_line_is_title"]:
                         chapter["title"] = convert_to_title_case(chapter["title"])
                         chapter["display_title"] = convert_to_title_case(chapter["display_title"])
                         if chapter["subtitle"]:
@@ -717,6 +795,18 @@ def get_chapter_data(text, page_data, chapter_prefix, chapters_are_subpages_of_p
                         chapter_num += 1
                         chapter["chapter_num"] = chapter_num
 
+                    chapter["sectioned_at_beginning"] = is_sectioned_at_beginning
+                    section_name = None
+
+                    if transclusion_is_sectioned:
+                        if chapter["type"] == "part":
+                            section_name = f"Part {part_num}"
+                        elif chapters_are_subpages_of_parts and chapter["type"] != "part":
+                            section_name = f"Part {part_num} Chapter {chapter_num}"
+                        else:
+                            section_name = f"Chapter {chapter_num}"
+
+                    chapter["section_name"] = section_name
 
                     chapters.append(chapter)
                     previous_chapter = chapter
@@ -811,6 +901,9 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         except IndexError:
             next_chapter_page_num = chapter_page_num + 1000 # arbitrary number to make sure it's sufficiently higher than current page number
         # print(chapter)
+        if type(chapter_page_num) == str:
+            chapter_page_num = 0
+        
         print(f"Page num: {page_num} Chapter page num: {chapter_page_num} Next chapter page num: {next_chapter_page_num}")
         
         # if previous_chapter_page_num == 0 and chapter_page_num > overall_page_num:
@@ -819,8 +912,12 @@ def get_chapter_from_page_num(chapters, page_num, for_sections=False):
         #     front_matter["part_num"] = 0
         #     front_matter["page_num"] = 0
         # print(f"Type of chapter page num: {type(chapter_page_num)}. Type of page num: {type(page_num)} Type of next chapter page num: {type(next_chapter_page_num)}")
+        # if type(page_num) != str:
+        
         if chapter_page_num <= page_num and next_chapter_page_num > page_num:
             return chapter
+        # else:
+        #     return chapter
 
 def get_actual_page_num(chapter_page_num, page_data):
     # if type(chapter_page_num) == int:
@@ -1050,6 +1147,8 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
         if chapter_type == "poem" or chapter_type == "short story" or chapter_type == "essay":
             toc_link = f"[[{mainspace_work_title}/{chapter_title}|{chapter_title}]]"
         
+        chapter_contributor = chapter["contributor"]
+
         if toc_format:
             toc_row = toc_format
 
@@ -1058,6 +1157,7 @@ def generate_toc(chapters, mainspace_work_title, toc_format, toc_is_auxiliary, p
                 "cnam": toc_link,
                 "cpre": chapter_prefix.upper() if chapter_prefix else "", # just in case prefix is put into the toc, but usually it isn't
                 "pnum": str(page_num),
+                "ccon": f"[[Author:{chapter_contributor}|]]" if chapter_contributor else "",
             }
             
             toc_row = format_form_tag(toc_row, replacements)
@@ -1223,7 +1323,7 @@ def format_arbitrary_drop_inital(page, image_data, img_num):
         image_extension = image["extension"]
         image_letter = image["letter"]
         image_filename = image_title + "." + image_extension
-        replacement = f"{{{{di|{image_letter}|image={image_filename}}}}}"
+        replacement = f"{{{{di|{image_letter}|image={image_filename}}}}}" # DROP INITIAL IMAGE SIZE HANDLED IN CSS
 
         content = re.sub(drop_initial_image_pattern, replacement, content)
         img_num += 1
@@ -1410,6 +1510,11 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
             overall_chapter_num_zero_indexed = overall_chapter_num - 1
             chapter = chapters[overall_chapter_num_zero_indexed]
 
+            chapter_header_is_invisible = chapter["header_invisible"]
+
+            if chapter_header_is_invisible:
+                content = replace_line(content, "", line_num)
+            
             # chapter_type = chapter["type"]
 
             roman_chapter_num = ""
@@ -1437,6 +1542,7 @@ def convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format,
                 chapter_prefix += " "
             else:
                 chapter_prefix = ""
+
             chapter_title = chapter["display_title"]
             chapter_has_sections = chapter["has_sections"]
 
@@ -1520,7 +1626,12 @@ def convert_section_headers(page, sections, overall_section_num, section_format,
         overall_section_num += 1
 
         overall_section_num_zero_indexed = overall_section_num - 1
-        section = sections[overall_section_num_zero_indexed]
+        try:
+            section = sections[overall_section_num_zero_indexed]
+        except Exception as e:
+            print(f"WELP, we got an error: {e}. Let's just see what happens when we say, fuck it.")
+            input()
+            return overall_section_num, page
 
         real_section_num = section["section_num"]
         roman_section_num = roman.toRoman(real_section_num)
@@ -2146,7 +2257,7 @@ def convert_simple_markup(content, abbreviation, template):
 
     abbreviation = get_plain_tag(abbreviation)
 
-    if string_not_in_content(content, abbreviation, f"Replacing {abbreviation} with {template} in transcription"):
+    if string_not_in_content(content, abbreviation,  f"Replacing {abbreviation} with {template} in transcription"):
         return content
 
     if abbreviation == "/-/":
@@ -2509,7 +2620,7 @@ def handle_hyphenated_word_continuations(page, hyphenated_word_continuations, pa
 
 ################################## parse pages ##################################
 
-def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter):
+def parse_transcription_pages(page_data, image_data, transcription_text, chapters, sections, mainspace_work_title, title, toc, chapter_format, section_format, chapter_beginning_formatting, drop_initials_float_quotes, convert_fqms, page_break_string, chapter_type, section_type, illustrations, work_type_name, first_section_automatically_after_chapter, is_transclusion_sectioned):
     print("Parsing QT markup into wiki markup...")
     new_page_data = []
     img_num = 0
@@ -2522,6 +2633,7 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
     inline_continuations = []
     reference_continuations = []
     hyphenated_word_continuations = []
+    section_transclusion_continuations = []
     chapter_half_is_in_work = check_if_chapter_half_in_work(transcription_text)
     for page in page_data:
         page_num = page["page_num"]
@@ -2565,6 +2677,9 @@ def parse_transcription_pages(page_data, image_data, transcription_text, chapter
         page = add_illustrations_to_transcription(page, illustrations)
         overall_chapter_num, page = convert_chapter_headers(page, chapters, overall_chapter_num, chapter_format, chapter_type, chapter_half_is_in_work, first_section_automatically_after_chapter)
         overall_section_num, page = convert_section_headers(page, sections, overall_section_num, section_format, section_type)
+        if is_transclusion_sectioned:
+            page = add_section_transclusion_tags(page, chapters, overall_chapter_num)
+            print("AM I EVEN GETTING HERE")
 
         page = remove_split_tag(page)
 

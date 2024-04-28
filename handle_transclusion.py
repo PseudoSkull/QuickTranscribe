@@ -3,7 +3,7 @@
 import pywikibot
 import re
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
-from handle_wikidata import get_value_from_property
+from handle_wikidata import get_value_from_property, get_author_death_year, get_wikidata_item_from_wikisource
 from edit_mw import save_page, get_english_plural, has_digits, linkify, get_title_hierarchy, get_current_pd_cutoff_year
 import json
 
@@ -41,6 +41,8 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Autobiographies"
         if genre == "biography":
             category = "Biographies"
+        elif genre == "captivity":
+            category = "Captivity narratives"
         if genre == "children's" or genre == "children":
             category = "Children's books"
         if genre == "gen" or genre == "genealogy":
@@ -58,6 +60,9 @@ def generate_genre_categories(genre_name, work_type_name):
             category = "Non-fiction books"
         elif genre == "Christian":
             category = "Christian literature"
+        elif genre == "satire":
+            if work_type_name == "novel":
+                category = "Satirical novels"
         elif genre == "western":
             category = "Western fiction"
         if type(category) == str:
@@ -105,12 +110,18 @@ def generate_type_category(work_type_name, country):
         work_type_plural = get_english_plural(work_type_name)
         type_category = f"{demonym} {work_type_plural}"
 
+    if work_type_name == "ssa" or work_type_name == "short story anthology":
+        type_category = "Anthologies of short stories"
     if work_type_name == "ssc" or work_type_name == "short story collection":
         type_category = "Collections of short stories"
     elif work_type_name == "pc" or work_type_name == "poetry collection":
         type_category = "Collections of poetry"
+    if work_type_name == "pa" or work_type_name == "poetry anthology":
+        type_category = "Anthologies of poetry"
     elif work_type_name == "ec" or work_type_name == "essay collection":
         type_category = "Collections of essays"
+    if work_type_name == "ea" or work_type_name == "essay anthology":
+        type_category = "Anthologies of essays"
     elif work_type_name == "diary":
         type_category = "Journals"
     
@@ -305,7 +316,7 @@ def get_last_roman_page_num(page_data):
         if iterating_roman_pages and page_format != "roman":
             return page_num - 1
 
-def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False, chapter_format=None):
+def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter=None, first_content_page=None, front_matter=False, chapter_format=None, transclusion_is_sectioned=False):
     # splits = []
     if front_matter:
         chapter_start = 1
@@ -330,6 +341,12 @@ def get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, ch
                 else:
                     chapter_end_page = next_chapter["page_num"]
                     chapter_end = get_actual_page_num(chapter_end_page, page_data, chapter_format=chapter_format) - 1
+                try:
+                    next_chapter_sectioned_at_beginning = next_chapter["sectioned_at_beginning"]
+                    if transclusion_is_sectioned and not next_chapter_sectioned_at_beginning:
+                        chapter_end += 1
+                except:
+                    pass
         # if not chapter_end:
         except IndexError:
             chapter_end = get_last_page(page_data, chapter_start)
@@ -444,12 +461,13 @@ def generate_chapter_categories(chapter):
     return categories
 
 
-def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name):
+def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name, transclusion_is_sectioned, original_year, current_year):
     number_of_chapters = len(chapters)
     part_prefix = None
     for overall_chapter_num, chapter in enumerate(chapters):
         chapter_prefix = chapter["prefix"]
         part_num = chapter["part_num"]
+        copyright_template = ""
         if chapter_prefix == "Book" or chapter_prefix == "Part":
             part_prefix = chapter_prefix
         dots_to_front_matter = "../"
@@ -460,10 +478,18 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         title_display = f"[[{dots_to_front_matter}|{title}]]" # for now, would change if the chapter is a subsubsection
         previous_chapter_display, next_chapter_display = generate_chapter_links(overall_chapter_num, chapter, chapters, chapters_are_subpages_of_parts)
         chapter_format = chapter["format"]
-        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter, chapter_format=chapter_format)
+        chapter_transclusion_tags = get_transclusion_tags(chapters, page_data, overall_chapter_num, filename, chapter, transclusion_is_sectioned=transclusion_is_sectioned, chapter_format=chapter_format)
         chapter_name = chapter["title"]
         chapter_num = chapter["chapter_num"]
         chapter_type = chapter["type"]
+        section_translator = chapter["translator"]
+        section_translator_display = ""
+        if section_translator:
+            section_translator_display = f"""
+ | section-translator = {section_translator}"""
+        else:
+            section_translator_display = ""
+
         if chapter_type == "front-matter chapter":
             continue
     
@@ -487,10 +513,23 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
  | related_author = {related_author}"""
         else:
             related_author_display = ""
-        
+
+        contributor = chapter["contributor"]
+
+        if contributor:
+            contributor_display = f"""
+ | contributor = {contributor}"""
+        else:
+            contributor_display = ""
+
         if chapter_type == "short story" or chapter_type == "poem" or chapter_type == "essay":
             chapter_internal_name = chapter_name
             authority_control = "\n\n\n{{authority control}}"
+            if "anthology" in work_type_name:
+                contributor = chapter["contributor"]
+                subwork_author_item = get_wikidata_item_from_wikisource("Author:"+contributor)
+                subwork_author_death_year = get_author_death_year(subwork_author_item)
+                copyright_template = "\n{{" + generate_copyright_template(original_year, subwork_author_death_year, current_year) + "}}"
         else:
             if chapter_type == "part":
                 chapter_internal_name = f"{chapter_prefix} {part_num}"
@@ -530,6 +569,10 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
         if chapter_internal_name == "Chapter None":
             chapter_internal_name = chapter_name
 
+        if transclusion_is_sectioned:
+            section_name = chapter["section_name"]
+            chapter_transclusion_tags = chapter_transclusion_tags.replace(" />", f" onlysection=\"{section_name}\" />")
+
         chapter_page_title = f"{mainspace_work_title}/{chapter_internal_name}"
         chapter_page = pywikibot.Page(site, chapter_page_title)
         defaultsort = ""
@@ -538,11 +581,11 @@ def transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_
  | author     = {author_header_display}{translator_display}
  | section    = {chapter_name}
  | previous   = {previous_chapter_display}
- | next       = {next_chapter_display}{editor_display}{related_author_display}
+ | next       = {next_chapter_display}{editor_display}{contributor_display}{section_translator_display}{related_author_display}
  | notes      = 
 }}}}{defaultsort}
 
-{chapter_transclusion_tags}{smallrefs}{authority_control}{chapter_categories}"""
+{chapter_transclusion_tags}{smallrefs}{authority_control}{copyright_template}{chapter_categories}"""
         # print(chapter_text)
 
         if chapter_name == chapter_internal_name:
@@ -621,10 +664,17 @@ def check_if_part_title_is_also_a_chapter_title(part_title, chapters):
 
 def generate_copyright_template(year, author_death_year, current_year):
     if year <= get_current_pd_cutoff_year():
-        if (current_year - author_death_year) >= 101:
-            template_name = "PD-old"
+        if author_death_year:
+            if (current_year - author_death_year) >= 101:
+                template_name = "PD-old"
+            else:
+                template_name = f"PD-US|{author_death_year}"
         else:
-            template_name = f"PD-US|{author_death_year}"
+            # PD-old-assumed, if older than 1874
+            if year > (current_year - 151):
+                template_name = "PD-old"
+            else:
+                template_name = "PD-US"
     elif year < 1964:
         template_name = f"PD-US-not-renewed|pubyear={year}|{author_death_year}"
     elif year < 1978:
@@ -633,7 +683,7 @@ def generate_copyright_template(year, author_death_year, current_year):
         template_name = f"PD-US-no-notice-post-1977|{author_death_year}"
     return template_name
 
-def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts):
+def transclude_pages(chapters, page_data, first_page, mainspace_work_title, title, author_WS_name, year, filename, cover_filename, author_death_year, transcription_page_title, original_year, work_type_name, genre_name, country, toc_is_auxiliary, advertising_is_transcluded, current_year, related_author, series_name, editor, translator, derivative_work, transcription_text, chapters_are_subpages_of_parts, transclusion_is_sectioned):
     # author_death_year, transcription_page_title
     site = pywikibot.Site('en', 'wikisource')
     # transclude front matter page
@@ -823,4 +873,4 @@ def transclude_pages(chapters, page_data, first_page, mainspace_work_title, titl
     save_page(front_matter_page, site, front_matter_text, "Transcluding front matter...", transcription_page_title)
 
     if len(chapters) > 0:
-        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name)
+        transclude_chapters(chapters, page_data, page_offset, title, mainspace_work_title, site, transcription_page_title, author_header_display, translator_display, defaultsort, filename, advertising_is_transcluded, editor_display, chapters_are_subpages_of_parts, work_type_name, transclusion_is_sectioned, original_year, current_year)

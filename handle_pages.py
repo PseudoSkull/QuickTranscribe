@@ -165,6 +165,14 @@ def get_page_data(transcription_text, page_break_string=None):
     print_in_green("Page data retrieved!")
     return page_data
 
+def parse_transcluded_sections(content):
+    content = content.replace("<*-", "<section end=\"")
+    content = content.replace("-*>", "\" />")
+    content = content.replace("*>", "\" />")
+    content = content.replace("<*", "<section begin=\"")
+
+    return content
+
 def create_pages(page_data, filename, transcription_page_title, username, page_break_string):
     for page_data_item in page_data:
         page_num = page_data_item["page_num"]
@@ -184,6 +192,8 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
         content = content.replace(f"\n/dedic/", "") # remove page break comment from content, since it's not needed anymore
         content = content.replace(f"/dedic/", "") # remove page break comment from content, since it's not needed anymore
     
+        # THIS has to be done because sections are quite finnicky and placing these directly in the QT transcription userspace page will make it disappear in future views... How that exactly happens or works I have no idea...
+        content = parse_transcluded_sections(content)
 
         site = pywikibot.Site("en", "wikisource")
         page_title = f"Page:{filename}/{page_num}"
@@ -198,12 +208,12 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
 
             # get header and footer from currently existing page
             # Justification: People will probably get upset at me if I REMOVE the headers and footers from pages that already have them...
-            header_match = re.search(r'" \/\>(.+?)\<\/noinclude\>', page_text)
+            header_match = re.search(r'" \/\>([^<].+?)\<\/noinclude\>', current_page_text)
             if header_match:
                 header = header_match.group(1)
                 print_in_yellow(f"HEADER MATCH FOUND: {header}")
 
-            footer_match = re.search(r"\<noinclude\>([^<].+?)\<\/noinclude\>", page_text)
+            footer_match = re.search(r"\<noinclude\>([^<].+?)\<\/noinclude\>", current_page_text)
             if footer_match:
                 footer = footer_match.group(1)
                 print_in_yellow(f"FOOTER MATCH FOUND: {footer}")
@@ -216,7 +226,7 @@ def create_pages(page_data, filename, transcription_page_title, username, page_b
             continue
         else:
             page_text = f"""<noinclude><pagequality level="{page_quality}" user="{username}" />{header}</noinclude>{content}<noinclude>{footer}</noinclude>"""
-            save_page(page, site, page_text, f"Creating page {page_num} in Page namespace...", transcription_page_title)
+            save_page(page, site, page_text, f"Inserting page {page_num} into Page namespace... NOTE: This content was proofread and reviewed by me before insertion.", transcription_page_title)
     print_in_green("All pages added!")
 
 

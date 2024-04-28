@@ -2,7 +2,7 @@
 
 from debug import print_in_green, print_in_red, print_in_yellow, print_in_blue, process_break
 from edit_mw import page_exists, save_page, follow_redirect, remove_template_markup
-from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file, get_wikidata_item_from_wikisource, get_alias, get_label
+from handle_wikidata import add_property, create_wikidata_item, add_description, handle_date, add_wikisource_page_to_item, add_version_to_base_work_item, handle_file, get_wikidata_item_from_wikisource, get_alias, get_label, get_surname_from_author
 from handle_pages import get_marker_from_page_num, get_page_from_page_num
 from handle_redirects import generate_variant_titles, create_redirects
 from handle_disambig import add_to_disambiguation_page
@@ -100,19 +100,25 @@ def get_subwork_data(chapters, page_data, image_data, mainspace_work_title):
                 first_line = None
                 if chapter_type == "poem" or chapter_type == "po":
                     first_line = get_first_line_of_poem(title, page_data, chapters)
+                contributor = chapter["contributor"]
                 related_author = chapter["related_author"]
+                base_work_item = chapter["base_work_item"]
+                translator = chapter["translator"]
                 original_date = str(chapter["original_year"]) if chapter["original_year"] else None
+
 
                 subwork_data = {
                     "title": title,
                     "subtitle": subtitle,
                     "type": chapter_type,
-                    "work_item": None,
+                    "work_item": base_work_item if base_work_item else None,
                     "version_item": None,
                     "image": image,
                     "wikisource_link": wikisource_link,
                     "work_link": None,
                     "first_line": first_line,
+                    "contributor": contributor,
+                    "translator": translator,
                     "related_author": related_author,
                     "original_date": original_date,
                     "status": status,
@@ -191,7 +197,10 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     print(f"WORK ITEM IS {work_item} WHEN ITS CREATED")
     subworks = append_subwork_data(subwork, subworks)
 
-    add_description(item, f'{original_year} {work_type_name} by {author_name}')
+    # add_description(item, f'{original_year} {work_type_name} by {author_name}')
+    # UNCOMMENT ABOVE IF YOU WANT YEARS IN WIKIDATA
+    add_description(item, f"{work_type_name} by {author_name}")
+
 
     literary_work = 'Q7725634'
     english = 'Q1860'
@@ -202,7 +211,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     if main_image_filename:
         add_property(repo, item, 'P18', handle_file(main_image_filename), 'base work main image', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
-    add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
+    # add_property(repo, item, 'P495', country, 'country of origin', transcription_page_title)
     add_property(repo, item, 'P7937', work_type, 'form of creative work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     if subtitle:
@@ -210,7 +219,7 @@ def create_subwork_work_item(subwork, subworks, transcription_page_title, author
     add_property(repo, item, 'P921', related_author_item, 'main subject (related author)', transcription_page_title)
     if named_after_related_author:
         add_property(repo, item, 'P138', related_author_item, 'named after (named after related author)', transcription_page_title)
-    add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
+    # add_property(repo, item, 'P577', handle_date(original_pub_date), 'publication date', transcription_page_title)
     add_property(repo, item, 'P136', genre, 'genre', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     add_property(repo, item, 'P840', narrative_location, 'narrative location (setting)', transcription_page_title)
@@ -262,6 +271,9 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
     version_item = subwork["version_item"]
     main_image_filename = subwork["image"]
     subtitle = subwork["subtitle"]
+    translator = subwork["translator"]
+    if translator:
+        translator = get_wikidata_item_from_wikisource(f"Author:{translator}")
 
     subworks = append_subwork_data(subwork, subworks)
 
@@ -281,6 +293,7 @@ def create_subwork_version_item(subwork, subworks, transcription_page_title, yea
         add_property(repo, item, 'P18', handle_file(main_image_filename), 'version main image', transcription_page_title)
     add_property(repo, item, 'P407', english, 'language', transcription_page_title)
     add_property(repo, item, 'P50', author, 'author', transcription_page_title)
+    add_property(repo, item, 'P655', translator, 'translator', transcription_page_title)
     add_property(repo, item, 'P629', work_item, 'edition of work', transcription_page_title)
     add_property(repo, item, 'P1476', pywikibot.WbMonolingualText(text=title, language='en'), 'title', transcription_page_title)
     if first_line:
@@ -302,6 +315,13 @@ def create_subwork_wikidata_items(subworks, collection_version_item, collection_
 
 
         print(f"Creating Wikidata items for {subwork_title}...")
+        
+        contributor = subwork["contributor"]
+        if contributor:
+            author = contributor
+            author_name = author
+            author = get_wikidata_item_from_wikisource(f"Author:{author}")
+        
         subworks, work_item = create_subwork_work_item(subwork, subworks, transcription_page_title, author_name, author, country, genre, original_pub_date, original_year, narrative_location)
 
         if subwork_title == collection_title:
@@ -327,9 +347,9 @@ def determine_if_disambiguation_page_exists(subwork_title, site):
     variant_titles = generate_variant_titles(subwork_title)
     redirect_titles = variant_titles + [subwork_title]
     disambiguation_template_possibilities = [
-        "{{disambig}}",
+        "{{disambig",
+        "{{dab|",
         "{{dab}}",
-        "{{disambiguation}}",
     ]
     for title in redirect_titles:
         if page_exists(title, site):
@@ -348,6 +368,12 @@ def redirect_and_disambiguate_subworks(subworks, author_surname, original_year, 
         subwork_title = subwork["title"]
         if subwork_title == collection_title:
             continue # for now we're gonna do this manually
+        contributor = subwork["contributor"]
+        if contributor:
+            # author = contributor
+            author_WS_name = contributor
+            author_item = get_wikidata_item_from_wikisource(f"Author:{author_WS_name}")
+            author_surname = get_surname_from_author(author_item)
         subwork_subtitle = subwork["subtitle"]
         first_line = subwork["first_line"]
         work_type_name = subwork["type"]
